@@ -1,0 +1,22 @@
+package com.coalmines.jstately.graph;
+
+/** Defines a transition from one state to another. */
+public interface Transition<TransitionInput> {
+	/** @return State that transition originates from. */
+	State getTail();
+
+	/** @return State that transition transitions to. */
+	State getHead();
+
+	/** @return Optional human-readable description of the transition. */
+	String getDescription();
+
+	/** @param input Input from a state machine used to determine which state (if any) the machine can transition to.
+	 *  @return Whether or not the transition is valid with the given input. */
+	boolean isValid(TransitionInput input);
+
+	/** @return Called by a state machine when transitioning. */
+	void onTransition();
+}
+
+
