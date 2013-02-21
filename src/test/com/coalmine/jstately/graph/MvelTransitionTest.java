@@ -1,10 +1,10 @@
-package com.coalmines.jstately.graph;
+package com.coalmine.jstately.graph;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import com.coalmines.jstately.graph.MvelTransition;
+import com.coalmine.jstately.graph.MvelTransition;
 
 
 

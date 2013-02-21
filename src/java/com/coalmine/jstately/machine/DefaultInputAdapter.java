@@ -1,4 +1,4 @@
-package com.coalmines.jstately.machine;
+package com.coalmine.jstately.machine;
 
 import java.util.LinkedList;
 import java.util.Queue;

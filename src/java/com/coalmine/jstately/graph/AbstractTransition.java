@@ -1,10 +1,10 @@
-package com.coalmines.jstately.graph;
+package com.coalmine.jstately.graph;
 
 import java.util.Arrays;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.coalmines.jstately.util.EqualityUtil;
+import com.coalmine.jstately.util.EqualityUtil;
 
 
 /**

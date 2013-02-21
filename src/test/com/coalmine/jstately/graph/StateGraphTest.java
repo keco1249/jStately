@@ -1,4 +1,4 @@
-package com.coalmines.jstately.graph;
+package com.coalmine.jstately.graph;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -10,12 +10,11 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.coalmines.jstately.graph.DefaultState;
-import com.coalmines.jstately.graph.EqualityTransition;
-import com.coalmines.jstately.graph.State;
-import com.coalmines.jstately.graph.StateGraph;
-import com.coalmines.jstately.graph.Transition;
-import com.google.common.collect.Sets;
+import com.coalmine.jstately.graph.DefaultState;
+import com.coalmine.jstately.graph.EqualityTransition;
+import com.coalmine.jstately.graph.State;
+import com.coalmine.jstately.graph.StateGraph;
+import com.coalmine.jstately.graph.Transition;
 
 
 
@@ -40,13 +39,13 @@ public class StateGraphTest {
 
 		transitionSA = new EqualityTransition<Integer>(stateS,stateA,1);
 		transitionAB = new EqualityTransition<Integer>(stateA,stateB,2);
-		transitionBB = new EqualityTransition<Integer>(stateB,stateB,3);
+		transitionBB = EqualityTransition.selfTransition(stateB,3);
 		transitionBA = new EqualityTransition<Integer>(stateB,stateA,4);
 		transitionAF = new EqualityTransition<Integer>(stateA,stateF,5);
 
 		graph = new StateGraph<Integer>();
-		graph.setStates(Sets.newHashSet(stateS,stateA,stateB,stateF));
-		graph.setTransitions(Sets.newHashSet(transitionSA,transitionAB,transitionBB,transitionBA,transitionAF));
+		graph.setStates(stateS,stateA,stateB,stateF);
+		graph.setTransitions(transitionSA,transitionAB,transitionBB,transitionBA,transitionAF);
 	}
 
 	@Test

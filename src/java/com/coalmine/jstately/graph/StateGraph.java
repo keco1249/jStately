@@ -1,6 +1,4 @@
-package com.coalmines.jstately.graph;
-
-import java.util.Collection;
+package com.coalmine.jstately.graph;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +26,13 @@ public class StateGraph<TransitionInput> {
 	public Set<State> getStates() {
 		return new HashSet<State>(statesByIdentifier.values());
 	}
-	public void setStates(Collection<State> states) {
+	public void setStates(Iterable<State> states) {
+		statesByIdentifier = new HashMap<String, State>();
+		for(State state : states) {
+			statesByIdentifier.put(state.getIdentifier(), state);
+		}
+	}
+	public void setStates(State... states) {
 		statesByIdentifier = new HashMap<String, State>();
 		for(State state : states) {
 			statesByIdentifier.put(state.getIdentifier(), state);
@@ -44,7 +48,13 @@ public class StateGraph<TransitionInput> {
 	public Set<Transition<TransitionInput>> getTransitions() {
 		return new HashSet<Transition<TransitionInput>>(transitionsByTail.values());
 	}
-	public void setTransitions(Collection<Transition<TransitionInput>> transitions) {
+	public void setTransitions(Iterable<Transition<TransitionInput>> transitions) {
+		transitionsByTail = HashMultimap.create(); 
+		for(Transition<TransitionInput> transition : transitions) {
+			transitionsByTail.put(transition.getTail(), transition);
+		}
+	}
+	public void setTransitions(Transition<TransitionInput>... transitions) {
 		transitionsByTail = HashMultimap.create(); 
 		for(Transition<TransitionInput> transition : transitions) {
 			transitionsByTail.put(transition.getTail(), transition);

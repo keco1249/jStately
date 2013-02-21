@@ -1,4 +1,4 @@
-package com.coalmines.jstately.graph;
+package com.coalmine.jstately.graph;
 
 /** Representation of a state in a finite state machine. */
 public interface State {

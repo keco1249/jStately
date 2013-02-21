@@ -1,11 +1,10 @@
-package com.coalmines.jstately.machine;
+package com.coalmine.jstately.machine;
 
 import java.util.Set;
 
-import com.coalmines.jstately.graph.State;
-import com.coalmines.jstately.graph.StateGraph;
-import com.coalmines.jstately.graph.Transition;
-
+import com.coalmine.jstately.graph.State;
+import com.coalmine.jstately.graph.StateGraph;
+import com.coalmine.jstately.graph.Transition;
 
 
 /**
@@ -16,6 +15,12 @@ public class StateMachine<MachineInput,TransitionInput> {
 	protected State											currentState;
 	protected InputAdapter<MachineInput,TransitionInput>	inputProvider;
 
+	public StateMachine() { }
+
+	public StateMachine(StateGraph<TransitionInput> stateGraph, InputAdapter<MachineInput,TransitionInput> inputProvider) {
+		this.stateGraph		= stateGraph;
+		this.inputProvider	= inputProvider;
+	}
 
 	/**
 	 * Initialize the machine to its start state, calling its {@link State#onEnter()} method.

@@ -1,4 +1,4 @@
-package com.coalmines.jstately.machine;
+package com.coalmine.jstately.machine;
 
 /**
  * Used to allow a machine to accept an input of a type other than its graph's transition type.  For instance, perhaps

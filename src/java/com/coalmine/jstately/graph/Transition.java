@@ -1,4 +1,4 @@
-package com.coalmines.jstately.graph;
+package com.coalmine.jstately.graph;
 
 /** Defines a transition from one state to another. */
 public interface Transition<TransitionInput> {

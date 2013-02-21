@@ -1,4 +1,4 @@
-package com.coalmines.jstately.graph;
+package com.coalmine.jstately.graph;
 
 import java.util.Arrays;
 
