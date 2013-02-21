@@ -37,7 +37,7 @@ public class StateGraphTest {
 		stateB = new DefaultState("B");
 		stateF = new DefaultState("F");
 
-		transitionSA = new EqualityTransition<Integer>(stateS,stateA,1);
+		transitionSA = new DisjunctiveEqualityTransition<Integer>(stateS,stateA,1,5000);
 		transitionAB = new EqualityTransition<Integer>(stateA,stateB,2);
 		transitionBB = EqualityTransition.selfTransition(stateB,3);
 		transitionBA = new EqualityTransition<Integer>(stateB,stateA,4);
@@ -103,6 +103,12 @@ public class StateGraphTest {
 		assertEquals(1, transitions.size());
 		assertTrue(transitions.contains(transitionSA));
 
+		// Transition S→A is disjunctive.  Make sure both valid inputs are considered valid.
+		transitions = graph.getValidTransitionsFromTail(stateS,5000);
+		assertNotNull(transitions);
+		assertEquals(1, transitions.size());
+		assertTrue(transitions.contains(transitionSA));
+
 		transitions = graph.getValidTransitionsFromTail(stateA,2);
 		assertNotNull(transitions);
 		assertEquals(1, transitions.size());
@@ -131,6 +137,11 @@ public class StateGraphTest {
 	@Test
 	public void testGetValidStatesFromTail() {
 		Set<State> transitions = graph.getValidStatesFromTail(stateS,1);
+		assertNotNull(transitions);
+		assertEquals(1, transitions.size());
+		assertTrue(transitions.contains(stateA));
+
+		transitions = graph.getValidStatesFromTail(stateS,5000);
 		assertNotNull(transitions);
 		assertEquals(1, transitions.size());
 		assertTrue(transitions.contains(stateA));
@@ -164,6 +175,8 @@ public class StateGraphTest {
 	public void testGetFirstValidTransitionFromTail() {
 		assertEquals(transitionSA,
 				graph.getFirstValidTransitionFromTail(stateS,1));
+		assertEquals(transitionSA,
+				graph.getFirstValidTransitionFromTail(stateS,5000));
 
 		assertEquals(transitionAB,
 				graph.getFirstValidTransitionFromTail(stateA,2));
