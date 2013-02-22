@@ -30,6 +30,5 @@ charts might be worth looking into.
 
 
 Dependencies:
-Apache Commons Lang
 Google Guava
 MVEL (for MvelTransition)

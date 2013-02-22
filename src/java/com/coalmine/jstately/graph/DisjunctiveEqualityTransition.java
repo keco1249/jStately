@@ -42,12 +42,6 @@ public class DisjunctiveEqualityTransition<TransitionInput> extends AbstractTran
 	public boolean isValid(TransitionInput input) {
 		return validityTestObjects.contains(input);
 	}
-
-
-	/** Convenience method for creating a transition to and from the same state. */
-	public static <TransitionInput> DisjunctiveEqualityTransition<TransitionInput> selfTransition(State state, TransitionInput... testObjects) {
-		return new DisjunctiveEqualityTransition<TransitionInput>(state, state, testObjects);
-	}
 }
 
 

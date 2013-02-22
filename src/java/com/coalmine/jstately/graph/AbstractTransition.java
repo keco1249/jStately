@@ -2,14 +2,10 @@ package com.coalmine.jstately.graph;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.builder.ToStringBuilder;
-
 import com.coalmine.jstately.util.EqualityUtil;
 
 
-/**
- * Provides a basic Transition implementation with a head, tail and description but no isValid() method.
- */
+/** Provides a basic Transition implementation with a head, tail and description but no isValid() method. */
 public abstract class AbstractTransition<TransitionInput> implements Transition<TransitionInput> {
 	protected String	description;
 	protected State		head;
@@ -67,11 +63,6 @@ public abstract class AbstractTransition<TransitionInput> implements Transition<
 	@Override
 	public int hashCode() {
 		return Arrays.asList(tail, head).hashCode();
-	}
-
-	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
 	}
 }
 

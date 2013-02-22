@@ -1,9 +1,6 @@
 package com.coalmine.jstately.graph;
 
-import java.util.Arrays;
-
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import com.coalmine.jstately.util.EqualityUtil;
 
 /**
  * Basic implementation of State with getters and setters for identifier, description and
@@ -65,14 +62,11 @@ public class DefaultState implements State {
 
 
 	@Override
-	public String toString() {
-		return ToStringBuilder.reflectionToString(this);
-	}
-
-	@Override
 	public boolean equals(Object obj) {
-		// Ignore everything but identifier when comparing
-		return EqualsBuilder.reflectionEquals(this, obj, Arrays.asList("description","acceptState"));
+		if(obj instanceof State) {
+			return EqualityUtil.objectsAreEqual(identifier, ((State)obj).getIdentifier());
+		}
+		return false;
 	}
 
 	@Override

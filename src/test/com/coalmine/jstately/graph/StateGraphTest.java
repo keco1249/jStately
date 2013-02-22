@@ -39,7 +39,7 @@ public class StateGraphTest {
 
 		transitionSA = new DisjunctiveEqualityTransition<Integer>(stateS,stateA,1,5000);
 		transitionAB = new EqualityTransition<Integer>(stateA,stateB,2);
-		transitionBB = EqualityTransition.selfTransition(stateB,3);
+		transitionBB = new EqualitySelfTransition<Integer>(stateB,3);
 		transitionBA = new EqualityTransition<Integer>(stateB,stateA,4);
 		transitionAF = new EqualityTransition<Integer>(stateA,stateF,5);
 
