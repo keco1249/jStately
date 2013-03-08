@@ -1,7 +1,8 @@
-package com.coalmine.jstately.graph;
+package com.coalmine.jstately.graph.transition;
 
 import java.util.Set;
 
+import com.coalmine.jstately.graph.state.State;
 import com.google.common.collect.Sets;
 
 /** Transition implementation that is valid if any one of its <code>testValue</code>s is equal to the transition input. */

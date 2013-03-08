@@ -1,8 +1,7 @@
-package com.coalmine.jstately.graph;
+package com.coalmine.jstately.graph.transition;
 
-import java.util.Arrays;
+import com.coalmine.jstately.graph.state.State;
 
-import com.coalmine.jstately.util.EqualityUtil;
 
 
 /** Provides a basic Transition implementation with a head, tail and description but no isValid() method. */
@@ -49,20 +48,8 @@ public abstract class AbstractTransition<TransitionInput> implements Transition<
 	public void onTransition() { }
 
 
-	@Override
-	public boolean equals(Object obj) {
-		try {
-			Transition<?> transition = (Transition<?>)obj;
-			return EqualityUtil.objectsAreEqual(tail, transition.getTail()) &&
-					EqualityUtil.objectsAreEqual(head, transition.getHead());
-		} catch(ClassCastException e) {
-			return false;
-		}
-	}
-
-	@Override
-	public int hashCode() {
-		return Arrays.asList(tail, head).hashCode();
+	public String toString() {
+		return getClass().getSimpleName()+" [description="+getDescription()+"]";
 	}
 }
 

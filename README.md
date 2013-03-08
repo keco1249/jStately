@@ -30,5 +30,5 @@ charts might be worth looking into.
 
 
 Dependencies:
-Google Guava
-MVEL (for MvelTransition)
+- Google Guava
+- MVEL (for MvelTransition)

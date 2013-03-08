@@ -1,4 +1,4 @@
-package com.coalmine.jstately.graph;
+package com.coalmine.jstately.graph.transition;
 
 import java.io.Serializable;
 

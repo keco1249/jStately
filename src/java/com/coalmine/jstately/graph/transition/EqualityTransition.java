@@ -1,5 +1,6 @@
-package com.coalmine.jstately.graph;
+package com.coalmine.jstately.graph.transition;
 
+import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.util.EqualityUtil;
 
 /**

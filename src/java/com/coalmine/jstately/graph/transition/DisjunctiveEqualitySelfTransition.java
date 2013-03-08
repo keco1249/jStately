@@ -1,6 +1,8 @@
-package com.coalmine.jstately.graph;
+package com.coalmine.jstately.graph.transition;
 
 import java.util.Set;
+
+import com.coalmine.jstately.graph.state.State;
 
 
 public class DisjunctiveEqualitySelfTransition<TransitionInput> extends DisjunctiveEqualityTransition<TransitionInput> {

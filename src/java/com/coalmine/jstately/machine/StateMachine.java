@@ -1,19 +1,21 @@
 package com.coalmine.jstately.machine;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
-import com.coalmine.jstately.graph.State;
 import com.coalmine.jstately.graph.StateGraph;
-import com.coalmine.jstately.graph.Transition;
+import com.coalmine.jstately.graph.state.State;
+import com.coalmine.jstately.graph.transition.Transition;
+import com.coalmine.jstately.machine.listener.StateMachineEventListener;
 
 
-/**
- * Representation of a basic state machine.
- */
+/** Representation of a basic state machine. */
 public class StateMachine<MachineInput,TransitionInput> {
-	protected StateGraph<TransitionInput>					stateGraph;
-	protected State											currentState;
-	protected InputAdapter<MachineInput,TransitionInput>	inputProvider;
+	protected StateGraph<TransitionInput>						stateGraph;
+	protected State												currentState;
+	protected InputAdapter<MachineInput,TransitionInput>		inputProvider;
+	protected List<StateMachineEventListener<TransitionInput>>	eventListeners = new ArrayList<StateMachineEventListener<TransitionInput>>();
 
 	public StateMachine() { }
 
@@ -37,8 +39,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 			throw new IllegalStateException("Start state not defined in graph.");
 		}
 
-		currentState = stateGraph.getStartState();
-		currentState.onEnter();
+		enterState(stateGraph.getStartState());
 	}
 
 	/**
@@ -69,12 +70,12 @@ public class StateMachine<MachineInput,TransitionInput> {
 		boolean inputIgnored = false;
 		inputProvider.queueInput(input);
 		while(inputProvider.hasNext()) {
-			TransitionInput transitionInput=inputProvider.next();
+			TransitionInput transitionInput = inputProvider.next();
 			Transition<TransitionInput> validTransition = getFirstValidTransitionFromCurrentState(transitionInput);
 			if(validTransition==null) {
 				inputIgnored = true;
 			} else {
-				transition(validTransition);
+				transition(validTransition,transitionInput);
 			}
 		}
 
@@ -136,7 +137,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 	 * @throws IllegalArgumentException thrown if the StateMachine has not started or the given Transition does not
 	 * originate at the machine's current state.
 	 */
-	protected void transition(Transition<TransitionInput> transition) {
+	protected void transition(Transition<TransitionInput> transition, TransitionInput input) {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
@@ -144,11 +145,44 @@ public class StateMachine<MachineInput,TransitionInput> {
 			throw new IllegalArgumentException("Transition not allowed from machine's current state.");
 		}
 
-		currentState.onExit();
+		exitState(currentState);
+
+		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+			listener.beforeTransition(transition, input);
+		}
 		transition.onTransition();
-		currentState = transition.getHead();
-		currentState.onEnter();
+		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+			listener.afterTransition(transition, input);
+		}
+
+		enterState(transition.getHead());
 	}
+
+	private void enterState(State newState) {
+		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+			listener.beforeStateEntered(newState);
+		}
+
+		currentState = newState;
+		currentState.onEnter();
+
+		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+			listener.afterStateEntered(newState);
+		}
+	}
+
+	private void exitState(State oldState) {
+		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+			listener.beforeStateExited(oldState);
+		}
+
+		oldState.onExit();
+
+		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+			listener.afterStateExited(oldState);
+		}
+	}
+
 
 	public StateGraph<TransitionInput> getStateGraph() {
 		return stateGraph;
@@ -167,13 +201,18 @@ public class StateMachine<MachineInput,TransitionInput> {
 	public State getCurrentState() {
 		return currentState;
 	}
+
 	/**
 	 * Sets the machine's state without calling any event methods like {@link State#onEnter()} or
-	 * {@link State#onExit()}.  This is mostly for testing.  StateMachine users should generally not
-	 * set the machine's state themselves.
+	 * {@link State#onExit()}.  This is mostly for testing.  API users users should generally avoid
+	 * setting a machine's state themselves.
 	 */
 	public void setCurrentState(State newState) {
 		this.currentState = newState;
+	}
+
+	public void addEventListener(StateMachineEventListener<TransitionInput> eventListener) {
+		eventListeners.add(eventListener);
 	}
 }
 

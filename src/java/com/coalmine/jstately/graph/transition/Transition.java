@@ -1,4 +1,6 @@
-package com.coalmine.jstately.graph;
+package com.coalmine.jstately.graph.transition;
+
+import com.coalmine.jstately.graph.state.State;
 
 /** Defines a transition from one state to another. */
 public interface Transition<TransitionInput> {

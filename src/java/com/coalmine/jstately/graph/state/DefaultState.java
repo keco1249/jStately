@@ -1,4 +1,4 @@
-package com.coalmine.jstately.graph;
+package com.coalmine.jstately.graph.state;
 
 import com.coalmine.jstately.util.EqualityUtil;
 
@@ -59,6 +59,11 @@ public class DefaultState implements State {
 	public void onEnter() { }
 
 	public void onExit() { }
+
+
+	public String toString() {
+		return getClass().getSimpleName()+" [identifier="+getIdentifier()+"]";
+	}
 
 
 	@Override

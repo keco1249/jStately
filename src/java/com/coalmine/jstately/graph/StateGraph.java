@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.coalmine.jstately.graph.state.State;
+import com.coalmine.jstately.graph.transition.Transition;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 

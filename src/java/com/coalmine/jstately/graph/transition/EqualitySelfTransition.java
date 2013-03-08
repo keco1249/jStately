@@ -1,4 +1,6 @@
-package com.coalmine.jstately.graph;
+package com.coalmine.jstately.graph.transition;
+
+import com.coalmine.jstately.graph.state.State;
 
 public class EqualitySelfTransition<TransitionInput> extends EqualityTransition<TransitionInput> {
 	public EqualitySelfTransition() {

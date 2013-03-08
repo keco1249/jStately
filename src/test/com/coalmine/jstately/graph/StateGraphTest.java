@@ -10,12 +10,15 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.coalmine.jstately.graph.DefaultState;
-import com.coalmine.jstately.graph.EqualityTransition;
-import com.coalmine.jstately.graph.State;
-import com.coalmine.jstately.graph.StateGraph;
-import com.coalmine.jstately.graph.Transition;
-
+import com.coalmine.jstately.graph.state.DefaultState;
+import com.coalmine.jstately.graph.state.State;
+import com.coalmine.jstately.graph.transition.DisjunctiveEqualityTransition;
+import com.coalmine.jstately.graph.transition.EqualitySelfTransition;
+import com.coalmine.jstately.graph.transition.EqualityTransition;
+import com.coalmine.jstately.graph.transition.Transition;
+import com.coalmine.jstately.machine.DefaultInputAdapter;
+import com.coalmine.jstately.machine.StateMachine;
+import com.coalmine.jstately.machine.listener.ConsoleStateMachineEventListener;
 
 
 public class StateGraphTest {
@@ -46,6 +49,19 @@ public class StateGraphTest {
 		graph = new StateGraph<Integer>();
 		graph.setStates(stateS,stateA,stateB,stateF);
 		graph.setTransitions(transitionSA,transitionAB,transitionBB,transitionBA,transitionAF);
+		graph.setStartState(stateS);
+	}
+
+	@Test
+	public void testMachine() {
+		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
+		machine.start();
+		machine.addEventListener(new ConsoleStateMachineEventListener<Integer>());
+		machine.evaluateInput(1);
+		machine.evaluateInput(2);
+		machine.evaluateInput(3);
+		machine.evaluateInput(4);
+		machine.evaluateInput(5);
 	}
 
 	@Test
