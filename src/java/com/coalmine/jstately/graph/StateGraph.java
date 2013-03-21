@@ -5,7 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.coalmine.jstately.graph.state.State;
+import com.coalmine.jstately.graph.state.BaseState;
+import com.coalmine.jstately.graph.state.NonFinalState;
 import com.coalmine.jstately.graph.transition.Transition;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -13,38 +14,44 @@ import com.google.common.collect.Multimap;
 
 /** Representation of a <a href="http://en.wikipedia.org/wiki/State_diagram">state graph</a>. */
 public class StateGraph<TransitionInput> {
-	protected State											startState			= null;
-	protected Map<String, State>							statesByIdentifier;
-	protected Multimap<State,Transition<TransitionInput>>	transitionsByTail;
+	protected NonFinalState											startState;
+	protected Map<String,BaseState>									statesByIdentifier;
+	protected Multimap<NonFinalState,Transition<TransitionInput>>	transitionsByTail;
 
 
-	public State getStartState() {
+	public NonFinalState getStartState() {
 		return startState;
 	}
-	public void setStartState(State startState) {
+	public void setStartState(NonFinalState startState) {
 		this.startState = startState;
 	}
 
-	public Set<State> getStates() {
-		return new HashSet<State>(statesByIdentifier.values());
+	public Set<BaseState> getStates() {
+		return new HashSet<BaseState>(statesByIdentifier.values());
 	}
-	public void setStates(Iterable<State> states) {
-		statesByIdentifier = new HashMap<String, State>();
-		for(State state : states) {
+	public void setStates(Iterable<BaseState> states) {
+		statesByIdentifier = new HashMap<String,BaseState>();
+		for(BaseState state : states) {
 			statesByIdentifier.put(state.getIdentifier(), state);
 		}
 	}
-	public void setStates(State... states) {
-		statesByIdentifier = new HashMap<String, State>();
-		for(State state : states) {
+	public void setStates(BaseState... states) {
+		statesByIdentifier = new HashMap<String,BaseState>();
+		for(BaseState state : states) {
 			statesByIdentifier.put(state.getIdentifier(), state);
 		}
 	}
-	public void addState(State state) {
+	public void addState(BaseState state) {
 		if(statesByIdentifier==null) {
-			statesByIdentifier = new HashMap<String, State>();
+			statesByIdentifier = new HashMap<String,BaseState>();
 		}
 		statesByIdentifier.put(state.getIdentifier(), state);
+	}
+
+	/** Convenience method to add a state and immediately set it as the graph's start state. */
+	public void addStartState(NonFinalState state) {
+		addState(state);
+		setStartState(state);
 	}
 
 	public Set<Transition<TransitionInput>> getTransitions() {
@@ -69,19 +76,19 @@ public class StateGraph<TransitionInput> {
 		transitionsByTail.put(transition.getTail(),transition);
 	}
 
-	public Set<Transition<TransitionInput>> getTransitionsFromTail(State tailState) {
+	public Set<Transition<TransitionInput>> getTransitionsFromTail(NonFinalState tailState) {
 		return new HashSet<Transition<TransitionInput>>(transitionsByTail.get(tailState));
 	}
 
-	public Set<State> getStatesFromTail(State tailState) {
-		Set<State> validStates = new HashSet<State>();
+	public Set<BaseState> getStatesFromTail(NonFinalState tailState) {
+		Set<BaseState> validStates = new HashSet<BaseState>();
 		for(Transition<TransitionInput> transition : transitionsByTail.get(tailState)) {
 			validStates.add(transition.getHead());
 		}
 		return validStates;
 	}
 
-	public Set<Transition<TransitionInput>> getValidTransitionsFromTail(State tailState, TransitionInput transitionInput) {
+	public Set<Transition<TransitionInput>> getValidTransitionsFromTail(NonFinalState tailState, TransitionInput transitionInput) {
 		Set<Transition<TransitionInput>> validTransitions = new HashSet<Transition<TransitionInput>>();
 		for(Transition<TransitionInput> transition : transitionsByTail.get(tailState)) {
 			if(transition.isValid(transitionInput)) {
@@ -91,8 +98,8 @@ public class StateGraph<TransitionInput> {
 		return validTransitions;
 	}
 
-	public Set<State> getValidStatesFromTail(State tailState, TransitionInput transitionInput) {
-		Set<State> validStates = new HashSet<State>();
+	public Set<BaseState> getValidStatesFromTail(NonFinalState tailState, TransitionInput transitionInput) {
+		Set<BaseState> validStates = new HashSet<BaseState>();
 		for(Transition<TransitionInput> transition : transitionsByTail.get(tailState)) {
 			if(transition.isValid(transitionInput)) {
 				validStates.add(transition.getHead());
@@ -101,7 +108,7 @@ public class StateGraph<TransitionInput> {
 		return validStates;
 	}
 
-	public Transition<TransitionInput> getFirstValidTransitionFromTail(State tailState, TransitionInput transitionInput) {
+	public Transition<TransitionInput> getFirstValidTransitionFromTail(NonFinalState tailState, TransitionInput transitionInput) {
 		for(Transition<TransitionInput> transition : transitionsByTail.get(tailState)) {
 			if(transition.isValid(transitionInput)) {
 				return transition;

@@ -30,7 +30,7 @@ public class MvelTransition<TransitionInput> extends AbstractTransition<Transiti
 	}
 
 	@Override
-	public void onTransition() {
+	public void onTransition(TransitionInput input) {
 		if(compiledTransitionExpression!=null) {
 			MVEL.executeExpression(compiledValidityExpression);
 		}

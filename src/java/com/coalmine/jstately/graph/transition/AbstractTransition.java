@@ -1,24 +1,24 @@
 package com.coalmine.jstately.graph.transition;
 
-import com.coalmine.jstately.graph.state.State;
+import com.coalmine.jstately.graph.state.NonFinalState;
 
 
 
 /** Provides a basic Transition implementation with a head, tail and description but no isValid() method. */
 public abstract class AbstractTransition<TransitionInput> implements Transition<TransitionInput> {
 	protected String	description;
-	protected State		head;
-	protected State		tail;
+	protected NonFinalState		head;
+	protected NonFinalState		tail;
 
 
 	public AbstractTransition() { }
 
-	public AbstractTransition(State tail, State head) {
+	public AbstractTransition(NonFinalState tail, NonFinalState head) {
 		this.tail = tail;
 		this.head = head;
 	}
 
-	public AbstractTransition(State tail, State head, String description) {
+	public AbstractTransition(NonFinalState tail, NonFinalState head, String description) {
 		this(tail,head);
 		this.description = description;
 	}
@@ -31,25 +31,25 @@ public abstract class AbstractTransition<TransitionInput> implements Transition<
 		this.description = description;
 	}
 
-	public State getHead() {
+	public NonFinalState getHead() {
 		return head;
 	}
-	public void setHead(State head) {
+	public void setHead(NonFinalState head) {
 		this.head = head;
 	}
 
-	public State getTail() {
+	public NonFinalState getTail() {
 		return tail;
 	}
-	public void setTail(State tail) {
+	public void setTail(NonFinalState tail) {
 		this.tail = tail;
 	}
 
-	public void onTransition() { }
+	public void onTransition(TransitionInput input) { }
 
 
 	public String toString() {
-		return getClass().getSimpleName()+" [description="+getDescription()+"]";
+		return getClass().getSimpleName()+"[description="+getDescription()+",tail="+tail.toString()+",head="+head.toString()+"]";
 	}
 }
 

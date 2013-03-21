@@ -1,24 +1,25 @@
 package com.coalmine.jstately.machine.listener;
 
-import com.coalmine.jstately.graph.state.State;
+import com.coalmine.jstately.graph.state.BaseState;
+import com.coalmine.jstately.graph.state.NonFinalState;
 import com.coalmine.jstately.graph.transition.Transition;
 
 
 /** Event listener that logs events to System.out. */
 public class ConsoleStateMachineEventListener<TransitionInput> implements StateMachineEventListener<TransitionInput> {
-	public void beforeStateEntered(State state) {
+	public void beforeStateEntered(BaseState state) {
 		System.out.println("Before state ("+state+") entered");
 	}
 
-	public void afterStateEntered(State state) {
+	public void afterStateEntered(BaseState state) {
 		System.out.println("After state ("+state+") entered");
 	}
 
-	public void beforeStateExited(State state) {
+	public void beforeStateExited(NonFinalState state) {
 		System.out.println("Before state ("+state+") exited");
 	}
 
-	public void afterStateExited(State state) {
+	public void afterStateExited(NonFinalState state) {
 		System.out.println("After state ("+state+") exited");
 		
 	}

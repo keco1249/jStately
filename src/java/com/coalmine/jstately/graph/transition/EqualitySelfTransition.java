@@ -1,17 +1,17 @@
 package com.coalmine.jstately.graph.transition;
 
-import com.coalmine.jstately.graph.state.State;
+import com.coalmine.jstately.graph.state.NonFinalState;
 
 public class EqualitySelfTransition<TransitionInput> extends EqualityTransition<TransitionInput> {
 	public EqualitySelfTransition() {
 		super();
 	}
 
-	public EqualitySelfTransition(State state, TransitionInput validityTestObject) {
+	public EqualitySelfTransition(NonFinalState state, TransitionInput validityTestObject) {
 		super(state,state,validityTestObject);
 	}
 
-	public EqualitySelfTransition(State state, TransitionInput validityTestObject, String description) {
+	public EqualitySelfTransition(NonFinalState state, TransitionInput validityTestObject, String description) {
 		super(state, state, validityTestObject, description);
 	}
 }

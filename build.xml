@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="jStately" default="all" basedir=".">
+	<description>ANT build for jStately</description>
+
+	<target name="all" depends="clean,test,jar" />
+
+	<target name="clean" depends="properties" description="Removes generated files and directories that may interfere with a new build">
+		<delete dir="${project.build.dir}" />
+		<delete dir="${project.target.dir}" />
+	</target>
+
+	<target name="jar" depends="properties,compile" description="Build the project into a JAR">
+		<mkdir dir="${project.target.dir}" />
+		<jar jarfile="${jar.filepath}" basedir="${project.build.dir}" includes="**/*.class" excludes="**/*Test.class,**/*Test$*.class" />
+	</target>
+
+	<target name="compile" depends="properties" description="Compile Java source including tests">
+		<mkdir dir="${project.build.dir}" />
+		<javac fork="yes"
+				srcdir="${project.src.java.dir}${path.separator}${project.src.test.dir}"
+				destdir="${project.build.dir}"
+				classpathref="compile.classpath"
+				source="1.6"
+				target="1.6"
+				includeAntRuntime="no" />
+	</target>
+
+	<target name="test" depends="properties,compile" description="Run all JUnit tests in the project and generate a report.">
+		<delete dir="${project.test.report.dir}" quiet="true" />
+		<mkdir dir="${project.test.output.dir}" />
+
+		<junit printsummary="true" filtertrace="true" fork="true" >
+			<classpath refid="test.classpath" />
+			<formatter type="xml" usefile="true" />
+			<batchtest todir="${project.test.output.dir}" >
+				<fileset dir="${project.build.dir}" includes="**/*Test.class" />
+			</batchtest>
+		</junit>
+		<junitreport todir="${project.test.output.dir}">
+			<fileset dir="${project.test.output.dir}" includes="TEST-*.xml" />
+			<report format="frames" todir="${project.test.html.dir}" />
+		</junitreport>
+	</target>
+
+	<target name="properties" description="Set the necessary properties for things like classpaths.">
+		<property file="project.properties" />
+
+		<!-- Compile class path - includes all JAR's in the lib directory, including ones that aren't deployed for runtime use. -->
+		<path id="compile.classpath">
+			<fileset dir="${project.lib.dir}" includes="**/*.jar" />
+		</path>
+		<pathconvert property="compile.classpath" refid="compile.classpath" pathsep=" " />
+
+		<!-- Runtime classpath - includes only JAR's meant to be availavle at runtime, from the lib/runtime directory -->
+		<path id="runtime.classpath">
+			<fileset dir="${project.lib.runtime.dir}" includes="**/*.jar"/>
+		</path>
+		<pathconvert property="runtime.classpath" refid="runtime.classpath" pathsep=" ">
+			<map from="${project.lib.runtime.dir}${file.separator}" to="" /> <!-- Used instead of a <flattenmapper /> to prevent JAR's outside of the runtime lib directory (shared common JARs) from having their path stripped off. -->
+			<map  from="C:" to="" /> <!-- Strip the drive letter when building on Windows - for some unknown reason, that prevents Java from finding the projects main class. Maybe because C: looks too much like the protocol part of a URL? -->
+		</pathconvert>
+
+		<!-- Classpath for JUnit testing -->
+		<path id="test.classpath">
+			<fileset dir="${project.lib.dir}" includes="junit*.jar,hamcrest*.jar" />
+			<path refid="runtime.classpath" />
+			<path location="${project.build.dir}" />
+		</path>
+		<pathconvert property="test.classpath" refid="test.classpath" pathsep=" " />
+
+		<echo message="Build classpath: ${compile.classpath}" />
+		<echo message="Runtime classpath: ${runtime.classpath}" />
+		<echo message="Test classpath: ${test.classpath}" />
+	</target>
+</project>
+
+

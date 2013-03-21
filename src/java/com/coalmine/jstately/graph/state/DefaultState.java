@@ -6,10 +6,9 @@ import com.coalmine.jstately.util.EqualityUtil;
  * Basic implementation of State with getters and setters for identifier, description and
  * acceptState. The onEnter() and onExit() methods do nothing and can be overridden as needed.
  */
-public class DefaultState implements State {
+public class DefaultState implements NonFinalState {
 	private String	identifier;
 	private String	description;
-	private boolean	acceptState	= false;
 
 
 	public DefaultState() { }
@@ -18,20 +17,9 @@ public class DefaultState implements State {
 		this.identifier = identifier;
 	}
 
-	public DefaultState(String identifier, boolean acceptState) {
-		this.identifier		= identifier;
-		this.acceptState	= acceptState;
-	}
-
 	public DefaultState(String identifier, String description) {
 		this.identifier		= identifier;
 		this.description	= description;
-	}
-
-	public DefaultState(String identifier, String description, boolean acceptState) {
-		this.identifier		= identifier;
-		this.description	= description;
-		this.acceptState	= acceptState;
 	}
 
 
@@ -49,27 +37,20 @@ public class DefaultState implements State {
 		this.description = description;
 	}
 
-	public boolean isAcceptState() {
-		return acceptState;
-	}
-	public void setAcceptState(boolean acceptState) {
-		this.acceptState = acceptState;
-	}
-
 	public void onEnter() { }
 
 	public void onExit() { }
 
 
 	public String toString() {
-		return getClass().getSimpleName()+" [identifier="+getIdentifier()+"]";
+		return getClass().getSimpleName()+"[identifier="+getIdentifier()+"]";
 	}
 
 
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof State) {
-			return EqualityUtil.objectsAreEqual(identifier, ((State)obj).getIdentifier());
+		if(obj instanceof NonFinalState) {
+			return EqualityUtil.objectsAreEqual(identifier, ((NonFinalState)obj).getIdentifier());
 		}
 		return false;
 	}

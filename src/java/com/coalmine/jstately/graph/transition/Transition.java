@@ -1,14 +1,15 @@
 package com.coalmine.jstately.graph.transition;
 
-import com.coalmine.jstately.graph.state.State;
+import com.coalmine.jstately.graph.state.BaseState;
+import com.coalmine.jstately.graph.state.NonFinalState;
 
 /** Defines a transition from one state to another. */
 public interface Transition<TransitionInput> {
 	/** @return State that transition originates from. */
-	State getTail();
+	NonFinalState getTail();
 
 	/** @return State that transition transitions to. */
-	State getHead();
+	BaseState getHead();
 
 	/** @return Optional human-readable description of the transition. */
 	String getDescription();
@@ -17,8 +18,9 @@ public interface Transition<TransitionInput> {
 	 *  @return Whether or not the transition is valid with the given input. */
 	boolean isValid(TransitionInput input);
 
-	/** @return Called by a state machine when transitioning. */
-	void onTransition();
+	/** Called by a state machine when transitioning.
+	 * @param input Input that caused the transition. */
+	void onTransition(TransitionInput input);
 }
 
 
