@@ -10,9 +10,8 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.coalmine.jstately.graph.state.BaseState;
+import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.state.DefaultState;
-import com.coalmine.jstately.graph.state.NonFinalState;
 import com.coalmine.jstately.graph.transition.DisjunctiveEqualityTransition;
 import com.coalmine.jstately.graph.transition.EqualitySelfTransition;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
@@ -24,7 +23,7 @@ import com.coalmine.jstately.machine.listener.ConsoleStateMachineEventListener;
 
 public class StateGraphTest {
 	private static StateGraph<Integer> graph;
-	private static NonFinalState stateS,stateA,stateB,stateF;
+	private static State<Integer> stateS,stateA,stateB,stateF;
 	private static Transition<Integer> transitionSA,transitionAB,transitionBB,transitionBA,transitionAF;
 
 	@SuppressWarnings("unchecked")
@@ -36,10 +35,10 @@ public class StateGraphTest {
 		//     ↓
 		//     F
 
-		stateS = new DefaultState("S");
-		stateA = new DefaultState("A");
-		stateB = new DefaultState("B");
-		stateF = new DefaultState("F");
+		stateS = new DefaultState<Integer>("S");
+		stateA = new DefaultState<Integer>("A");
+		stateB = new DefaultState<Integer>("B");
+		stateF = new DefaultState<Integer>("F");
 
 		transitionSA = new DisjunctiveEqualityTransition<Integer>(stateS,stateA,1,5000);
 		transitionAB = new EqualityTransition<Integer>(stateA,stateB,2);
@@ -91,7 +90,7 @@ public class StateGraphTest {
 
 	@Test
 	public void testGetStatesFromTail() {
-		Set<BaseState> transitions = graph.getStatesFromTail(stateS);
+		Set<State<Integer>> transitions = graph.getStatesFromTail(stateS);
 		assertNotNull(transitions);
 		assertEquals(1, transitions.size());
 		assertTrue(transitions.contains(stateA));
@@ -153,7 +152,7 @@ public class StateGraphTest {
 
 	@Test
 	public void testGetValidStatesFromTail() {
-		Set<BaseState> transitions = graph.getValidStatesFromTail(stateS,1);
+		Set<State<Integer>> transitions = graph.getValidStatesFromTail(stateS,1);
 		assertNotNull(transitions);
 		assertEquals(1, transitions.size());
 		assertTrue(transitions.contains(stateA));

@@ -6,23 +6,23 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.coalmine.jstately.graph.StateGraph;
-import com.coalmine.jstately.graph.state.CompositeState;
+import com.coalmine.jstately.graph.state.State;
+import com.coalmine.jstately.graph.state.DefaultCompositeState;
 import com.coalmine.jstately.graph.state.DefaultFinalState;
 import com.coalmine.jstately.graph.state.DefaultState;
-import com.coalmine.jstately.graph.state.NonFinalState;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
 import com.coalmine.jstately.machine.listener.ConsoleStateMachineEventListener;
 
 public class CompositeStateTest {
 	private static StateGraph<Integer> outerGraph;
-	private static NonFinalState outerStart;
-	private static CompositeState<Integer> outerComposite;
-	private static NonFinalState outerSuccess;
+	private static State<Integer> outerStart;
+	private static DefaultCompositeState<Integer> outerComposite;
+	private static State<Integer> outerSuccess;
 
 	private static StateGraph<Integer> innerGraph;
-	private static NonFinalState innerAState;
-	private static NonFinalState innerBState;
-	private static NonFinalState innerCState;
+	private static State<Integer> innerAState;
+	private static State<Integer> innerBState;
+	private static State<Integer> innerCState;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -32,21 +32,21 @@ public class CompositeStateTest {
 		// S → |_A_→_B_→_C_| → S
 
 		innerGraph = new StateGraph<Integer>();
-		innerGraph.addStartState(innerAState = new DefaultState("A"));
+		innerGraph.addStartState(innerAState = new DefaultState<Integer>("A"));
 
-		innerGraph.addState(innerBState = new DefaultState("B"));
+		innerGraph.addState(innerBState = new DefaultState<Integer>("B"));
 		innerGraph.addTransition(new EqualityTransition<Integer>(innerAState, innerBState, 100));
 
 		innerGraph.addState(innerCState = new DefaultFinalState<Integer>("C",2));
 		innerGraph.addTransition(new EqualityTransition<Integer>(innerBState, innerCState, 200));
 
 		outerGraph = new StateGraph<Integer>();
-		outerGraph.addStartState(outerStart = new DefaultState("Start"));
+		outerGraph.addStartState(outerStart = new DefaultState<Integer>("Start"));
 
-		outerGraph.addState(outerComposite = new CompositeState<Integer>("Composite State", innerGraph));
+		outerGraph.addState(outerComposite = new DefaultCompositeState<Integer>("Composite State", innerGraph));
 		outerGraph.addTransition(new EqualityTransition<Integer>(outerStart, outerComposite, 1));
 
-		outerGraph.addState(outerSuccess = new DefaultState("Success"));
+		outerGraph.addState(outerSuccess = new DefaultState<Integer>("Success"));
 		outerGraph.addTransition(new EqualityTransition<Integer>(outerComposite, outerSuccess, 2));
 	}
 

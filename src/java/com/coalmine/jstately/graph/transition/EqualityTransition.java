@@ -1,6 +1,6 @@
 package com.coalmine.jstately.graph.transition;
 
-import com.coalmine.jstately.graph.state.NonFinalState;
+import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.util.EqualityUtil;
 
 /**
@@ -13,13 +13,13 @@ public class EqualityTransition<TransitionInput> extends AbstractTransition<Tran
 
 	public EqualityTransition() { }
 
-	public EqualityTransition(NonFinalState tail, NonFinalState head, TransitionInput validityTestObject) {
+	public EqualityTransition(State<TransitionInput> tail, State<TransitionInput> head, TransitionInput validityTestObject) {
 		this.tail				= tail;
 		this.head				= head;
 		this.validityTestObject	= validityTestObject;
 	}
 
-	public EqualityTransition(NonFinalState tail, NonFinalState head, TransitionInput validityTestObject, String description) {
+	public EqualityTransition(State<TransitionInput> tail, State<TransitionInput> head, TransitionInput validityTestObject, String description) {
 		this.tail				= tail;
 		this.head				= head;
 		this.validityTestObject	= validityTestObject;

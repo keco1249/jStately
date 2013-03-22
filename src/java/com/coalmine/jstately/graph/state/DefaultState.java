@@ -6,7 +6,7 @@ import com.coalmine.jstately.util.EqualityUtil;
  * Basic implementation of State with getters and setters for identifier, description and
  * acceptState. The onEnter() and onExit() methods do nothing and can be overridden as needed.
  */
-public class DefaultState implements NonFinalState {
+public class DefaultState<TransitionInput> implements State<TransitionInput> {
 	private String	identifier;
 	private String	description;
 
@@ -47,10 +47,11 @@ public class DefaultState implements NonFinalState {
 	}
 
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof NonFinalState) {
-			return EqualityUtil.objectsAreEqual(identifier, ((NonFinalState)obj).getIdentifier());
+		if(obj instanceof State) {
+			return EqualityUtil.objectsAreEqual(identifier, ((State)obj).getIdentifier());
 		}
 		return false;
 	}

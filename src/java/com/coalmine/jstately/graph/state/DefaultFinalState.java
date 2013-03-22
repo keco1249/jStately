@@ -1,7 +1,7 @@
 package com.coalmine.jstately.graph.state;
 
 
-public class DefaultFinalState<Result> extends DefaultState implements FinalState<Result> {
+public class DefaultFinalState<Result> extends DefaultState<Result> implements FinalState<Result> {
 	Result result;
 
 	public DefaultFinalState() {
@@ -19,7 +19,7 @@ public class DefaultFinalState<Result> extends DefaultState implements FinalStat
 	}
 
 	@Override
-	public Result getOutput() {
+	public Result getResult() {
 		return result;
 	}
 	public void setResult(Result result) {

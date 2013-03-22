@@ -1,9 +1,8 @@
 package com.coalmine.jstately.graph.state;
 
-/** Base representation of a state without methods that are specific to a final or non-final state.
- * @see FinalState
- * @see NonFinalState */
-public interface BaseState {
+/** Base representation of a state.
+ * @see FinalState */
+public interface State<TransitionInput> {
 	/** @return A String that uniquely identifies a state in a machine. */
 	String getIdentifier();
 
@@ -12,6 +11,9 @@ public interface BaseState {
 
 	/** Called by a state machine when the machine enters the state. */
 	void onEnter();
+
+	/** Called by a state machine when the machine exits the state. */
+	void onExit();
 }
 
 

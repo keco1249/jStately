@@ -2,7 +2,7 @@ package com.coalmine.jstately.graph.transition;
 
 import java.util.Set;
 
-import com.coalmine.jstately.graph.state.NonFinalState;
+import com.coalmine.jstately.graph.state.State;
 import com.google.common.collect.Sets;
 
 /** Transition implementation that is valid if any one of its <code>testValue</code>s is equal to the transition input. */
@@ -12,24 +12,24 @@ public class DisjunctiveEqualityTransition<TransitionInput> extends AbstractTran
 
 	public DisjunctiveEqualityTransition() { }
 
-	public DisjunctiveEqualityTransition(NonFinalState tail, NonFinalState head, Set<TransitionInput> validityTestObjects) {
+	public DisjunctiveEqualityTransition(State<TransitionInput> tail, State<TransitionInput> head, Set<TransitionInput> validityTestObjects) {
 		this.tail					= tail;
 		this.head					= head;
 		this.validityTestObjects	= validityTestObjects;
 	}
 
-	public DisjunctiveEqualityTransition(NonFinalState tail, NonFinalState head, TransitionInput... validityTestObjects) {
+	public DisjunctiveEqualityTransition(State<TransitionInput> tail, State<TransitionInput> head, TransitionInput... validityTestObjects) {
 		this(tail, head, Sets.newHashSet(validityTestObjects));
 	}
 
-	public DisjunctiveEqualityTransition(NonFinalState tail, NonFinalState head, String description, Set<TransitionInput> validityTestObjects) {
+	public DisjunctiveEqualityTransition(State<TransitionInput> tail, State<TransitionInput> head, String description, Set<TransitionInput> validityTestObjects) {
 		this.tail					= tail;
 		this.head					= head;
 		this.validityTestObjects	= validityTestObjects;
 		this.description			= description;
 	}
 
-	public DisjunctiveEqualityTransition(NonFinalState tail, NonFinalState head, String description, TransitionInput... validityTestObjects) {
+	public DisjunctiveEqualityTransition(State<TransitionInput> tail, State<TransitionInput> head, String description, TransitionInput... validityTestObjects) {
 		this(tail, head, description, Sets.newHashSet(validityTestObjects));
 	}
 

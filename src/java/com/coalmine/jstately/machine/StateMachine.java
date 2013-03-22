@@ -5,10 +5,9 @@ import java.util.List;
 import java.util.Set;
 
 import com.coalmine.jstately.graph.StateGraph;
-import com.coalmine.jstately.graph.state.BaseState;
 import com.coalmine.jstately.graph.state.CompositeState;
 import com.coalmine.jstately.graph.state.FinalState;
-import com.coalmine.jstately.graph.state.NonFinalState;
+import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.Transition;
 import com.coalmine.jstately.machine.listener.StateMachineEventListener;
 
@@ -16,9 +15,11 @@ import com.coalmine.jstately.machine.listener.StateMachineEventListener;
 /** Representation of a basic state machine. */
 public class StateMachine<MachineInput,TransitionInput> {
 	protected StateGraph<TransitionInput>						stateGraph;
-	protected BaseState											currentState;
+	protected State<TransitionInput>							currentState;
 	protected InputAdapter<MachineInput,TransitionInput>		inputProvider;
 	protected List<StateMachineEventListener<TransitionInput>>	eventListeners = new ArrayList<StateMachineEventListener<TransitionInput>>();
+
+	private StateMachine<TransitionInput,TransitionInput>		compositeStateMachine;
 
 	public StateMachine() { }
 
@@ -75,13 +76,12 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 			TransitionInput inputToEvaluate = null;
 			if(currentState instanceof CompositeState) {
-				// If the machine is currently in a composite state, delegate the evaluation of the input
-				CompositeState<TransitionInput> compositeState = (CompositeState<TransitionInput>)currentState;
-				compositeState.evaluateInput(transitionInput);
+				// Delegate the evaluation of the input
+				compositeStateMachine.evaluateInput(transitionInput);
 
 				// If the composite reaches a final state, extract the state's output to evaluate on this graph/machine
-				if(compositeState.getSubState() instanceof FinalState) {
-					inputToEvaluate = ((FinalState<TransitionInput>)compositeState.getSubState()).getOutput();
+				if(compositeStateMachine.getState() instanceof FinalState) {
+					inputToEvaluate = ((FinalState<TransitionInput>)compositeStateMachine.getState()).getResult();
 				}
 			} else {
 				inputToEvaluate = transitionInput;
@@ -100,51 +100,51 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return inputIgnored;
 	}
 
-	public BaseState getSubState() {
-		return currentState instanceof CompositeState? ((CompositeState<TransitionInput>)currentState).getSubState() : null;
+	public State<TransitionInput> getSubState() {
+		return compositeStateMachine==null? null : compositeStateMachine.getState();
 	}
 
 	public Set<Transition<TransitionInput>> getValidTransitionsFromCurrentState(TransitionInput input) {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
-		return currentState instanceof NonFinalState? stateGraph.getValidTransitionsFromTail((NonFinalState)currentState, input) : null;
+		return stateGraph.getValidTransitionsFromTail(currentState, input);
 	}
 
 	public Transition<TransitionInput> getFirstValidTransitionFromCurrentState(TransitionInput input) {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
-		return currentState instanceof NonFinalState? stateGraph.getFirstValidTransitionFromTail((NonFinalState)currentState, input) : null;
+		return stateGraph.getFirstValidTransitionFromTail(currentState, input);
 	}
 
 	public Set<Transition<TransitionInput>> getTransitionsFromCurrentState() {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
-		return currentState instanceof NonFinalState? stateGraph.getTransitionsFromTail((NonFinalState)currentState) : null;
+		return stateGraph.getTransitionsFromTail(currentState);
 	}
 
 	/** @return A collection of states that could potentially be transitioned to from the current state, ignoring whether they are valid. */
-	public Set<BaseState> getStatesFromCurrentState() {
+	public Set<State<TransitionInput>> getStatesFromCurrentState() {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
-		return currentState instanceof NonFinalState? stateGraph.getStatesFromTail((NonFinalState)currentState) : null;
+		return stateGraph.getStatesFromTail(currentState);
 	}
 
 	/** @return A collection of states that could be transitioned to given the provided input. */
-	public Set<BaseState> getValidStatesFromCurrentState(TransitionInput input) {
+	public Set<State<TransitionInput>> getValidStatesFromCurrentState(TransitionInput input) {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
-		return currentState instanceof NonFinalState? stateGraph.getValidStatesFromTail((NonFinalState)currentState,input) : null;
+		return stateGraph.getValidStatesFromTail(currentState,input);
 	}
 
 	/**
-	 * Follows the given transition without checking its validity.  Calls {@link NonFinalState#onExit()} on
+	 * Follows the given transition without checking its validity.  Calls {@link State#onExit()} on
 	 * the current state, followed by {@link Transition#onTransition()} on the given transition,
-	 * followed by {@link NonFinalState#onEnter()} on the machine's updated current state.
+	 * followed by {@link State#onEnter()} on the machine's updated current state.
 	 * @param transition State transition to follow.
 	 * @throws IllegalArgumentException thrown if the StateMachine has not started or the given Transition does not
 	 * originate at the machine's current state.
@@ -170,7 +170,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		enterState(transition.getHead());
 	}
 
-	private void enterState(BaseState newState) {
+	private void enterState(State<TransitionInput> newState) {
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 			listener.beforeStateEntered(newState);
 		}
@@ -178,17 +178,27 @@ public class StateMachine<MachineInput,TransitionInput> {
 		currentState = newState;
 		currentState.onEnter();
 
+		if(currentState instanceof CompositeState) {
+			CompositeState<TransitionInput> compositeState = (CompositeState<TransitionInput>)currentState;
+			compositeStateMachine = new StateMachine<TransitionInput,TransitionInput>(compositeState.getStateGraph(), new DefaultInputAdapter<TransitionInput>());
+			compositeStateMachine.start();
+		}
+
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 			listener.afterStateEntered(newState);
 		}
 	}
 
-	private void exitState(NonFinalState oldState) {
+	private void exitState(State<TransitionInput> oldState) {
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 			listener.beforeStateExited(oldState);
 		}
 
 		oldState.onExit();
+
+		if(oldState instanceof CompositeState) {
+			compositeStateMachine = null;
+		}
 
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 			listener.afterStateExited(oldState);
@@ -210,16 +220,16 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return inputProvider;
 	}
 
-	public BaseState getState() {
+	public State<TransitionInput> getState() {
 		return currentState;
 	}
 
 	/**
-	 * Sets the machine's state without calling any event methods such as {@link NonFinalState#onEnter()}
-	 * or {@link NonFinalState#onExit()}. This is mostly for testing.  API users should generally avoid
+	 * Sets the machine's state without calling any event methods such as {@link State#onEnter()}
+	 * or {@link State#onExit()}. This is mostly for testing.  API users should generally avoid
 	 * setting a machine's state explicitly.
 	 */
-	public void setCurrentState(NonFinalState newState) {
+	public void setCurrentState(State<TransitionInput> newState) {
 		this.currentState = newState;
 	}
 
