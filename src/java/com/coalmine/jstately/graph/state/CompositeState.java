@@ -1,16 +1,14 @@
 package com.coalmine.jstately.graph.state;
 
-import java.util.List;
-
 import com.coalmine.jstately.graph.StateGraph;
 import com.coalmine.jstately.machine.DefaultInputAdapter;
 import com.coalmine.jstately.machine.StateMachine;
-import com.coalmine.jstately.machine.listener.StateMachineEventListener;
+
 
 public class CompositeState<TransitionInput> extends DefaultState {
 	private StateGraph<TransitionInput> stateGraph;
 	private StateMachine<TransitionInput,TransitionInput> stateMachine;
-	List<StateMachineEventListener<TransitionInput>> eventListeners;
+	StateMachine<?,TransitionInput> parentStateMachine;
 
 	public CompositeState() { }
 
@@ -19,7 +17,7 @@ public class CompositeState<TransitionInput> extends DefaultState {
 		this.stateGraph = stateGraph;
 	}
 
-	public CompositeState(String identifier, StateGraph<TransitionInput> stateGraph, List<StateMachineEventListener<TransitionInput>> eventListeners) {
+	public CompositeState(String identifier, StateGraph<TransitionInput> stateGraph, StateMachine<?,TransitionInput> parentStateMachine) {
 		super(identifier);
 		this.stateGraph = stateGraph;
 	}
@@ -32,8 +30,8 @@ public class CompositeState<TransitionInput> extends DefaultState {
 	@Override
 	public void onEnter() {
 		stateMachine = new StateMachine<TransitionInput,TransitionInput>(stateGraph, new DefaultInputAdapter<TransitionInput>());
-		if(eventListeners != null) {
-			stateMachine.setEventListeners(eventListeners); // TODO Not sure I like this.
+		if(parentStateMachine != null) {
+			stateMachine.setEventListeners(parentStateMachine.getEventListeners());
 		}
 		stateMachine.start();
 	}

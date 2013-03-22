@@ -26,7 +26,7 @@ public class EqualityTransition<TransitionInput> extends AbstractTransition<Tran
 		this.description		= description;
 	}
 
-	
+
 	public TransitionInput getValidityTestObject() {
 		return validityTestObject;
 	}

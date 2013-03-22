@@ -46,7 +46,7 @@
 	<target name="properties" description="Set the necessary properties for things like classpaths.">
 		<property file="project.properties" />
 
-		<!-- Compile class path - includes all JAR's in the lib directory, including ones that aren't deployed for runtime use. -->
+		<!-- Compile class path - includes all JAR's in the lib directory, including ones that might be needed only at compile time (like bytecode manipulation libraries.) -->
 		<path id="compile.classpath">
 			<fileset dir="${project.lib.dir}" includes="**/*.jar" />
 		</path>
@@ -58,12 +58,12 @@
 		</path>
 		<pathconvert property="runtime.classpath" refid="runtime.classpath" pathsep=" ">
 			<map from="${project.lib.runtime.dir}${file.separator}" to="" /> <!-- Used instead of a <flattenmapper /> to prevent JAR's outside of the runtime lib directory (shared common JARs) from having their path stripped off. -->
-			<map  from="C:" to="" /> <!-- Strip the drive letter when building on Windows - for some unknown reason, that prevents Java from finding the projects main class. Maybe because C: looks too much like the protocol part of a URL? -->
+			<map  from="C:" to="" /> <!-- Strip the drive letter when building on Windows - for some unknown reason, that prevents Java from finding certain class. Maybe because C: looks too much like the protocol part of a URL? -->
 		</pathconvert>
 
 		<!-- Classpath for JUnit testing -->
 		<path id="test.classpath">
-			<fileset dir="${project.lib.dir}" includes="junit*.jar,hamcrest*.jar" />
+			<fileset dir="${project.lib.dir}" includes="junit*.jar, hamcrest*.jar" /> <!-- JUnit jars -->
 			<path refid="runtime.classpath" />
 			<path location="${project.build.dir}" />
 		</path>

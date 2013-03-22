@@ -223,13 +223,15 @@ public class StateMachine<MachineInput,TransitionInput> {
 		this.currentState = newState;
 	}
 
+	public List<StateMachineEventListener<TransitionInput>> getEventListeners() {
+		return eventListeners;
+	}
 	public void setEventListeners(List<StateMachineEventListener<TransitionInput>> eventListeners) {
 		if(eventListeners==null) {
 			throw new IllegalArgumentException("Provided EventListener list cannot be null.");
 		}
 		this.eventListeners = eventListeners;
 	}
-
 	public void addEventListener(StateMachineEventListener<TransitionInput> eventListener) {
 		eventListeners.add(eventListener);
 	}
