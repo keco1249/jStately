@@ -14,9 +14,9 @@ import com.google.common.collect.Multimap;
 
 /** Representation of a <a href="http://en.wikipedia.org/wiki/State_diagram">state graph</a>. */
 public class StateGraph<TransitionInput> {
-	protected State<TransitionInput>										startState;
-	protected Map<String,State<TransitionInput>>							statesByIdentifier;
-	protected Multimap<State<TransitionInput>,Transition<TransitionInput>>	transitionsByTail;
+	private State<TransitionInput>											startState;
+	private Map<String,State<TransitionInput>>								statesByIdentifier;
+	private Multimap<State<TransitionInput>,Transition<TransitionInput>>	transitionsByTail;
 
 
 	public State<TransitionInput> getStartState() {

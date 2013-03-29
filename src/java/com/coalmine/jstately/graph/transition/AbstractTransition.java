@@ -49,7 +49,7 @@ public abstract class AbstractTransition<TransitionInput> implements Transition<
 
 
 	public String toString() {
-		return getClass().getSimpleName()+"[description="+getDescription()+",tail="+tail.toString()+",head="+head.toString()+"]";
+		return getClass().getName()+"[description="+getDescription()+",tail="+tail.toString()+",head="+head.toString()+"]";
 	}
 }
 

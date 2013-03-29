@@ -43,7 +43,7 @@ public class DefaultState<TransitionInput> implements State<TransitionInput> {
 
 
 	public String toString() {
-		return getClass().getSimpleName()+"[identifier="+getIdentifier()+"]";
+		return getClass().getName()+"[identifier="+getIdentifier()+"]";
 	}
 
 
