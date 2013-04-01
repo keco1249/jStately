@@ -1,5 +1,6 @@
 package com.coalmine.jstately.graph.state;
 
+import com.coalmine.jstately.graph.section.Section;
 import com.coalmine.jstately.util.EqualityUtil;
 
 /**
@@ -9,6 +10,7 @@ import com.coalmine.jstately.util.EqualityUtil;
 public class DefaultState<TransitionInput> implements State<TransitionInput> {
 	private String	identifier;
 	private String	description;
+	private Section section;
 
 
 	public DefaultState() { }
@@ -20,6 +22,20 @@ public class DefaultState<TransitionInput> implements State<TransitionInput> {
 	public DefaultState(String identifier, String description) {
 		this.identifier		= identifier;
 		this.description	= description;
+	}
+
+
+	public void onEnter() { }
+
+	public void onExit() { }
+
+	@Override
+	public Section getSection() {
+		return section;
+	}
+	@Override
+	public void setSection(Section section) {
+		this.section = section;
 	}
 
 
@@ -37,15 +53,9 @@ public class DefaultState<TransitionInput> implements State<TransitionInput> {
 		this.description = description;
 	}
 
-	public void onEnter() { }
-
-	public void onExit() { }
-
-
 	public String toString() {
 		return getClass().getName()+"[identifier="+getIdentifier()+"]";
 	}
-
 
 	@SuppressWarnings("rawtypes")
 	@Override

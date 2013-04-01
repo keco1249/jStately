@@ -1,5 +1,6 @@
 package com.coalmine.jstately.machine.listener;
 
+import com.coalmine.jstately.graph.section.Section;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.Transition;
 
@@ -20,7 +21,6 @@ public class ConsoleStateMachineEventListener<TransitionInput> implements StateM
 
 	public void afterStateExited(State<TransitionInput> state) {
 		System.out.println("After state ("+state+") exited");
-		
 	}
 
 	public void beforeTransition(Transition<TransitionInput> transition, TransitionInput input) {
@@ -33,6 +33,26 @@ public class ConsoleStateMachineEventListener<TransitionInput> implements StateM
 
 	public void noValidTransition(TransitionInput input) {
 		System.out.println("No transition found for input ("+input+")");
+	}
+
+	@Override
+	public void beforeSectionEntered(Section section) {
+		System.out.println("Before entering section ("+section+")");
+	}
+
+	@Override
+	public void afterSectionEntered(Section section) {
+		System.out.println("After entering section ("+section+")");
+	}
+
+	@Override
+	public void beforeSectionExited(Section section) {
+		System.out.println("Before exiting section ("+section+")");
+	}
+
+	@Override
+	public void afterSectionExited(Section section) {
+		System.out.println("After exiting section ("+section+")");
 	}
 }
 

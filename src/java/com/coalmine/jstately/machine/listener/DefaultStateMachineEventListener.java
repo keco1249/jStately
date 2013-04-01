@@ -1,5 +1,6 @@
 package com.coalmine.jstately.machine.listener;
 
+import com.coalmine.jstately.graph.section.Section;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.Transition;
 
@@ -15,6 +16,12 @@ public class DefaultStateMachineEventListener<TransitionInput> implements StateM
 	public void afterTransition(Transition<TransitionInput> transition, TransitionInput input) { }
 
 	public void noValidTransition(TransitionInput input) { }
+
+	public void beforeSectionEntered(Section section) { }
+	public void afterSectionEntered(Section section) { }
+
+	public void beforeSectionExited(Section section) { }
+	public void afterSectionExited(Section section) { }
 }
 
 
