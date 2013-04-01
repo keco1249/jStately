@@ -181,6 +181,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		if(currentState instanceof CompositeState) {
 			CompositeState<TransitionInput> compositeState = (CompositeState<TransitionInput>)currentState;
 			compositeStateMachine = new StateMachine<TransitionInput,TransitionInput>(compositeState.getStateGraph(), new DefaultInputAdapter<TransitionInput>());
+			compositeStateMachine.setEventListeners(eventListeners);
 			compositeStateMachine.start();
 		}
 
