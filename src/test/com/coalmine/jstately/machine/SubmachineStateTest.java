@@ -7,16 +7,16 @@ import org.junit.Test;
 
 import com.coalmine.jstately.graph.StateGraph;
 import com.coalmine.jstately.graph.state.State;
-import com.coalmine.jstately.graph.state.DefaultCompositeState;
+import com.coalmine.jstately.graph.state.DefaultSubmachineState;
 import com.coalmine.jstately.graph.state.DefaultFinalState;
 import com.coalmine.jstately.graph.state.DefaultState;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
 import com.coalmine.jstately.machine.listener.ConsoleStateMachineEventListener;
 
-public class CompositeStateTest {
+public class SubmachineStateTest {
 	private static StateGraph<Integer> outerGraph;
 	private static State<Integer> outerStart;
-	private static DefaultCompositeState<Integer> outerComposite;
+	private static DefaultSubmachineState<Integer> outerSubmachineState;
 	private static State<Integer> outerSuccess;
 
 	private static StateGraph<Integer> innerGraph;
@@ -43,11 +43,11 @@ public class CompositeStateTest {
 		outerGraph = new StateGraph<Integer>();
 		outerGraph.addStartState(outerStart = new DefaultState<Integer>("Start"));
 
-		outerGraph.addState(outerComposite = new DefaultCompositeState<Integer>("Composite State", innerGraph));
-		outerGraph.addTransition(new EqualityTransition<Integer>(outerStart, outerComposite, 1));
+		outerGraph.addState(outerSubmachineState = new DefaultSubmachineState<Integer>("Submachine State", innerGraph));
+		outerGraph.addTransition(new EqualityTransition<Integer>(outerStart, outerSubmachineState, 1));
 
 		outerGraph.addState(outerSuccess = new DefaultState<Integer>("Success"));
-		outerGraph.addTransition(new EqualityTransition<Integer>(outerComposite, outerSuccess, 2));
+		outerGraph.addTransition(new EqualityTransition<Integer>(outerSubmachineState, outerSuccess, 2));
 	}
 
 	@Test
@@ -59,12 +59,12 @@ public class CompositeStateTest {
 		assertTrue(outerStart.equals(stateMachine.getState()));
 
 		stateMachine.evaluateInput(1);
-		assertTrue(outerComposite.equals(stateMachine.getState()));
+		assertTrue(outerSubmachineState.equals(stateMachine.getState()));
 		assertTrue(innerAState.equals(stateMachine.getSubState()));
 
 		// Test transitions within the inner graph
 		stateMachine.evaluateInput(100);
-		assertTrue(outerComposite.equals(stateMachine.getState()));
+		assertTrue(outerSubmachineState.equals(stateMachine.getState()));
 		assertTrue(innerBState.equals(stateMachine.getSubState()));
 
 		// Test transitioning out of the inner graph

@@ -2,6 +2,8 @@ package com.coalmine.jstately.graph.section;
 
 import com.coalmine.jstately.graph.state.State;
 
+
+/** Analogous to a composite state or super state. */
 public class Section {
 	private Section parent;
 
@@ -14,6 +16,12 @@ public class Section {
 
 	public void addState(State<?> state) {
 		state.setSection(this);
+	}
+
+	public void addStates(State<?>... states) {
+		for(State<?> state : states) {
+			addState(state);
+		}
 	}
 
 	public void addSection(Section section) {

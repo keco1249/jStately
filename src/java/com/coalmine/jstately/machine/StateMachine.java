@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.coalmine.jstately.graph.StateGraph;
 import com.coalmine.jstately.graph.section.Section;
-import com.coalmine.jstately.graph.state.CompositeState;
+import com.coalmine.jstately.graph.state.SubmachineState;
 import com.coalmine.jstately.graph.state.FinalState;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.Transition;
@@ -21,7 +21,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 	protected InputAdapter<MachineInput,TransitionInput>		inputProvider;
 	protected List<StateMachineEventListener<TransitionInput>>	eventListeners = new ArrayList<StateMachineEventListener<TransitionInput>>();
 
-	private StateMachine<TransitionInput,TransitionInput>		compositeStateMachine;
+	private StateMachine<TransitionInput,TransitionInput>		submachine;
 
 	public StateMachine() { }
 
@@ -53,7 +53,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return currentState != null;
 	}
 
-	/** Resets the machine's state to null without calling {@link NonFinalState#onExit()} on the current state (if there is one.) */
+	/** Resets the machine's state to null without calling {@link State#onExit()} on the current state (if there is one.) */
 	public void reset() {
 		currentState = null;
 	}
@@ -77,13 +77,13 @@ public class StateMachine<MachineInput,TransitionInput> {
 			TransitionInput transitionInput = inputProvider.next();
 
 			TransitionInput inputToEvaluate = null;
-			if(currentState instanceof CompositeState) {
+			if(currentState instanceof SubmachineState) {
 				// Delegate the evaluation of the input
-				compositeStateMachine.evaluateInput(transitionInput);
+				submachine.evaluateInput(transitionInput);
 
-				// If the composite reaches a final state, extract the state's output to evaluate on this graph/machine
-				if(compositeStateMachine.getState() instanceof FinalState) {
-					inputToEvaluate = ((FinalState<TransitionInput>)compositeStateMachine.getState()).getResult();
+				// If the submachine reaches a final state, extract its output to evaluate on this machine
+				if(submachine.getState() instanceof FinalState) {
+					inputToEvaluate = ((FinalState<TransitionInput>)submachine.getState()).getResult();
 				}
 			} else {
 				inputToEvaluate = transitionInput;
@@ -103,7 +103,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 	}
 
 	public State<TransitionInput> getSubState() {
-		return compositeStateMachine==null? null : compositeStateMachine.getState();
+		return submachine==null? null : submachine.getState();
 	}
 
 	public Set<Transition<TransitionInput>> getValidTransitionsFromCurrentState(TransitionInput input) {
@@ -197,11 +197,11 @@ public class StateMachine<MachineInput,TransitionInput> {
 		currentState = newState;
 		currentState.onEnter();
 
-		if(currentState instanceof CompositeState) {
-			CompositeState<TransitionInput> compositeState = (CompositeState<TransitionInput>)currentState;
-			compositeStateMachine = new StateMachine<TransitionInput,TransitionInput>(compositeState.getStateGraph(), new DefaultInputAdapter<TransitionInput>());
-			compositeStateMachine.setEventListeners(eventListeners);
-			compositeStateMachine.start();
+		if(currentState instanceof SubmachineState) {
+			SubmachineState<TransitionInput> submachineState = (SubmachineState<TransitionInput>)currentState;
+			submachine = new StateMachine<TransitionInput,TransitionInput>(submachineState.getStateGraph(), new DefaultInputAdapter<TransitionInput>());
+			submachine.setEventListeners(eventListeners);
+			submachine.start();
 		}
 
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
@@ -283,8 +283,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 			exitSection(section);
 		}
 
-		if(oldState instanceof CompositeState) {
-			compositeStateMachine = null;
+		if(oldState instanceof SubmachineState) {
+			submachine = null;
 		}
 
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
