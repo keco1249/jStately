@@ -13,14 +13,12 @@ public class EqualityTransition<TransitionInput> extends AbstractTransition<Tran
 
 	public EqualityTransition() { }
 
-	public EqualityTransition(State<TransitionInput> tail, State<TransitionInput> head, TransitionInput validityTestObject) {
-		this.tail				= tail;
+	public EqualityTransition(State<TransitionInput> head, TransitionInput validityTestObject) {
 		this.head				= head;
 		this.validityTestObject	= validityTestObject;
 	}
 
-	public EqualityTransition(State<TransitionInput> tail, State<TransitionInput> head, TransitionInput validityTestObject, String description) {
-		this.tail				= tail;
+	public EqualityTransition(State<TransitionInput> head, TransitionInput validityTestObject, String description) {
 		this.head				= head;
 		this.validityTestObject	= validityTestObject;
 		this.description		= description;

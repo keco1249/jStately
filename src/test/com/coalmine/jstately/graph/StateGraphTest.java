@@ -10,10 +10,9 @@ import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.state.DefaultState;
+import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.DisjunctiveEqualityTransition;
-import com.coalmine.jstately.graph.transition.EqualitySelfTransition;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
 import com.coalmine.jstately.graph.transition.Transition;
 import com.coalmine.jstately.machine.DefaultInputAdapter;
@@ -40,16 +39,21 @@ public class StateGraphTest {
 		stateB = new DefaultState<Integer>("B");
 		stateF = new DefaultState<Integer>("F");
 
-		transitionSA = new DisjunctiveEqualityTransition<Integer>(stateS,stateA,1,5000);
-		transitionAB = new EqualityTransition<Integer>(stateA,stateB,2);
-		transitionBB = new EqualitySelfTransition<Integer>(stateB,3);
-		transitionBA = new EqualityTransition<Integer>(stateB,stateA,4);
-		transitionAF = new EqualityTransition<Integer>(stateA,stateF,5);
+		transitionSA = new DisjunctiveEqualityTransition<Integer>(stateA,1,5000);
+		transitionAB = new EqualityTransition<Integer>(stateB,2);
+		transitionBB = new EqualityTransition<Integer>(stateB,3);
+		transitionBA = new EqualityTransition<Integer>(stateA,4);
+		transitionAF = new EqualityTransition<Integer>(stateF,5);
 
 		graph = new StateGraph<Integer>();
 		graph.setStates(stateS,stateA,stateB,stateF);
-		graph.setTransitions(transitionSA,transitionAB,transitionBB,transitionBA,transitionAF);
 		graph.setStartState(stateS);
+
+		graph.addTransition(stateS, transitionSA);
+		graph.addTransition(stateA, transitionAB);
+		graph.addSelfTransition(transitionBB);
+		graph.addTransition(stateB, transitionBA);
+		graph.addTransition(stateA, transitionAF);
 	}
 
 	@Test

@@ -4,9 +4,6 @@ import com.coalmine.jstately.graph.state.State;
 
 /** Defines a transition from one state to another. */
 public interface Transition<TransitionInput> {
-	/** @return State that transition originates from. */
-	State<TransitionInput> getTail();
-
 	/** @return State that transition transitions to. */
 	State<TransitionInput> getHead();
 

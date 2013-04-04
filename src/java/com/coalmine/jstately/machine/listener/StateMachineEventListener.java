@@ -1,6 +1,6 @@
 package com.coalmine.jstately.machine.listener;
 
-import com.coalmine.jstately.graph.section.Section;
+import com.coalmine.jstately.graph.composite.CompositeState;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.Transition;
 import com.coalmine.jstately.machine.StateMachine;
@@ -29,16 +29,16 @@ public interface StateMachineEventListener<TransitionInput> {
 	void noValidTransition(TransitionInput input);
 
 	/** Called before entering a section of a state graph. */
-	void beforeSectionEntered(Section section);
+	void beforeSectionEntered(CompositeState<TransitionInput> section);
 
 	/** Called after entering a section of a state graph. */
-	void afterSectionEntered(Section section);
+	void afterSectionEntered(CompositeState<TransitionInput> section);
 
 	/** Called before exiting a section of a state graph. */
-	void beforeSectionExited(Section section);
+	void beforeSectionExited(CompositeState<TransitionInput> section);
 
 	/** Called after exiting a section of a state graph. */
-	void afterSectionExited(Section section);
+	void afterSectionExited(CompositeState<TransitionInput> section);
 }
 
 

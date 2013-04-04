@@ -1,19 +1,18 @@
 package com.coalmine.jstately.machine;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.coalmine.jstately.graph.StateGraph;
-import com.coalmine.jstately.graph.section.Section;
+import com.coalmine.jstately.graph.composite.CompositeState;
 import com.coalmine.jstately.graph.state.DefaultState;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
 
-public class SectionTest {
+public class CompositeStateTest {
 	private static StateGraph<Integer> graph;
 	private static State<Integer> stateA;
 	private static State<Integer> stateB;
@@ -35,6 +34,8 @@ public class SectionTest {
 		//   1 |   2  ___  3  ___4___ | 5
 		// A → | B → |_C_| → |_D_→_E_|| → F
 		//     |______________________|
+		// 
+		// * Plus a transition from the CompositeState containing States D and E, to State C, valid for an input of 100
 
 		graph = new StateGraph<Integer>();
 
@@ -45,13 +46,13 @@ public class SectionTest {
 		graph.addState(stateE = new DefaultState<Integer>("E"));
 		graph.addState(stateF = new DefaultState<Integer>("F"));
 
-		graph.addTransition(new EqualityTransition<Integer>(stateA, stateB, 1));
-		graph.addTransition(new EqualityTransition<Integer>(stateB, stateC, 2));
-		graph.addTransition(new EqualityTransition<Integer>(stateC, stateD, 3));
-		graph.addTransition(new EqualityTransition<Integer>(stateD, stateE, 4));
-		graph.addTransition(new EqualityTransition<Integer>(stateE, stateF, 5));
+		graph.addTransition(stateA, new EqualityTransition<Integer>(stateB, 1));
+		graph.addTransition(stateB, new EqualityTransition<Integer>(stateC, 2));
+		graph.addTransition(stateC, new EqualityTransition<Integer>(stateD, 3));
+		graph.addTransition(stateD, new EqualityTransition<Integer>(stateE, 4));
+		graph.addTransition(stateE, new EqualityTransition<Integer>(stateF, 5));
 
-		Section outerSection = new Section() {
+		CompositeState<Integer> outerSection = new CompositeState<Integer>() {
 			@Override
 			public void onEnter() {
 				outerSectionEntered = true;
@@ -63,7 +64,7 @@ public class SectionTest {
 		};
 		outerSection.addState(stateB);
 
-		Section firstInnerSection = new Section() {
+		CompositeState<Integer> firstInnerSection = new CompositeState<Integer>() {
 			@Override
 			public void onEnter() {
 				firstInnerSectionEntered = true;
@@ -73,10 +74,10 @@ public class SectionTest {
 				firstInnerSectionExited = true;
 			}
 		};
-		outerSection.addSection(firstInnerSection);
+		outerSection.addComposite(firstInnerSection);
 		firstInnerSection.addState(stateC);
 
-		Section secondInnerSection = new Section() {
+		CompositeState<Integer> secondInnerSection = new CompositeState<Integer>() {
 			@Override
 			public void onEnter() {
 				secondInnerSectionEntered = true;
@@ -86,9 +87,10 @@ public class SectionTest {
 				secondInnerSectionExited = true;
 			}
 		};
-		outerSection.addSection(secondInnerSection);
+		outerSection.addComposite(secondInnerSection);
 		secondInnerSection.addState(stateD);
 		secondInnerSection.addState(stateE);
+		secondInnerSection.addTransition(new EqualityTransition<Integer>(stateC, 100));
 	}
 
 
@@ -183,6 +185,18 @@ public class SectionTest {
 		assertFalse(firstInnerSectionExited);
 		assertFalse(secondInnerSectionEntered);
 		assertTrue(secondInnerSectionExited);
+	}
+
+	@Test
+	public void testTransitioningFromComposite() {
+		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
+		machine.setCurrentState(stateE);
+
+		machine.evaluateInput(200);
+		assertEquals(stateE, machine.getState());
+
+		machine.evaluateInput(100);
+		assertEquals(stateC, machine.getState());
 	}
 }
 

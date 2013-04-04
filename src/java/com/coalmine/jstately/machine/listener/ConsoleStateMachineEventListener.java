@@ -1,6 +1,6 @@
 package com.coalmine.jstately.machine.listener;
 
-import com.coalmine.jstately.graph.section.Section;
+import com.coalmine.jstately.graph.composite.CompositeState;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.Transition;
 
@@ -36,22 +36,22 @@ public class ConsoleStateMachineEventListener<TransitionInput> implements StateM
 	}
 
 	@Override
-	public void beforeSectionEntered(Section section) {
+	public void beforeSectionEntered(CompositeState<TransitionInput> section) {
 		System.out.println("Before entering section ("+section+")");
 	}
 
 	@Override
-	public void afterSectionEntered(Section section) {
+	public void afterSectionEntered(CompositeState<TransitionInput> section) {
 		System.out.println("After entering section ("+section+")");
 	}
 
 	@Override
-	public void beforeSectionExited(Section section) {
+	public void beforeSectionExited(CompositeState<TransitionInput> section) {
 		System.out.println("Before exiting section ("+section+")");
 	}
 
 	@Override
-	public void afterSectionExited(Section section) {
+	public void afterSectionExited(CompositeState<TransitionInput> section) {
 		System.out.println("After exiting section ("+section+")");
 	}
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.coalmine.jstately.graph.StateGraph;
-import com.coalmine.jstately.graph.section.Section;
+import com.coalmine.jstately.graph.composite.CompositeState;
 import com.coalmine.jstately.graph.state.SubmachineState;
 import com.coalmine.jstately.graph.state.FinalState;
 import com.coalmine.jstately.graph.state.State;
@@ -92,7 +92,13 @@ public class StateMachine<MachineInput,TransitionInput> {
 			if(inputToEvaluate != null) {
 				Transition<TransitionInput> validTransition = getFirstValidTransitionFromCurrentState(inputToEvaluate);
 				if(validTransition==null) {
-					inputIgnored = true;
+					// See if a containing CompositeState has a valid Transition
+					validTransition = findValidParentCompositeTransition(currentState, inputToEvaluate);
+					if(validTransition == null) {
+						inputIgnored = true;
+					} else {
+						transition(validTransition, transitionInput);
+					}
 				} else {
 					transition(validTransition,transitionInput);
 				}
@@ -100,6 +106,22 @@ public class StateMachine<MachineInput,TransitionInput> {
 		}
 
 		return inputIgnored;
+	}
+
+
+	/** For a given State, traverses upward, to parent CompositeGroups, checking for a Transition that's valid for the given input. */
+	private static <TransitionInput> Transition<TransitionInput> findValidParentCompositeTransition(State<TransitionInput> state, TransitionInput input) {
+		CompositeState<TransitionInput> composite = state.getComposite();
+		while(composite != null) {
+			Transition<TransitionInput> transition = composite.getFirstValidTransition(input);
+			if(transition != null) {
+				return transition;
+			}
+
+			composite = composite.getParent();
+		}
+
+		return null;
 	}
 
 	public State<TransitionInput> getSubState() {
@@ -155,11 +177,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
-		if(transition==null || !transition.getTail().equals(currentState)) {
-			throw new IllegalArgumentException("Transition not allowed from machine's current state.");
-		}
 
-		exitState(transition.getTail(), transition.getHead());
+		exitState(currentState, transition.getHead());
 
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 			listener.beforeTransition(transition, input);
@@ -181,6 +200,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		enterState(newState);
 	}
 
+	//FIXME Document the hell out of this method since it's kinda hacky.
 	protected void transition(State<TransitionInput> newState) {
 		transition(currentState, newState);
 	}
@@ -190,7 +210,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 			listener.beforeStateEntered(newState);
 		}
 
-		for(Section section : determinateSectionBeingEntered(currentState,newState)) {
+		for(CompositeState<TransitionInput> section : determinateSectionBeingEntered(currentState,newState)) {
 			enterSection(section);
 		}
 
@@ -211,35 +231,35 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 	/** Determines which sections are being entered when entering a state.
 	 * @return A list of Sections being entered in order they are being entered (from the root Section to nested ones.) */
-	private List<Section> determinateSectionBeingEntered(State<?> oldState, State<?> newState) {
-		List<Section> newStateSections = getStateSections(newState);
+	private List<CompositeState<TransitionInput>> determinateSectionBeingEntered(State<TransitionInput> oldState, State<TransitionInput> newState) {
+		List<CompositeState<TransitionInput>> newStateSections = getStateSections(newState);
 		if(oldState==null) {
 			return Lists.reverse(newStateSections);
 		}
 
-		List<Section> oldStateSections = getStateSections(oldState);
+		List<CompositeState<TransitionInput>> oldStateSections = getStateSections(oldState);
 		newStateSections.removeAll(oldStateSections);
 		return Lists.reverse(newStateSections);
 	}
 
 	/** Determines which sections are being exited when exiting a state.
 	 * @return A list of Sections being exited in order they are being exist (from the state's immediate Section to its root Section.) */
-	private List<Section> determinateSectionBeingExited(State<?> oldState, State<?> newState) {
-		List<Section> oldStateSections = getStateSections(oldState);
+	private List<CompositeState<TransitionInput>> determinateSectionBeingExited(State<TransitionInput> oldState, State<TransitionInput> newState) {
+		List<CompositeState<TransitionInput>> oldStateSections = getStateSections(oldState);
 		if(newState==null) {
 			return oldStateSections;
 		}
 
-		List<Section> newStateSections = getStateSections(newState);
+		List<CompositeState<TransitionInput>> newStateSections = getStateSections(newState);
 		oldStateSections.removeAll(newStateSections);
 		return oldStateSections;
 	}
 
 	/** @return A State's parent Section and all parent Sectioned, ordered from the State's Section to the root */
-	private List<Section> getStateSections(State<?> state) {
-		List<Section> sections = new ArrayList<Section>();
+	private List<CompositeState<TransitionInput>> getStateSections(State<TransitionInput> state) {
+		List<CompositeState<TransitionInput>> sections = new ArrayList<CompositeState<TransitionInput>>();
 
-		Section section = state.getSection();
+		CompositeState<TransitionInput> section = state.getComposite();
 		while(section != null) {
 			sections.add(section);
 			section = section.getParent();
@@ -248,7 +268,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return sections;
 	}
 
-	private void enterSection(Section section) {
+	private void enterSection(CompositeState<TransitionInput> section) {
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
 			eventListener.beforeSectionEntered(section);
 		}
@@ -260,7 +280,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		}
 	}
 
-	private void exitSection(Section section) {
+	private void exitSection(CompositeState<TransitionInput> section) {
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
 			eventListener.beforeSectionExited(section);
 		}
@@ -279,7 +299,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 		oldState.onExit();
 		
-		for(Section section : determinateSectionBeingExited(currentState,newState)) {
+		for(CompositeState<TransitionInput> section : determinateSectionBeingExited(currentState,newState)) {
 			exitSection(section);
 		}
 

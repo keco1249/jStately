@@ -8,18 +8,16 @@ import com.coalmine.jstately.graph.state.State;
 public abstract class AbstractTransition<TransitionInput> implements Transition<TransitionInput> {
 	protected String					description;
 	protected State<TransitionInput>	head;
-	protected State<TransitionInput>	tail;
 
 
 	public AbstractTransition() { }
 
-	public AbstractTransition(State<TransitionInput> tail, State<TransitionInput> head) {
-		this.tail = tail;
+	public AbstractTransition(State<TransitionInput> head) {
 		this.head = head;
 	}
 
-	public AbstractTransition(State<TransitionInput> tail, State<TransitionInput> head, String description) {
-		this(tail,head);
+	public AbstractTransition(State<TransitionInput> head, String description) {
+		this(head);
 		this.description = description;
 	}
 
@@ -38,18 +36,11 @@ public abstract class AbstractTransition<TransitionInput> implements Transition<
 		this.head = head;
 	}
 
-	public State<TransitionInput> getTail() {
-		return tail;
-	}
-	public void setTail(State<TransitionInput> tail) {
-		this.tail = tail;
-	}
-
 	public void onTransition(TransitionInput input) { }
 
 
 	public String toString() {
-		return getClass().getName()+"[description="+getDescription()+",tail="+tail.toString()+",head="+head.toString()+"]";
+		return getClass().getName()+"[description="+getDescription()+", head="+head.toString()+"]";
 	}
 }
 

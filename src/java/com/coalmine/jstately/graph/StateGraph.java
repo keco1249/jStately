@@ -16,7 +16,7 @@ import com.google.common.collect.Multimap;
 public class StateGraph<TransitionInput> {
 	private State<TransitionInput>											startState;
 	private Map<String,State<TransitionInput>>								statesByIdentifier;
-	private Multimap<State<TransitionInput>,Transition<TransitionInput>>	transitionsByTail;
+	private Multimap<State<TransitionInput>,Transition<TransitionInput>>	transitionsByTail	= HashMultimap.create();
 
 
 	public State<TransitionInput> getStartState() {
@@ -60,23 +60,13 @@ public class StateGraph<TransitionInput> {
 	public Set<Transition<TransitionInput>> getTransitions() {
 		return new HashSet<Transition<TransitionInput>>(transitionsByTail.values());
 	}
-	public void setTransitions(Iterable<Transition<TransitionInput>> transitions) {
-		transitionsByTail = HashMultimap.create(); 
-		for(Transition<TransitionInput> transition : transitions) {
-			transitionsByTail.put(transition.getTail(), transition);
-		}
+
+	public void addTransition(State<TransitionInput> tail, Transition<TransitionInput> transition) {
+		transitionsByTail.put(tail,transition);
 	}
-	public void setTransitions(Transition<TransitionInput>... transitions) {
-		transitionsByTail = HashMultimap.create(); 
-		for(Transition<TransitionInput> transition : transitions) {
-			transitionsByTail.put(transition.getTail(), transition);
-		}
-	}
-	public void addTransition(Transition<TransitionInput> transition) {
-		if(transitionsByTail==null) {
-			transitionsByTail = HashMultimap.create();
-		}
-		transitionsByTail.put(transition.getTail(),transition);
+
+	public void addSelfTransition(Transition<TransitionInput> transition) {
+		transitionsByTail.put(transition.getHead(),transition);
 	}
 
 	public Set<Transition<TransitionInput>> getTransitionsFromTail(State<TransitionInput> tailState) {

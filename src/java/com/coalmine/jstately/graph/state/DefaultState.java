@@ -1,6 +1,6 @@
 package com.coalmine.jstately.graph.state;
 
-import com.coalmine.jstately.graph.section.Section;
+import com.coalmine.jstately.graph.composite.CompositeState;
 import com.coalmine.jstately.util.EqualityUtil;
 
 /**
@@ -10,7 +10,7 @@ import com.coalmine.jstately.util.EqualityUtil;
 public class DefaultState<TransitionInput> implements State<TransitionInput> {
 	private String	identifier;
 	private String	description;
-	private Section section;
+	private CompositeState<TransitionInput> composite;
 
 
 	public DefaultState() { }
@@ -30,12 +30,12 @@ public class DefaultState<TransitionInput> implements State<TransitionInput> {
 	public void onExit() { }
 
 	@Override
-	public Section getSection() {
-		return section;
+	public CompositeState<TransitionInput> getComposite() {
+		return composite;
 	}
 	@Override
-	public void setSection(Section section) {
-		this.section = section;
+	public void setComposite(CompositeState<TransitionInput> section) {
+		this.composite = section;
 	}
 
 
