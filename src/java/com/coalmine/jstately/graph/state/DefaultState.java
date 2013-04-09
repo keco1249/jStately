@@ -9,7 +9,6 @@ import com.coalmine.jstately.util.EqualityUtil;
  */
 public class DefaultState<TransitionInput> implements State<TransitionInput> {
 	private String	identifier;
-	private String	description;
 	private CompositeState<TransitionInput> composite;
 
 
@@ -17,11 +16,6 @@ public class DefaultState<TransitionInput> implements State<TransitionInput> {
 
 	public DefaultState(String identifier) {
 		this.identifier = identifier;
-	}
-
-	public DefaultState(String identifier, String description) {
-		this.identifier		= identifier;
-		this.description	= description;
 	}
 
 
@@ -44,13 +38,6 @@ public class DefaultState<TransitionInput> implements State<TransitionInput> {
 	}
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
 	}
 
 	public String toString() {

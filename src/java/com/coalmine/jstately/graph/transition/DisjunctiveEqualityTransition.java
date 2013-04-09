@@ -21,16 +21,6 @@ public class DisjunctiveEqualityTransition<TransitionInput> extends AbstractTran
 		this(head, Sets.newHashSet(validityTestObjects));
 	}
 
-	public DisjunctiveEqualityTransition(State<TransitionInput> head, String description, Set<TransitionInput> validityTestObjects) {
-		this.head					= head;
-		this.validityTestObjects	= validityTestObjects;
-		this.description			= description;
-	}
-
-	public DisjunctiveEqualityTransition(State<TransitionInput> tail, State<TransitionInput> head, String description, TransitionInput... validityTestObjects) {
-		this(head, description, Sets.newHashSet(validityTestObjects));
-	}
-
 	public Set<TransitionInput> getValidityTestObjects() {
 		return validityTestObjects;
 	}
@@ -42,7 +32,5 @@ public class DisjunctiveEqualityTransition<TransitionInput> extends AbstractTran
 		return validityTestObjects.contains(input);
 	}
 }
-
-
 
 

@@ -28,17 +28,17 @@ public interface StateMachineEventListener<TransitionInput> {
 	/** Called when no valid transition is found for a given input. */
 	void noValidTransition(TransitionInput input);
 
-	/** Called before entering a section of a state graph. */
-	void beforeSectionEntered(CompositeState<TransitionInput> section);
+	/** Called before entering a CompositeState of a state graph. */
+	void beforeCompositeStateEntered(CompositeState<TransitionInput> composite);
 
-	/** Called after entering a section of a state graph. */
-	void afterSectionEntered(CompositeState<TransitionInput> section);
+	/** Called after entering a CompositeState of a state graph. */
+	void afterCompositeStateEntered(CompositeState<TransitionInput> composite);
 
-	/** Called before exiting a section of a state graph. */
-	void beforeSectionExited(CompositeState<TransitionInput> section);
+	/** Called before exiting a CompositeState of a state graph. */
+	void beforeCompositeStateExited(CompositeState<TransitionInput> composite);
 
-	/** Called after exiting a section of a state graph. */
-	void afterSectionExited(CompositeState<TransitionInput> section);
+	/** Called after exiting a CompositeState of a state graph. */
+	void afterCompositeStateExited(CompositeState<TransitionInput> composite);
 }
 
 

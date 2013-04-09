@@ -17,11 +17,11 @@ public class DefaultStateMachineEventListener<TransitionInput> implements StateM
 
 	public void noValidTransition(TransitionInput input) { }
 
-	public void beforeSectionEntered(CompositeState<TransitionInput> section) { }
-	public void afterSectionEntered(CompositeState<TransitionInput> section) { }
+	public void beforeCompositeStateEntered(CompositeState<TransitionInput> composite) { }
+	public void afterCompositeStateEntered(CompositeState<TransitionInput> composite) { }
 
-	public void beforeSectionExited(CompositeState<TransitionInput> section) { }
-	public void afterSectionExited(CompositeState<TransitionInput> section) { }
+	public void beforeCompositeStateExited(CompositeState<TransitionInput> composite) { }
+	public void afterCompositeStateExited(CompositeState<TransitionInput> composite) { }
 }
 
 

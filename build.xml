@@ -12,7 +12,7 @@
 
 	<target name="jar" depends="properties,compile" description="Build the project into a JAR">
 		<mkdir dir="${project.target.dir}" />
-		<jar jarfile="${jar.filepath}" basedir="${project.build.dir}" includes="**/*.class" excludes="**/*Test.class,**/*Test$*.class" />
+		<jar jarfile="${jar.filepath}" basedir="${project.build.dir}" includes="**/*.class" excludes="**/*Test.class,**/*Test$*.class,**/AllTests.class" />
 	</target>
 
 	<target name="compile" depends="properties" description="Compile Java source including tests">

@@ -36,23 +36,23 @@ public class ConsoleStateMachineEventListener<TransitionInput> implements StateM
 	}
 
 	@Override
-	public void beforeSectionEntered(CompositeState<TransitionInput> section) {
-		System.out.println("Before entering section ("+section+")");
+	public void beforeCompositeStateEntered(CompositeState<TransitionInput> composite) {
+		System.out.println("Before entering composite state ("+composite+")");
 	}
 
 	@Override
-	public void afterSectionEntered(CompositeState<TransitionInput> section) {
-		System.out.println("After entering section ("+section+")");
+	public void afterCompositeStateEntered(CompositeState<TransitionInput> composite) {
+		System.out.println("After entering composite state ("+composite+")");
 	}
 
 	@Override
-	public void beforeSectionExited(CompositeState<TransitionInput> section) {
-		System.out.println("Before exiting section ("+section+")");
+	public void beforeCompositeStateExited(CompositeState<TransitionInput> composite) {
+		System.out.println("Before exiting composite state ("+composite+")");
 	}
 
 	@Override
-	public void afterSectionExited(CompositeState<TransitionInput> section) {
-		System.out.println("After exiting section ("+section+")");
+	public void afterCompositeStateExited(CompositeState<TransitionInput> composite) {
+		System.out.println("After exiting composite state ("+composite+")");
 	}
 }
 

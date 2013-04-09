@@ -270,25 +270,25 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 	private void enterSection(CompositeState<TransitionInput> section) {
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.beforeSectionEntered(section);
+			eventListener.beforeCompositeStateEntered(section);
 		}
 
 		section.onEnter();
 
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.afterSectionEntered(section);
+			eventListener.afterCompositeStateEntered(section);
 		}
 	}
 
 	private void exitSection(CompositeState<TransitionInput> section) {
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.beforeSectionExited(section);
+			eventListener.beforeCompositeStateExited(section);
 		}
 
 		section.onExit();
 
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.afterSectionExited(section);
+			eventListener.afterCompositeStateExited(section);
 		}
 	}
 

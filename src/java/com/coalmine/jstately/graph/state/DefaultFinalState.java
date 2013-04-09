@@ -13,11 +13,6 @@ public class DefaultFinalState<Result> extends DefaultState<Result> implements F
 		this.result = result;
 	}
 
-	public DefaultFinalState(String identifier, Result result, String description) {
-		super(identifier, description);
-		this.result = result;
-	}
-
 	@Override
 	public Result getResult() {
 		return result;

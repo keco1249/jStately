@@ -8,9 +8,6 @@ public interface State<TransitionInput> {
 	/** @return A String that uniquely identifies a state in a machine. */
 	String getIdentifier();
 
-	/** @return Optional human readable description of the state. */
-	String getDescription();
-
 	CompositeState<TransitionInput> getComposite();
 	void setComposite(CompositeState<TransitionInput> section);
 

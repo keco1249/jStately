@@ -18,12 +18,6 @@ public class EqualityTransition<TransitionInput> extends AbstractTransition<Tran
 		this.validityTestObject	= validityTestObject;
 	}
 
-	public EqualityTransition(State<TransitionInput> head, TransitionInput validityTestObject, String description) {
-		this.head				= head;
-		this.validityTestObject	= validityTestObject;
-		this.description		= description;
-	}
-
 
 	public TransitionInput getValidityTestObject() {
 		return validityTestObject;
