@@ -7,6 +7,14 @@ import com.coalmine.jstately.graph.transition.Transition;
 
 /** Event listener that logs events to System.out. */
 public class ConsoleStateMachineEventListener<TransitionInput> implements StateMachineEventListener<TransitionInput> {
+	public void beforeEvaluatingInput(TransitionInput input) {
+		System.out.println("Before evaluating input ("+input+")");
+	}
+
+	public void afterEvaluatingInput(TransitionInput input) {
+		System.out.println("After evaluating input ("+input+")");
+	}
+
 	public void beforeStateEntered(State<TransitionInput> state) {
 		System.out.println("Before state ("+state+") entered");
 	}

@@ -76,6 +76,10 @@ public class StateMachine<MachineInput,TransitionInput> {
 		while(inputProvider.hasNext()) {
 			TransitionInput transitionInput = inputProvider.next();
 
+			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+				listener.beforeEvaluatingInput(transitionInput);
+			}
+
 			TransitionInput inputToEvaluate = null;
 			if(currentState instanceof SubmachineState) {
 				// Delegate the evaluation of the input
@@ -96,6 +100,11 @@ public class StateMachine<MachineInput,TransitionInput> {
 				} else {
 					transition(validTransition,transitionInput);
 				}
+			}
+
+
+			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+				listener.afterEvaluatingInput(transitionInput);
 			}
 		}
 
@@ -173,7 +182,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		}
 
 		for(CompositeState<TransitionInput> section : determinateSectionBeingEntered(currentState,newState)) {
-			enterSection(section);
+			enterCompositeState(section);
 		}
 
 		currentState = newState;
@@ -230,7 +239,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return sections;
 	}
 
-	private void enterSection(CompositeState<TransitionInput> section) {
+	private void enterCompositeState(CompositeState<TransitionInput> section) {
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
 			eventListener.beforeCompositeStateEntered(section);
 		}
@@ -242,7 +251,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		}
 	}
 
-	private void exitSection(CompositeState<TransitionInput> section) {
+	private void exitCompositeState(CompositeState<TransitionInput> section) {
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
 			eventListener.beforeCompositeStateExited(section);
 		}
@@ -262,7 +271,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		oldState.onExit();
 		
 		for(CompositeState<TransitionInput> section : determinateSectionBeingExited(currentState,newState)) {
-			exitSection(section);
+			exitCompositeState(section);
 		}
 
 		if(oldState instanceof SubmachineState) {

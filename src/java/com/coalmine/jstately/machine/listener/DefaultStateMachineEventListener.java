@@ -6,6 +6,9 @@ import com.coalmine.jstately.graph.transition.Transition;
 
 /** Convenience implementation of the {@link StateMachineEventListener} interface with no-op methods that can be overridden as needed. */
 public class DefaultStateMachineEventListener<TransitionInput> implements StateMachineEventListener<TransitionInput> {
+	public void beforeEvaluatingInput(TransitionInput input) { }
+	public void afterEvaluatingInput(TransitionInput input) { }
+
 	public void beforeStateEntered(State<TransitionInput> state) { }
 	public void afterStateEntered(State<TransitionInput> state) { }
 

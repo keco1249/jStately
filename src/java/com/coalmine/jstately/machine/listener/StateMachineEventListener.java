@@ -7,6 +7,12 @@ import com.coalmine.jstately.machine.StateMachine;
 
 /** Listener than can be registered with a {@link StateMachine} to be notified of events that happen. */
 public interface StateMachineEventListener<TransitionInput> {
+	/** Called before a state machine begins evaluating an input */
+	void beforeEvaluatingInput(TransitionInput input);
+
+	/** Called after a state machine finishes evaluating an input */
+	void afterEvaluatingInput(TransitionInput input);
+
 	/** Called before a state machine enters a State. */
 	void beforeStateEntered(State<TransitionInput> state);
 
