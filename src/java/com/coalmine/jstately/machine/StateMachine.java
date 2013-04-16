@@ -90,15 +90,9 @@ public class StateMachine<MachineInput,TransitionInput> {
 			}
 
 			if(inputToEvaluate != null) {
-				Transition<TransitionInput> validTransition = getFirstValidTransitionFromCurrentState(inputToEvaluate);
-				if(validTransition==null) {
-					// See if a containing CompositeState has a valid Transition
-					validTransition = findValidParentCompositeTransition(currentState, inputToEvaluate);
-					if(validTransition == null) {
-						inputIgnored = true;
-					} else {
-						transition(validTransition, transitionInput);
-					}
+				Transition<TransitionInput> validTransition = findFirstValidTransitionFromCurrentState(inputToEvaluate);
+				if(validTransition == null) {
+					inputIgnored = true;
 				} else {
 					transition(validTransition,transitionInput);
 				}
@@ -108,61 +102,29 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return inputIgnored;
 	}
 
-
-	/** For a given State, traverses upward, to parent CompositeGroups, checking for a Transition that's valid for the given input. */
-	private static <TransitionInput> Transition<TransitionInput> findValidParentCompositeTransition(State<TransitionInput> state, TransitionInput input) {
-		CompositeState<TransitionInput> composite = state.getComposite();
-		while(composite != null) {
-			Transition<TransitionInput> transition = composite.getFirstValidTransition(input);
-			if(transition != null) {
-				return transition;
-			}
-
-			composite = composite.getParent();
-		}
-
-		return null;
-	}
-
 	public State<TransitionInput> getSubState() {
 		return submachine==null? null : submachine.getState();
 	}
 
-	public Set<Transition<TransitionInput>> getValidTransitionsFromCurrentState(TransitionInput input) {
+	public Set<Transition<TransitionInput>> findAllValidTransitionsFromCurrentState(TransitionInput input) {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
-		return stateGraph.getValidTransitionsFromTail(currentState, input);
+		return stateGraph.findValidTransitionsFromState(currentState, input);
 	}
 
-	public Transition<TransitionInput> getFirstValidTransitionFromCurrentState(TransitionInput input) {
+	public Transition<TransitionInput> findFirstValidTransitionFromCurrentState(TransitionInput input) {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
-		return stateGraph.getFirstValidTransitionFromTail(currentState, input);
+		return stateGraph.findFirstValidTransitionFromState(currentState, input);
 	}
 
 	public Set<Transition<TransitionInput>> getTransitionsFromCurrentState() {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
-		return stateGraph.getTransitionsFromTail(currentState);
-	}
-
-	/** @return A collection of states that could potentially be transitioned to from the current state, ignoring whether they are valid. */
-	public Set<State<TransitionInput>> getStatesFromCurrentState() {
-		if(!hasStarted()) {
-			throw new IllegalStateException("Machine has not started.");
-		}
-		return stateGraph.getStatesFromTail(currentState);
-	}
-
-	/** @return A collection of states that could be transitioned to given the provided input. */
-	public Set<State<TransitionInput>> getValidStatesFromCurrentState(TransitionInput input) {
-		if(!hasStarted()) {
-			throw new IllegalStateException("Machine has not started.");
-		}
-		return stateGraph.getValidStatesFromTail(currentState,input);
+		return stateGraph.findAllTransitionsFromState(currentState);
 	}
 
 	/**

@@ -9,7 +9,7 @@ import com.coalmine.jstately.graph.transition.Transition;
 
 /** Defines a super state that wraps multiple child states, allowing API users to define behavior for when the group is
  * entered or exited.  Composite states can also have transitions, which can be traversed from any of the child states
- * if none of the child state's transitions are valid for a given input but the composite state's transition is. */
+ * if none of their transitions are valid for a given input but the composite state's transition is. */
 public class CompositeState<TransitionInput> {
 	private CompositeState<TransitionInput> parent;
 	private Set<Transition<TransitionInput>> transitions = new HashSet<Transition<TransitionInput>>();
@@ -33,13 +33,11 @@ public class CompositeState<TransitionInput> {
 		transitions.add(transition);
 	}
 
-	public void addTransitions(Transition<TransitionInput>... transitions) {
-		for(Transition<TransitionInput> transition : transitions) {
-			this.transitions.add(transition);
-		}
+	public Set<Transition<TransitionInput>> getTransitions() {
+		return transitions;
 	}
 
-	public Transition<TransitionInput> getFirstValidTransition(TransitionInput input) {
+	public Transition<TransitionInput> findFirstValidTransition(TransitionInput input) {
 		for(Transition<TransitionInput> transition : transitions) {
 			if(transition.isValid(input)) {
 				return transition;
@@ -47,6 +45,18 @@ public class CompositeState<TransitionInput> {
 		}
 
 		return null;
+	}
+
+	public Set<Transition<TransitionInput>> findValidTransitions(TransitionInput input) {
+		Set<Transition<TransitionInput>> validTransitions = new HashSet<Transition<TransitionInput>>();
+
+		for(Transition<TransitionInput> transition : transitions) {
+			if(transition.isValid(input)) {
+				validTransitions.add(transition);
+			}
+		}
+
+		return validTransitions;
 	}
 
 	public CompositeState<TransitionInput> getParent() {
