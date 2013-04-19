@@ -9,7 +9,7 @@ public interface State<TransitionInput> {
 	String getIdentifier();
 
 	CompositeState<TransitionInput> getComposite();
-	void setComposite(CompositeState<TransitionInput> section);
+	void setComposite(CompositeState<TransitionInput> composite);
 
 	/** Called by a state machine when the machine enters the state. */
 	void onEnter();

@@ -28,8 +28,8 @@ public class DefaultState<TransitionInput> implements State<TransitionInput> {
 		return composite;
 	}
 	@Override
-	public void setComposite(CompositeState<TransitionInput> section) {
-		this.composite = section;
+	public void setComposite(CompositeState<TransitionInput> composite) {
+		this.composite = composite;
 	}
 
 

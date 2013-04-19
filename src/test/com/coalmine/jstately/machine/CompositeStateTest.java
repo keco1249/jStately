@@ -21,12 +21,12 @@ public class CompositeStateTest {
 	private static State<Integer> stateE;
 	private static State<Integer> stateF;
 
-	private static boolean outerSectionEntered;
-	private static boolean outerSectionExited;
-	private static boolean firstInnerSectionEntered;
-	private static boolean firstInnerSectionExited;
-	private static boolean secondInnerSectionEntered;
-	private static boolean secondInnerSectionExited;
+	private static boolean outerCompositeEntered;
+	private static boolean outerCompositeExited;
+	private static boolean firstInnerCompositeEntered;
+	private static boolean firstInnerCompositeExited;
+	private static boolean secondInnerCompositeEntered;
+	private static boolean secondInnerCompositeExited;
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
@@ -52,56 +52,56 @@ public class CompositeStateTest {
 		graph.addTransition(stateD, new EqualityTransition<Integer>(stateE, 4));
 		graph.addTransition(stateE, new EqualityTransition<Integer>(stateF, 5));
 
-		CompositeState<Integer> outerSection = new CompositeState<Integer>() {
+		CompositeState<Integer> outerComposite = new CompositeState<Integer>() {
 			@Override
 			public void onEnter() {
-				outerSectionEntered = true;
+				outerCompositeEntered = true;
 			}
 			@Override
 			public void onExit() {
-				outerSectionExited = true;
+				outerCompositeExited = true;
 			}
 		};
-		outerSection.addState(stateB);
+		outerComposite.addState(stateB);
 
-		CompositeState<Integer> firstInnerSection = new CompositeState<Integer>() {
+		CompositeState<Integer> firstInnerComposite = new CompositeState<Integer>() {
 			@Override
 			public void onEnter() {
-				firstInnerSectionEntered = true;
+				firstInnerCompositeEntered = true;
 			}
 			@Override
 			public void onExit() {
-				firstInnerSectionExited = true;
+				firstInnerCompositeExited = true;
 			}
 		};
-		outerSection.addComposite(firstInnerSection);
-		firstInnerSection.addState(stateC);
+		outerComposite.addComposite(firstInnerComposite);
+		firstInnerComposite.addState(stateC);
 
-		CompositeState<Integer> secondInnerSection = new CompositeState<Integer>() {
+		CompositeState<Integer> secondInnerComposite = new CompositeState<Integer>() {
 			@Override
 			public void onEnter() {
-				secondInnerSectionEntered = true;
+				secondInnerCompositeEntered = true;
 			}
 			@Override
 			public void onExit() {
-				secondInnerSectionExited = true;
+				secondInnerCompositeExited = true;
 			}
 		};
-		outerSection.addComposite(secondInnerSection);
-		secondInnerSection.addState(stateD);
-		secondInnerSection.addState(stateE);
-		secondInnerSection.addTransition(new EqualityTransition<Integer>(stateC, 100));
+		outerComposite.addComposite(secondInnerComposite);
+		secondInnerComposite.addState(stateD);
+		secondInnerComposite.addState(stateE);
+		secondInnerComposite.addTransition(new EqualityTransition<Integer>(stateC, 100));
 	}
 
 
 	@Before
 	public void reset() {
-		outerSectionEntered = false;
-		outerSectionExited = false;
-		firstInnerSectionEntered = false;
-		firstInnerSectionExited = false;
-		secondInnerSectionEntered = false;
-		secondInnerSectionExited = false;
+		outerCompositeEntered = false;
+		outerCompositeExited = false;
+		firstInnerCompositeEntered = false;
+		firstInnerCompositeExited = false;
+		secondInnerCompositeEntered = false;
+		secondInnerCompositeExited = false;
 	}
 
 	@Test
@@ -109,88 +109,88 @@ public class CompositeStateTest {
 		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
 		machine.start();
 
-		assertFalse(outerSectionEntered);
-		assertFalse(outerSectionExited);
-		assertFalse(firstInnerSectionEntered);
-		assertFalse(firstInnerSectionExited);
-		assertFalse(secondInnerSectionEntered);
-		assertFalse(secondInnerSectionExited);
+		assertFalse(outerCompositeEntered);
+		assertFalse(outerCompositeExited);
+		assertFalse(firstInnerCompositeEntered);
+		assertFalse(firstInnerCompositeExited);
+		assertFalse(secondInnerCompositeEntered);
+		assertFalse(secondInnerCompositeExited);
 
 		machine.evaluateInput(1);
-		assertTrue(outerSectionEntered);
-		assertFalse(outerSectionExited);
-		assertFalse(firstInnerSectionEntered);
-		assertFalse(firstInnerSectionExited);
-		assertFalse(secondInnerSectionEntered);
-		assertFalse(secondInnerSectionExited);
+		assertTrue(outerCompositeEntered);
+		assertFalse(outerCompositeExited);
+		assertFalse(firstInnerCompositeEntered);
+		assertFalse(firstInnerCompositeExited);
+		assertFalse(secondInnerCompositeEntered);
+		assertFalse(secondInnerCompositeExited);
 
 		machine.evaluateInput(2);
-		assertTrue(outerSectionEntered);
-		assertFalse(outerSectionExited);
-		assertTrue(firstInnerSectionEntered);
-		assertFalse(firstInnerSectionExited);
-		assertFalse(secondInnerSectionEntered);
-		assertFalse(secondInnerSectionExited);
+		assertTrue(outerCompositeEntered);
+		assertFalse(outerCompositeExited);
+		assertTrue(firstInnerCompositeEntered);
+		assertFalse(firstInnerCompositeExited);
+		assertFalse(secondInnerCompositeEntered);
+		assertFalse(secondInnerCompositeExited);
 
 		machine.evaluateInput(3);
-		assertTrue(outerSectionEntered);
-		assertFalse(outerSectionExited);
-		assertTrue(firstInnerSectionEntered);
-		assertTrue(firstInnerSectionExited);
-		assertTrue(secondInnerSectionEntered);
-		assertFalse(secondInnerSectionExited);
+		assertTrue(outerCompositeEntered);
+		assertFalse(outerCompositeExited);
+		assertTrue(firstInnerCompositeEntered);
+		assertTrue(firstInnerCompositeExited);
+		assertTrue(secondInnerCompositeEntered);
+		assertFalse(secondInnerCompositeExited);
 
 		machine.evaluateInput(4);
-		assertTrue(outerSectionEntered);
-		assertFalse(outerSectionExited);
-		assertTrue(firstInnerSectionEntered);
-		assertTrue(firstInnerSectionExited);
-		assertTrue(secondInnerSectionEntered);
-		assertFalse(secondInnerSectionExited);
+		assertTrue(outerCompositeEntered);
+		assertFalse(outerCompositeExited);
+		assertTrue(firstInnerCompositeEntered);
+		assertTrue(firstInnerCompositeExited);
+		assertTrue(secondInnerCompositeEntered);
+		assertFalse(secondInnerCompositeExited);
 
 		machine.evaluateInput(5);
-		assertTrue(outerSectionEntered);
-		assertTrue(outerSectionExited);
-		assertTrue(firstInnerSectionEntered);
-		assertTrue(firstInnerSectionExited);
-		assertTrue(secondInnerSectionEntered);
-		assertTrue(secondInnerSectionExited);
+		assertTrue(outerCompositeEntered);
+		assertTrue(outerCompositeExited);
+		assertTrue(firstInnerCompositeEntered);
+		assertTrue(firstInnerCompositeExited);
+		assertTrue(secondInnerCompositeEntered);
+		assertTrue(secondInnerCompositeExited);
 	}
 
 	@Test
 	public void testSettingState() {
 		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
-		assertFalse(outerSectionEntered);
-		assertFalse(outerSectionExited);
-		assertFalse(firstInnerSectionEntered);
-		assertFalse(firstInnerSectionExited);
-		assertFalse(secondInnerSectionEntered);
-		assertFalse(secondInnerSectionExited);
+		assertFalse(outerCompositeEntered);
+		assertFalse(outerCompositeExited);
+		assertFalse(firstInnerCompositeEntered);
+		assertFalse(firstInnerCompositeExited);
+		assertFalse(secondInnerCompositeEntered);
+		assertFalse(secondInnerCompositeExited);
 
 		machine.transition(stateD);
-		assertTrue(outerSectionEntered);
-		assertFalse(outerSectionExited);
-		assertFalse(firstInnerSectionEntered);
-		assertFalse(firstInnerSectionExited);
-		assertTrue(secondInnerSectionEntered);
-		assertFalse(secondInnerSectionExited);
+		assertTrue(outerCompositeEntered);
+		assertFalse(outerCompositeExited);
+		assertFalse(firstInnerCompositeEntered);
+		assertFalse(firstInnerCompositeExited);
+		assertTrue(secondInnerCompositeEntered);
+		assertFalse(secondInnerCompositeExited);
 
 		reset();
 
 		machine.transition(stateB);
 
-		assertFalse(outerSectionEntered);
-		assertFalse(outerSectionExited);
-		assertFalse(firstInnerSectionEntered);
-		assertFalse(firstInnerSectionExited);
-		assertFalse(secondInnerSectionEntered);
-		assertTrue(secondInnerSectionExited);
+		assertFalse(outerCompositeEntered);
+		assertFalse(outerCompositeExited);
+		assertFalse(firstInnerCompositeEntered);
+		assertFalse(firstInnerCompositeExited);
+		assertFalse(secondInnerCompositeEntered);
+		assertTrue(secondInnerCompositeExited);
 	}
 
 	@Test
 	public void testTransitioningFromComposite() {
 		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
-		machine.setCurrentState(stateE);
+		machine.overrideState(stateE);
 
 		machine.evaluateInput(200);
 		assertEquals(stateE, machine.getState());

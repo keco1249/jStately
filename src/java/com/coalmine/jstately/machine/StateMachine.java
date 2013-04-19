@@ -6,9 +6,9 @@ import java.util.Set;
 
 import com.coalmine.jstately.graph.StateGraph;
 import com.coalmine.jstately.graph.composite.CompositeState;
-import com.coalmine.jstately.graph.state.SubmachineState;
 import com.coalmine.jstately.graph.state.FinalState;
 import com.coalmine.jstately.graph.state.State;
+import com.coalmine.jstately.graph.state.SubmachineState;
 import com.coalmine.jstately.graph.transition.Transition;
 import com.coalmine.jstately.machine.listener.StateMachineEventListener;
 import com.google.common.collect.Lists;
@@ -37,6 +37,9 @@ public class StateMachine<MachineInput,TransitionInput> {
 	public void start() {
 		if(hasStarted()) {
 			throw new IllegalStateException("Machine has already started.");
+		}
+		if(stateGraph == null) {
+			throw new IllegalStateException("No state graph specified.");
 		}
 		if(stateGraph.getStartState()==null) {
 			throw new IllegalStateException("No start state specified.");
@@ -111,10 +114,6 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return inputIgnored;
 	}
 
-	public State<TransitionInput> getSubState() {
-		return submachine==null? null : submachine.getState();
-	}
-
 	public Set<Transition<TransitionInput>> findAllValidTransitionsFromCurrentState(TransitionInput input) {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
@@ -181,8 +180,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 			listener.beforeStateEntered(newState);
 		}
 
-		for(CompositeState<TransitionInput> section : determinateSectionBeingEntered(currentState,newState)) {
-			enterCompositeState(section);
+		for(CompositeState<TransitionInput> composite : determinateCompositesBeingEntered(currentState,newState)) {
+			enterCompositeState(composite);
 		}
 
 		currentState = newState;
@@ -200,66 +199,66 @@ public class StateMachine<MachineInput,TransitionInput> {
 		}
 	}
 
-	/** Determines which sections are being entered when entering a state.
-	 * @return A list of Sections being entered in order they are being entered (from the root Section to nested ones.) */
-	private List<CompositeState<TransitionInput>> determinateSectionBeingEntered(State<TransitionInput> oldState, State<TransitionInput> newState) {
-		List<CompositeState<TransitionInput>> newStateSections = getStateSections(newState);
+	/** Determines which composite states are being entered when entering a state.
+	 * @return A list of CompositeStates being entered in order they are being entered (from the root CompositeState to nested ones.) */
+	private List<CompositeState<TransitionInput>> determinateCompositesBeingEntered(State<TransitionInput> oldState, State<TransitionInput> newState) {
+		List<CompositeState<TransitionInput>> newStateComposites = collectCompositeStates(newState);
 		if(oldState==null) {
-			return Lists.reverse(newStateSections);
+			return Lists.reverse(newStateComposites);
 		}
 
-		List<CompositeState<TransitionInput>> oldStateSections = getStateSections(oldState);
-		newStateSections.removeAll(oldStateSections);
-		return Lists.reverse(newStateSections);
+		List<CompositeState<TransitionInput>> oldStateComposites = collectCompositeStates(oldState);
+		newStateComposites.removeAll(oldStateComposites);
+		return Lists.reverse(newStateComposites);
 	}
 
-	/** Determines which sections are being exited when exiting a state.
-	 * @return A list of Sections being exited in order they are being exist (from the state's immediate Section to its root Section.) */
-	private List<CompositeState<TransitionInput>> determinateSectionBeingExited(State<TransitionInput> oldState, State<TransitionInput> newState) {
-		List<CompositeState<TransitionInput>> oldStateSections = getStateSections(oldState);
+	/** Determines which composite states are being exited when exiting a state.
+	 * @return A list of CompositeStates being exited in order they are being exist (from the State's immediate CompositeState to its root CompositeState.) */
+	private List<CompositeState<TransitionInput>> determinateCompositeStatesBeingExited(State<TransitionInput> oldState, State<TransitionInput> newState) {
+		List<CompositeState<TransitionInput>> oldStateComposites = collectCompositeStates(oldState);
 		if(newState==null) {
-			return oldStateSections;
+			return oldStateComposites;
 		}
 
-		List<CompositeState<TransitionInput>> newStateSections = getStateSections(newState);
-		oldStateSections.removeAll(newStateSections);
-		return oldStateSections;
+		List<CompositeState<TransitionInput>> newStateComposites = collectCompositeStates(newState);
+		oldStateComposites.removeAll(newStateComposites);
+		return oldStateComposites;
 	}
 
-	/** @return A State's parent Section and all parent Sectioned, ordered from the State's Section to the root */
-	private List<CompositeState<TransitionInput>> getStateSections(State<TransitionInput> state) {
-		List<CompositeState<TransitionInput>> sections = new ArrayList<CompositeState<TransitionInput>>();
+	/** @return A all of a State's ancestor CompositeStates, ordered from the State's immediate composite to the root */
+	private List<CompositeState<TransitionInput>> collectCompositeStates(State<TransitionInput> state) {
+		List<CompositeState<TransitionInput>> composites = new ArrayList<CompositeState<TransitionInput>>();
 
-		CompositeState<TransitionInput> section = state.getComposite();
-		while(section != null) {
-			sections.add(section);
-			section = section.getParent();
+		CompositeState<TransitionInput> composite = state.getComposite();
+		while(composite != null) {
+			composites.add(composite);
+			composite = composite.getParent();
 		}
 
-		return sections;
+		return composites;
 	}
 
-	private void enterCompositeState(CompositeState<TransitionInput> section) {
+	private void enterCompositeState(CompositeState<TransitionInput> composite) {
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.beforeCompositeStateEntered(section);
+			eventListener.beforeCompositeStateEntered(composite);
 		}
 
-		section.onEnter();
+		composite.onEnter();
 
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.afterCompositeStateEntered(section);
+			eventListener.afterCompositeStateEntered(composite);
 		}
 	}
 
-	private void exitCompositeState(CompositeState<TransitionInput> section) {
+	private void exitCompositeState(CompositeState<TransitionInput> composite) {
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.beforeCompositeStateExited(section);
+			eventListener.beforeCompositeStateExited(composite);
 		}
 
-		section.onExit();
+		composite.onExit();
 
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.afterCompositeStateExited(section);
+			eventListener.afterCompositeStateExited(composite);
 		}
 	}
 
@@ -270,8 +269,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 		oldState.onExit();
 		
-		for(CompositeState<TransitionInput> section : determinateSectionBeingExited(currentState,newState)) {
-			exitCompositeState(section);
+		for(CompositeState<TransitionInput> composite : determinateCompositeStatesBeingExited(currentState,newState)) {
+			exitCompositeState(composite);
 		}
 
 		if(oldState instanceof SubmachineState) {
@@ -298,8 +297,28 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return inputProvider;
 	}
 
+	/** Returns the state of the machine, including the state of any submachines that may be running.  The first State
+	 * returned is that of machine on which getState() is being called, followed by the state of nested machines. 
+	 * @see #getState() Retrieves only the state of the machine on which it is being called. */
+	public List<State<TransitionInput>> getStates() {
+		List<State<TransitionInput>> states = new ArrayList<State<TransitionInput>>();
+		return appendCurrentState(states);
+	}
+
+	/** Gets only the State of the machine, without the state of any SubmachineStates that may be running.
+	 * @see #getStates() Retrieves the state of the current machine and nested submachines. */
 	public State<TransitionInput> getState() {
 		return currentState;
+	}
+
+	/** Restores the state of the machine and any submachines. */
+	public void restoreState(List<State<TransitionInput>> states) {
+		// FIXME Implement this.
+	}
+
+	private List<State<TransitionInput>> appendCurrentState(List<State<TransitionInput>> states) {
+		states.add(currentState);
+		return submachine==null? states : submachine.appendCurrentState(states);
 	}
 
 	/**
@@ -307,7 +326,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 	 * or {@link State#onExit()}. This is mostly for testing.  API users should generally avoid
 	 * setting a machine's state explicitly.
 	 */
-	public void setCurrentState(State<TransitionInput> newState) {
+	public void overrideState(State<TransitionInput> newState) {
 		this.currentState = newState;
 	}
 

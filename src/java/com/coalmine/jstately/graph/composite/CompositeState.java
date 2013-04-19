@@ -13,7 +13,13 @@ import com.coalmine.jstately.graph.transition.Transition;
 public class CompositeState<TransitionInput> {
 	private CompositeState<TransitionInput> parent;
 	private Set<Transition<TransitionInput>> transitions = new HashSet<Transition<TransitionInput>>();
+	private String description;
 
+	public CompositeState() { }
+
+	public CompositeState(String description) {
+		this.description = description;
+	}
 
 	public void addComposite(CompositeState<TransitionInput> composite) {
 		composite.setParent(this);
@@ -69,6 +75,11 @@ public class CompositeState<TransitionInput> {
 	public void onEnter() { }
 
 	public void onExit() { }
+
+	@Override
+	public String toString() {
+		return super.toString()+"[description="+description+"]";
+	}
 }
 
 

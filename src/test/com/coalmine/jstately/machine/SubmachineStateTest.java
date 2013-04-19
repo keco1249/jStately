@@ -1,6 +1,8 @@
 package com.coalmine.jstately.machine;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+import java.util.List;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -56,20 +58,23 @@ public class SubmachineStateTest {
 		stateMachine.addEventListener(new ConsoleStateMachineEventListener<Integer>());
 
 		stateMachine.start();
-		assertTrue(outerStart.equals(stateMachine.getState()));
+		assertEquals(outerStart, stateMachine.getState());
 
 		stateMachine.evaluateInput(1);
-		assertTrue(outerSubmachineState.equals(stateMachine.getState()));
-		assertTrue(innerAState.equals(stateMachine.getSubState()));
+		List<State<Integer>> machineState = stateMachine.getStates();
+		assertEquals(2, machineState.size());
+		assertEquals(outerSubmachineState, machineState.get(0));
+		assertEquals(innerAState, machineState.get(1));
 
 		// Test transitions within the inner graph
 		stateMachine.evaluateInput(100);
-		assertTrue(outerSubmachineState.equals(stateMachine.getState()));
-		assertTrue(innerBState.equals(stateMachine.getSubState()));
+		machineState = stateMachine.getStates();
+		assertEquals(outerSubmachineState, machineState.get(0));
+		assertEquals(innerBState, machineState.get(1));
 
 		// Test transitioning out of the inner graph
 		stateMachine.evaluateInput(200);
-		assertTrue(outerSuccess.equals(stateMachine.getState()));
+		assertEquals(outerSuccess, stateMachine.getState());
 	}
 }
 
