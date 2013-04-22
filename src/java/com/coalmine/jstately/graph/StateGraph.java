@@ -1,8 +1,6 @@
 package com.coalmine.jstately.graph;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import com.coalmine.jstately.graph.composite.CompositeState;
@@ -16,7 +14,6 @@ import com.google.common.collect.Multimap;
 /** Representation of a state graph/diagram. */
 public class StateGraph<TransitionInput> {
 	private State<TransitionInput>											startState;
-	private Map<String,State<TransitionInput>>								statesByIdentifier;
 	private Multimap<State<TransitionInput>,Transition<TransitionInput>>	transitionsByTail	= HashMultimap.create();
 
 
@@ -28,34 +25,6 @@ public class StateGraph<TransitionInput> {
 			throw new IllegalArgumentException("A graph's start state cannot be a final state.");
 		}
 		this.startState = startState;
-	}
-
-	public Set<State<TransitionInput>> getStates() {
-		return new HashSet<State<TransitionInput>>(statesByIdentifier.values());
-	}
-	public void setStates(Iterable<State<TransitionInput>> states) {
-		statesByIdentifier = new HashMap<String,State<TransitionInput>>();
-		for(State<TransitionInput> state : states) {
-			statesByIdentifier.put(state.getIdentifier(), state);
-		}
-	}
-	public void setStates(State<TransitionInput>... states) {
-		statesByIdentifier = new HashMap<String,State<TransitionInput>>();
-		for(State<TransitionInput> state : states) {
-			statesByIdentifier.put(state.getIdentifier(), state);
-		}
-	}
-	public void addState(State<TransitionInput> state) {
-		if(statesByIdentifier==null) {
-			statesByIdentifier = new HashMap<String,State<TransitionInput>>();
-		}
-		statesByIdentifier.put(state.getIdentifier(), state);
-	}
-
-	/** Convenience method to add a state and immediately set it as the graph's start state. */
-	public void addStartState(State<TransitionInput> state) {
-		addState(state);
-		setStartState(state);
 	}
 
 	public Set<Transition<TransitionInput>> getTransitions() {

@@ -5,9 +5,6 @@ import com.coalmine.jstately.graph.composite.CompositeState;
 /** Base representation of a state.
  * @see FinalState */
 public interface State<TransitionInput> {
-	/** @return A String that uniquely identifies a state in a machine. */
-	String getIdentifier();
-
 	CompositeState<TransitionInput> getComposite();
 	void setComposite(CompositeState<TransitionInput> composite);
 

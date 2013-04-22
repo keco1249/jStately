@@ -1,21 +1,18 @@
 package com.coalmine.jstately.graph.state;
 
 import com.coalmine.jstately.graph.composite.CompositeState;
-import com.coalmine.jstately.util.EqualityUtil;
 
-/**
- * Basic implementation of State with getters and setters for identifier, description and
- * acceptState. The onEnter() and onExit() methods do nothing and can be overridden as needed.
- */
+/** A basic implementation of State with a getter and setter for its description.
+ * The onEnter() and onExit() methods do nothing and can be overridden as needed. */
 public class DefaultState<TransitionInput> implements State<TransitionInput> {
-	private String	identifier;
+	private String	description;
 	private CompositeState<TransitionInput> composite;
 
 
 	public DefaultState() { }
 
-	public DefaultState(String identifier) {
-		this.identifier = identifier;
+	public DefaultState(String description) {
+		this.description = description;
 	}
 
 
@@ -33,29 +30,15 @@ public class DefaultState<TransitionInput> implements State<TransitionInput> {
 	}
 
 
-	public String getIdentifier() {
-		return identifier;
+	public String getDescription() {
+		return description;
 	}
-	public void setIdentifier(String identifier) {
-		this.identifier = identifier;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public String toString() {
-		return getClass().getName()+"[identifier="+getIdentifier()+"]";
-	}
-
-	@SuppressWarnings("rawtypes")
-	@Override
-	public boolean equals(Object obj) {
-		if(obj instanceof State) {
-			return EqualityUtil.objectsAreEqual(identifier, ((State)obj).getIdentifier());
-		}
-		return false;
-	}
-
-	@Override
-	public int hashCode() {
-		return identifier.hashCode();
+		return getClass().getName()+"[description="+getDescription()+"]";
 	}
 }
 

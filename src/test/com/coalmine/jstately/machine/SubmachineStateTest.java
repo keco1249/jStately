@@ -34,21 +34,21 @@ public class SubmachineStateTest {
 		// S → |_A_→_B_→_C_| → S
 
 		innerGraph = new StateGraph<Integer>();
-		innerGraph.addStartState(innerAState = new DefaultState<Integer>("A"));
+		innerGraph.setStartState(innerAState = new DefaultState<Integer>("A"));
 
-		innerGraph.addState(innerBState = new DefaultState<Integer>("B"));
+		innerBState = new DefaultState<Integer>("B");
 		innerGraph.addTransition(innerAState, new EqualityTransition<Integer>(innerBState, 100));
 
-		innerGraph.addState(innerCState = new DefaultFinalState<Integer>("C",2));
+		innerCState = new DefaultFinalState<Integer>("C",2);
 		innerGraph.addTransition(innerBState, new EqualityTransition<Integer>(innerCState, 200));
 
 		outerGraph = new StateGraph<Integer>();
-		outerGraph.addStartState(outerStart = new DefaultState<Integer>("Start"));
+		outerGraph.setStartState(outerStart = new DefaultState<Integer>("Start"));
 
-		outerGraph.addState(outerSubmachineState = new DefaultSubmachineState<Integer>("Submachine State", innerGraph));
+		outerSubmachineState = new DefaultSubmachineState<Integer>("Submachine State", innerGraph);
 		outerGraph.addTransition(outerStart, new EqualityTransition<Integer>(outerSubmachineState, 1));
 
-		outerGraph.addState(outerSuccess = new DefaultState<Integer>("Success"));
+		outerSuccess = new DefaultState<Integer>("Success");
 		outerGraph.addTransition(outerSubmachineState, new EqualityTransition<Integer>(outerSuccess, 2));
 	}
 

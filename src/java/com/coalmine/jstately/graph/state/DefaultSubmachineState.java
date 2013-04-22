@@ -8,8 +8,8 @@ public class DefaultSubmachineState<TransitionInput> extends DefaultState<Transi
 
 	public DefaultSubmachineState() { }
 
-	public DefaultSubmachineState(String identifier, StateGraph<TransitionInput> stateGraph) {
-		super(identifier);
+	public DefaultSubmachineState(String description, StateGraph<TransitionInput> stateGraph) {
+		super(description);
 		this.stateGraph = stateGraph;
 	}
 

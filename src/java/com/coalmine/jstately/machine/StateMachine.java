@@ -44,9 +44,6 @@ public class StateMachine<MachineInput,TransitionInput> {
 		if(stateGraph.getStartState()==null) {
 			throw new IllegalStateException("No start state specified.");
 		}
-		if(!stateGraph.getStates().contains(stateGraph.getStartState())) {
-			throw new IllegalStateException("Start state not defined in graph.");
-		}
 
 		enterState(stateGraph.getStartState());
 	}

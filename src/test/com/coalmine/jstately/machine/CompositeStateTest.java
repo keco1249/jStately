@@ -39,13 +39,14 @@ public class CompositeStateTest {
 
 		graph = new StateGraph<Integer>();
 
-		graph.addStartState(stateA = new DefaultState<Integer>("A"));
-		graph.addState(stateB = new DefaultState<Integer>("B"));
-		graph.addState(stateC = new DefaultState<Integer>("C"));
-		graph.addState(stateD = new DefaultState<Integer>("D"));
-		graph.addState(stateE = new DefaultState<Integer>("E"));
-		graph.addState(stateF = new DefaultState<Integer>("F"));
+		stateA = new DefaultState<Integer>("A");
+		stateB = new DefaultState<Integer>("B");
+		stateC = new DefaultState<Integer>("C");
+		stateD = new DefaultState<Integer>("D");
+		stateE = new DefaultState<Integer>("E");
+		stateF = new DefaultState<Integer>("F");
 
+		graph.setStartState(stateA);
 		graph.addTransition(stateA, new EqualityTransition<Integer>(stateB, 1));
 		graph.addTransition(stateB, new EqualityTransition<Integer>(stateC, 2));
 		graph.addTransition(stateC, new EqualityTransition<Integer>(stateD, 3));

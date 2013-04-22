@@ -8,8 +8,8 @@ public class DefaultFinalState<Result> extends DefaultState<Result> implements F
 		super();
 	}
 
-	public DefaultFinalState(String identifier, Result result) {
-		super(identifier);
+	public DefaultFinalState(String description, Result result) {
+		super(description);
 		this.result = result;
 	}
 

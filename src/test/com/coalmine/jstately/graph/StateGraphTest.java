@@ -22,7 +22,6 @@ public class StateGraphTest {
 	private static State<Integer> stateS,stateA,stateB,stateF;
 	private static Transition<Integer> transitionSA, transitionAB, transitionBB, transitionBA, transitionAF, globalTransitionS;
 
-	@SuppressWarnings("unchecked")
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		// Setup test graph with a global transition to F for an input of 100
@@ -44,7 +43,6 @@ public class StateGraphTest {
 		globalTransitionS = new EqualityTransition<Integer>(stateS, 100);
 
 		graph = new StateGraph<Integer>();
-		graph.setStates(stateS,stateA,stateB,stateF);
 		graph.setStartState(stateS);
 
 		graph.addTransition(stateS, transitionSA);

@@ -1,7 +1,6 @@
 package com.coalmine.jstately.graph.transition;
 
 import com.coalmine.jstately.graph.state.State;
-import com.coalmine.jstately.util.EqualityUtil;
 
 /**
  * Basic implementation of Transition where the validity of the transition is determined by the
@@ -27,7 +26,9 @@ public class EqualityTransition<TransitionInput> extends AbstractTransition<Tran
 	}
 
 	public boolean isValid(TransitionInput input) {
-		return EqualityUtil.objectsAreEqual(validityTestObject, input);
+		return validityTestObject==null?
+				input==null :
+				validityTestObject.equals(input);
 	}
 }
 
