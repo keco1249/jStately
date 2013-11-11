@@ -45,6 +45,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 			throw new IllegalStateException("No start state specified.");
 		}
 
+		stateGraph.onStart();
+
 		enterState(stateGraph.getStartState());
 	}
 

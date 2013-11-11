@@ -123,6 +123,9 @@ public class StateGraph<TransitionInput> {
 
 		return null;
 	}
+
+	/** Called when the machine operating on the graph starts. */
+	public void onStart() {}
 }
 
 
