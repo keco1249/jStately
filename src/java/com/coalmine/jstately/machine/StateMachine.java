@@ -222,14 +222,15 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return oldStateComposites;
 	}
 
-	/** @return A all of a State's ancestor CompositeStates, ordered from the State's immediate composite to the root */
+	/** @return All of a State's CompositeStates, with nested composites ordered from the State's immediate parent composite to the root */
 	private List<CompositeState<TransitionInput>> collectCompositeStates(State<TransitionInput> state) {
 		List<CompositeState<TransitionInput>> composites = new ArrayList<CompositeState<TransitionInput>>();
 
-		CompositeState<TransitionInput> composite = state.getComposite();
-		while(composite != null) {
-			composites.add(composite);
-			composite = composite.getParent();
+		for(CompositeState<TransitionInput> composite : state.getComposites()) {
+			while(composite != null) {
+				composites.add(composite);
+				composite = composite.getParent();
+			}
 		}
 
 		return composites;

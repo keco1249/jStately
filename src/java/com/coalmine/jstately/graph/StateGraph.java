@@ -59,10 +59,11 @@ public class StateGraph<TransitionInput> {
 	public Set<Transition<TransitionInput>> findAllTransitionsFromState(State<TransitionInput> tailState) {
 		Set<Transition<TransitionInput>> transitions = new HashSet<Transition<TransitionInput>>(transitionsByTail.get(tailState));
 
-		CompositeState<TransitionInput> composite = tailState.getComposite();
-		while(composite != null) {
-			transitions.addAll(composite.getTransitions());
-			composite = composite.getParent();
+		for(CompositeState<TransitionInput> composite : tailState.getComposites()) {
+			while(composite != null) {
+				transitions.addAll(composite.getTransitions());
+				composite = composite.getParent();
+			}
 		}
 
 		transitions.addAll(transitionsByTail.get(null));
@@ -79,10 +80,12 @@ public class StateGraph<TransitionInput> {
 			}
 		}
 
-		CompositeState<TransitionInput> composite = tailState.getComposite();
-		while(composite != null) {
-			validTransitions.addAll(composite.findValidTransitions(input));
-			composite = composite.getParent();
+		
+		for(CompositeState<TransitionInput> composite : tailState.getComposites()) {
+			while(composite != null) {
+				validTransitions.addAll(composite.findValidTransitions(input));
+				composite = composite.getParent();
+			}
 		}
 
 		for(Transition<TransitionInput> transition : transitionsByTail.get(null)) {
@@ -101,14 +104,15 @@ public class StateGraph<TransitionInput> {
 			}
 		}
 
-		CompositeState<TransitionInput> composite = tailState.getComposite();
-		while(composite != null) {
-			Transition<TransitionInput> transition = composite.findFirstValidTransition(input);
-			if(transition != null) {
-				return transition;
+		for(CompositeState<TransitionInput> composite : tailState.getComposites()) {
+			while(composite != null) {
+				Transition<TransitionInput> transition = composite.findFirstValidTransition(input);
+				if(transition != null) {
+					return transition;
+				}
+				
+				composite = composite.getParent();
 			}
-
-			composite = composite.getParent();
 		}
 
 		for(Transition<TransitionInput> transition : transitionsByTail.get(null)) {

@@ -26,7 +26,7 @@ public class CompositeState<TransitionInput> {
 	}
 
 	public void addState(State<TransitionInput> state) {
-		state.setComposite(this);
+		state.addComposite(this);
 	}
 
 	public void addStates(State<TransitionInput>... states) {
@@ -75,6 +75,13 @@ public class CompositeState<TransitionInput> {
 	public void onEnter() { }
 
 	public void onExit() { }
+
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 	@Override
 	public String toString() {
