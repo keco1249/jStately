@@ -3,9 +3,10 @@ jStately
 
 Author: Brandon Rich
 
-jStately is a state machine written in Java.  Unlike tools that generate state
-machine code, the goal of jStately is to allow developers to "hand craft"
-concise, readable, maintainable state graphs in an object-oriented way.
+jStately is a state machine written in Java.  There are a few tools out there
+that can churn out generated state machine code in a variety of languages
+including Java.  But the goal of jStately is to allow developers to "hand
+craft" readable, concise, maintainable state graphs in an object-oriented way.
 
 It was written with OOD principles and extensibility in mind.  Users build
 StateGraphs made up of States and Transitions, implementing methods for events
