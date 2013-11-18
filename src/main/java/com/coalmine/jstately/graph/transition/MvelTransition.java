@@ -2,7 +2,7 @@ package com.coalmine.jstately.graph.transition;
 
 import java.io.Serializable;
 
-import org.mvel2.MVEL;
+import org.mvel.MVEL;
 
 
 public class MvelTransition<TransitionInput> extends AbstractTransition<TransitionInput> implements Transition<TransitionInput> {

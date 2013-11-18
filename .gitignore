@@ -1,9 +1,5 @@
 /.project
 /.classpath
-/.settings
-/bin
 /TODO.txt
-/lib
-/doc
-/build
 /target
+/.settings

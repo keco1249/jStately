@@ -1,6 +1,11 @@
 package com.coalmine.jstately.machine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -14,6 +19,7 @@ import com.coalmine.jstately.graph.transition.EqualityTransition;
 
 public class CompositeStateTest {
 	private static StateGraph<Integer> graph;
+
 	private static State<Integer> stateA;
 	private static State<Integer> stateB;
 	private static State<Integer> stateC;
@@ -30,7 +36,7 @@ public class CompositeStateTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
-		//     _______________________
+		//      ______________________
 		//   1 |   2  ___  3  ___4___ | 5
 		// A → | B → |_C_| → |_D_→_E_|| → F
 		//     |______________________|
@@ -198,6 +204,42 @@ public class CompositeStateTest {
 
 		machine.evaluateInput(100);
 		assertEquals(stateC, machine.getState());
+	}
+
+	@Test
+	public void test() {
+		StateGraph<Integer> graph = new StateGraph<Integer>();
+
+		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>();
+
+		List<String> collectedTokens = new ArrayList<String>();
+
+		CompositeState upperComposite = new TokenAddingComposite("Upper", collectedTokens);
+		CompositeState lowerComposite = new TokenAddingComposite("Upper", collectedTokens);
+
+//		machine.
+	}
+
+
+	private class TokenAddingComposite extends CompositeState<Integer> {
+		private List<String> tokenList;
+
+
+		public TokenAddingComposite(String description, List<String> tokenList) {
+			super(description);
+
+			this.tokenList = tokenList;
+		}
+
+		@Override
+		public void onEnter() {
+			tokenList.add("Entered " + getDescription());
+		}
+
+		@Override
+		public void onExit() {
+			tokenList.add("Entered " + getDescription());
+		}
 	}
 }
 
