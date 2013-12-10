@@ -13,7 +13,7 @@ public class DefaultSubmachineState<TransitionInput> extends DefaultState<Transi
 		this.stateGraph = stateGraph;
 	}
 
-
+	@Override
 	public StateGraph<TransitionInput> getStateGraph() {
 		return stateGraph;
 	}

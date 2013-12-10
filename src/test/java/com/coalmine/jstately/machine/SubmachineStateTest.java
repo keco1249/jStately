@@ -2,7 +2,7 @@ package com.coalmine.jstately.machine;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.List;
+import java.util.Arrays;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,7 +33,9 @@ public class SubmachineStateTest {
 		// S → |_A_→_B_→_C_| → S
 
 		innerGraph = new StateGraph<Integer>();
-		innerGraph.setStartState(innerAState = new DefaultState<Integer>("A"));
+
+		innerAState = new DefaultState<Integer>("A");
+		innerGraph.setStartState(innerAState);
 
 		innerBState = new DefaultState<Integer>("B");
 		innerGraph.addTransition(innerAState, new EqualityTransition<Integer>(innerBState, 100));
@@ -42,7 +44,9 @@ public class SubmachineStateTest {
 		innerGraph.addTransition(innerBState, new EqualityTransition<Integer>(innerCState, 200));
 
 		outerGraph = new StateGraph<Integer>();
-		outerGraph.setStartState(outerStart = new DefaultState<Integer>("Start"));
+
+		outerStart = new DefaultState<Integer>("Start");
+		outerGraph.setStartState(outerStart);
 
 		outerSubmachineState = new DefaultSubmachineState<Integer>("Submachine State", innerGraph);
 		outerGraph.addTransition(outerStart, new EqualityTransition<Integer>(outerSubmachineState, 1));
@@ -51,7 +55,8 @@ public class SubmachineStateTest {
 		outerGraph.addTransition(outerSubmachineState, new EqualityTransition<Integer>(outerSuccess, 2));
 	}
 
-	@Test
+    @Test
+    @SuppressWarnings("unchecked")
 	public void testMachine() {
 		StateMachine<Integer,Integer> stateMachine = new StateMachine<Integer, Integer>(outerGraph, new DefaultInputAdapter<Integer>());
 
@@ -59,16 +64,13 @@ public class SubmachineStateTest {
 		assertEquals(outerStart, stateMachine.getState());
 
 		stateMachine.evaluateInput(1);
-		List<State<Integer>> machineState = stateMachine.getStates();
-		assertEquals(2, machineState.size());
-		assertEquals(outerSubmachineState, machineState.get(0));
-		assertEquals(innerAState, machineState.get(1));
+		assertEquals(Arrays.asList(outerSubmachineState, innerAState),
+				stateMachine.getStates());
 
 		// Test transitions within the inner graph
 		stateMachine.evaluateInput(100);
-		machineState = stateMachine.getStates();
-		assertEquals(outerSubmachineState, machineState.get(0));
-		assertEquals(innerBState, machineState.get(1));
+		assertEquals(Arrays.asList(outerSubmachineState, innerBState),
+				stateMachine.getStates());
 
 		// Test transitioning out of the inner graph
 		stateMachine.evaluateInput(200);

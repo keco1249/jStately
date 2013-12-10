@@ -139,7 +139,8 @@ public class CompositeStateTest {
 				events);
 	}
 
-	@Test
+    @Test
+    @SuppressWarnings("unchecked")
 	public void testTransition() {
 		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
 

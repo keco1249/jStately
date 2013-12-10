@@ -1,6 +1,7 @@
 package com.coalmine.jstately.machine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -34,7 +35,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 	 * Initialize the machine to its start state, calling its {@link NonFinalState#onEnter()} method.
 	 * @throws IllegalStateException thrown if no start state was specified or if the machine has already been started.
 	 */
-	public void start() {
+	@SuppressWarnings("unchecked")
+    public void start() {
 		if(hasStarted()) {
 			throw new IllegalStateException("Machine has already started.");
 		}
@@ -142,12 +144,13 @@ public class StateMachine<MachineInput,TransitionInput> {
 	 * @throws IllegalArgumentException thrown if the StateMachine has not started or the given Transition does not
 	 * originate at the machine's current state.
 	 */
-	protected void transition(Transition<TransitionInput> transition, TransitionInput input) {
+	@SuppressWarnings("unchecked")
+    protected void transition(Transition<TransitionInput> transition, TransitionInput input) {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
 
-		exitState(currentState, transition.getHead());
+		exitState(transition.getHead());
 
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 			listener.beforeTransition(transition, input);
@@ -161,18 +164,20 @@ public class StateMachine<MachineInput,TransitionInput> {
 	}
 
 	/** Exits the current state and enters the given state.  Explicitly setting the machine's state should generally be
-	 * avoided.  However, this can be could be useful if, for example, your state machine corresponds to some external
-	 * system that has changed and your application needs to get back in sync with the external system, without
-	 * arriving in the given state more naturally, by transitioning. */
-	public void transition(State<TransitionInput> newState) {
-		if(currentState != null) {
-			exitState(currentState, newState);
+	 * avoided.  However, this would be useful if, for example, your state machine corresponds to some external system
+	 * that has changed and your application needs to get back in sync with the external system, without arriving in
+	 * the given state more naturally, by transitioning. */
+	public void transition(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
+		if(newState == null) {
+			throw new IllegalArgumentException("New state cannot be null.");
 		}
 
-		enterState(newState);
+		exitState(newState);
+		enterState(newState, submachineStates);
 	}
-	
-	private void enterState(State<TransitionInput> newState) {
+
+	/** Enters the given state, using currentState to determine what CompositeStates (if any) are being enterred. */
+	private void enterState(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 			listener.beforeStateEntered(newState);
 		}
@@ -181,18 +186,28 @@ public class StateMachine<MachineInput,TransitionInput> {
 			enterCompositeState(composite);
 		}
 
-		currentState = newState;
-		currentState.onEnter();
+		newState.onEnter();
 
-		if(currentState instanceof SubmachineState) {
-			SubmachineState<TransitionInput> submachineState = (SubmachineState<TransitionInput>)currentState;
-			submachine = new StateMachine<TransitionInput,TransitionInput>(submachineState.getStateGraph(), new DefaultInputAdapter<TransitionInput>());
-			submachine.setEventListeners(eventListeners);
-			submachine.start();
+		if(newState instanceof SubmachineState) {
+			SubmachineState<TransitionInput> submachineState = (SubmachineState<TransitionInput>)newState;
+			initializeSubmachine(submachineState, submachineStates);
 		}
+
+		currentState = newState;
 
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 			listener.afterStateEntered(newState);
+		}
+	}
+
+	private void initializeSubmachine(SubmachineState<TransitionInput> submachineState, State<TransitionInput>[] submachineStates) {
+		submachine = new StateMachine<TransitionInput,TransitionInput>(submachineState.getStateGraph(), new DefaultInputAdapter<TransitionInput>());
+		submachine.setEventListeners(eventListeners);
+
+		if(submachineStates.length > 0) {
+			submachine.enterState(submachineStates[0], Arrays.copyOfRange(submachineStates, 1, submachineStates.length-1));
+		} else { // No states to initialize nested state machines to
+			submachine.start();
 		}
 	}
 
@@ -260,23 +275,30 @@ public class StateMachine<MachineInput,TransitionInput> {
 		}
 	}
 
-	private void exitState(State<TransitionInput> oldState, State<TransitionInput> newState) {
-		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-			listener.beforeStateExited(oldState);
+	/** Transitions from currentState, using newState to determine which CompositeState's (if any) are being left. */
+	private void exitState(State<TransitionInput> newState) {
+		if(currentState == null) {
+			return;
 		}
 
-		oldState.onExit();
-		
+		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+			listener.beforeStateExited(currentState);
+		}
+
+		if(currentState instanceof SubmachineState) {
+			SubmachineState<TransitionInput> submachineState = (SubmachineState<TransitionInput>)currentState;
+			// TODO Exit submachine's state
+			submachine = null;
+		}
+
+		currentState.onExit();
+
 		for(CompositeState<TransitionInput> composite : determinateCompositeStatesBeingExited(currentState,newState)) {
 			exitCompositeState(composite);
 		}
 
-		if(oldState instanceof SubmachineState) {
-			submachine = null;
-		}
-
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-			listener.afterStateExited(oldState);
+			listener.afterStateExited(currentState);
 		}
 	}
 
@@ -296,7 +318,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 	}
 
 	/** Returns the state of the machine, including the state of any submachines that may be running.  The first State
-	 * returned is that of machine on which getState() is being called, followed by the state of nested machines. 
+	 * returned is that of machine on which getState() is being called, followed by the state of nested machines.
+	 * 
 	 * @see #getState() Retrieves only the state of the machine on which it is being called. */
 	public List<State<TransitionInput>> getStates() {
 		List<State<TransitionInput>> states = new ArrayList<State<TransitionInput>>();
@@ -321,22 +344,23 @@ public class StateMachine<MachineInput,TransitionInput> {
 	/**
 	 * Simply sets the machine's state, without calling event methods like {@link State#onEnter()} or
 	 * {@link State#onExit()}. This was added for testing and should generally be avoided by API users.
+	 * 
+	 * @see #transition(State, State...)
 	 */
 	protected void overrideState(State<TransitionInput> newState) {
 		this.currentState = newState;
 	}
 
-	public List<StateMachineEventListener<TransitionInput>> getEventListeners() {
-		return eventListeners;
-	}
-	public void setEventListeners(List<StateMachineEventListener<TransitionInput>> eventListeners) {
-		if(eventListeners==null) {
-			throw new IllegalArgumentException("Provided EventListener list cannot be null.");
-		}
-		this.eventListeners = eventListeners;
-	}
+	private void setEventListeners(List<StateMachineEventListener<TransitionInput>> eventListeners) {
+	    this.eventListeners = eventListeners;
+    }
+
 	public void addEventListener(StateMachineEventListener<TransitionInput> eventListener) {
 		eventListeners.add(eventListener);
+	}
+
+	public void removeEventListener(StateMachineEventListener<TransitionInput> eventListener) {
+		eventListeners.remove(eventListener);
 	}
 }
 
