@@ -160,18 +160,16 @@ public class StateMachine<MachineInput,TransitionInput> {
 		enterState(transition.getHead());
 	}
 
-	//FIXME Document the hell out of this method since it's kinda hacky.
-	protected void transition(State<TransitionInput> oldState, State<TransitionInput> newState) {
-		if(oldState != null) {
-			exitState(oldState, newState);
+	/** Exits the current state and enters the given state.  Explicitly setting the machine's state should generally be
+	 * avoided.  However, this can be could be useful if, for example, your state machine corresponds to some external
+	 * system that has changed and your application needs to get back in sync with the external system, without
+	 * arriving in the given state more naturally, by transitioning. */
+	public void transition(State<TransitionInput> newState) {
+		if(currentState != null) {
+			exitState(currentState, newState);
 		}
 
 		enterState(newState);
-	}
-
-	//FIXME Document the hell out of this method since it's kinda hacky.
-	protected void transition(State<TransitionInput> newState) {
-		transition(currentState, newState);
 	}
 	
 	private void enterState(State<TransitionInput> newState) {
@@ -305,28 +303,26 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return appendCurrentState(states);
 	}
 
+	/** Recursively adds the current state of the machine and any submachines to the given list. */
+	private List<State<TransitionInput>> appendCurrentState(List<State<TransitionInput>> states) {
+		states.add(currentState);
+
+		return submachine==null?
+				states :
+				submachine.appendCurrentState(states);
+	}
+
 	/** Gets only the State of the machine, without the state of any SubmachineStates that may be running.
-	 * @see #getStates() Retrieves the state of the current machine and nested submachines. */
+	 * @see #getStates() */
 	public State<TransitionInput> getState() {
 		return currentState;
 	}
 
-	/** Restores the state of the machine and any submachines. */
-	public void restoreState(List<State<TransitionInput>> states) {
-		// FIXME Implement this.
-	}
-
-	private List<State<TransitionInput>> appendCurrentState(List<State<TransitionInput>> states) {
-		states.add(currentState);
-		return submachine==null? states : submachine.appendCurrentState(states);
-	}
-
 	/**
-	 * Sets the machine's state without calling any event methods such as {@link State#onEnter()}
-	 * or {@link State#onExit()}. This is mostly for testing.  API users should generally avoid
-	 * setting a machine's state explicitly.
+	 * Simply sets the machine's state, without calling event methods like {@link State#onEnter()} or
+	 * {@link State#onExit()}. This was added for testing and should generally be avoided by API users.
 	 */
-	public void overrideState(State<TransitionInput> newState) {
+	protected void overrideState(State<TransitionInput> newState) {
 		this.currentState = newState;
 	}
 

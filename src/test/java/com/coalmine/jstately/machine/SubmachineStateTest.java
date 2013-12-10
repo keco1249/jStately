@@ -1,6 +1,6 @@
 package com.coalmine.jstately.machine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
@@ -8,12 +8,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.coalmine.jstately.graph.StateGraph;
-import com.coalmine.jstately.graph.state.State;
-import com.coalmine.jstately.graph.state.DefaultSubmachineState;
 import com.coalmine.jstately.graph.state.DefaultFinalState;
 import com.coalmine.jstately.graph.state.DefaultState;
+import com.coalmine.jstately.graph.state.DefaultSubmachineState;
+import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
-import com.coalmine.jstately.machine.listener.ConsoleStateMachineEventListener;
 
 public class SubmachineStateTest {
 	private static StateGraph<Integer> outerGraph;
@@ -55,7 +54,6 @@ public class SubmachineStateTest {
 	@Test
 	public void testMachine() {
 		StateMachine<Integer,Integer> stateMachine = new StateMachine<Integer, Integer>(outerGraph, new DefaultInputAdapter<Integer>());
-		stateMachine.addEventListener(new ConsoleStateMachineEventListener<Integer>());
 
 		stateMachine.start();
 		assertEquals(outerStart, stateMachine.getState());

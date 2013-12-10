@@ -1,8 +1,6 @@
 package com.coalmine.jstately.machine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +14,7 @@ import com.coalmine.jstately.graph.composite.CompositeState;
 import com.coalmine.jstately.graph.state.DefaultState;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
+import com.google.common.collect.Lists;
 
 public class CompositeStateTest {
 	private static StateGraph<Integer> graph;
@@ -27,12 +26,16 @@ public class CompositeStateTest {
 	private static State<Integer> stateE;
 	private static State<Integer> stateF;
 
-	private static boolean outerCompositeEntered;
-	private static boolean outerCompositeExited;
-	private static boolean firstInnerCompositeEntered;
-	private static boolean firstInnerCompositeExited;
-	private static boolean secondInnerCompositeEntered;
-	private static boolean secondInnerCompositeExited;
+	private static List<Event> events = new ArrayList<Event>();
+
+	private enum Event {
+		OUTER_COMPOSITE_ENTERED,
+		OUTER_COMPOSITE_EXITED,
+		FIRST_INNER_COMPOSITE_ENTERED,
+		FIRST_INNER_COMPOSITE_EXITED,
+		SECOND_INNER_COMPOSITE_ENTERED,
+		SECOND_INNER_COMPOSITE_EXITED
+	}
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
@@ -62,11 +65,11 @@ public class CompositeStateTest {
 		CompositeState<Integer> outerComposite = new CompositeState<Integer>() {
 			@Override
 			public void onEnter() {
-				outerCompositeEntered = true;
+				events.add(Event.OUTER_COMPOSITE_ENTERED);
 			}
 			@Override
 			public void onExit() {
-				outerCompositeExited = true;
+				events.add(Event.OUTER_COMPOSITE_EXITED);
 			}
 		};
 		outerComposite.addState(stateB);
@@ -74,11 +77,11 @@ public class CompositeStateTest {
 		CompositeState<Integer> firstInnerComposite = new CompositeState<Integer>() {
 			@Override
 			public void onEnter() {
-				firstInnerCompositeEntered = true;
+				events.add(Event.FIRST_INNER_COMPOSITE_ENTERED);
 			}
 			@Override
 			public void onExit() {
-				firstInnerCompositeExited = true;
+				events.add(Event.FIRST_INNER_COMPOSITE_EXITED);
 			}
 		};
 		outerComposite.addComposite(firstInnerComposite);
@@ -87,11 +90,11 @@ public class CompositeStateTest {
 		CompositeState<Integer> secondInnerComposite = new CompositeState<Integer>() {
 			@Override
 			public void onEnter() {
-				secondInnerCompositeEntered = true;
+				events.add(Event.SECOND_INNER_COMPOSITE_ENTERED);
 			}
 			@Override
 			public void onExit() {
-				secondInnerCompositeExited = true;
+				events.add(Event.SECOND_INNER_COMPOSITE_EXITED);
 			}
 		};
 		outerComposite.addComposite(secondInnerComposite);
@@ -100,98 +103,54 @@ public class CompositeStateTest {
 		secondInnerComposite.addTransition(new EqualityTransition<Integer>(stateC, 100));
 	}
 
-
 	@Before
 	public void reset() {
-		outerCompositeEntered = false;
-		outerCompositeExited = false;
-		firstInnerCompositeEntered = false;
-		firstInnerCompositeExited = false;
-		secondInnerCompositeEntered = false;
-		secondInnerCompositeExited = false;
+		events.clear();
 	}
 
 	@Test
 	public void testMachine() {
 		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
-		machine.start();
 
-		assertFalse(outerCompositeEntered);
-		assertFalse(outerCompositeExited);
-		assertFalse(firstInnerCompositeEntered);
-		assertFalse(firstInnerCompositeExited);
-		assertFalse(secondInnerCompositeEntered);
-		assertFalse(secondInnerCompositeExited);
+		machine.start();
+		assertTrue(events.isEmpty());
 
 		machine.evaluateInput(1);
-		assertTrue(outerCompositeEntered);
-		assertFalse(outerCompositeExited);
-		assertFalse(firstInnerCompositeEntered);
-		assertFalse(firstInnerCompositeExited);
-		assertFalse(secondInnerCompositeEntered);
-		assertFalse(secondInnerCompositeExited);
+		assertEquals(Lists.newArrayList(Event.OUTER_COMPOSITE_ENTERED),
+				events);
 
+		events.clear();
 		machine.evaluateInput(2);
-		assertTrue(outerCompositeEntered);
-		assertFalse(outerCompositeExited);
-		assertTrue(firstInnerCompositeEntered);
-		assertFalse(firstInnerCompositeExited);
-		assertFalse(secondInnerCompositeEntered);
-		assertFalse(secondInnerCompositeExited);
+		assertEquals(Lists.newArrayList(Event.FIRST_INNER_COMPOSITE_ENTERED),
+				events);
 
+		events.clear();
 		machine.evaluateInput(3);
-		assertTrue(outerCompositeEntered);
-		assertFalse(outerCompositeExited);
-		assertTrue(firstInnerCompositeEntered);
-		assertTrue(firstInnerCompositeExited);
-		assertTrue(secondInnerCompositeEntered);
-		assertFalse(secondInnerCompositeExited);
+		assertEquals(Lists.newArrayList(Event.FIRST_INNER_COMPOSITE_EXITED, Event.SECOND_INNER_COMPOSITE_ENTERED),
+				events);
 
+		events.clear();
 		machine.evaluateInput(4);
-		assertTrue(outerCompositeEntered);
-		assertFalse(outerCompositeExited);
-		assertTrue(firstInnerCompositeEntered);
-		assertTrue(firstInnerCompositeExited);
-		assertTrue(secondInnerCompositeEntered);
-		assertFalse(secondInnerCompositeExited);
+		assertTrue(events.isEmpty());
 
+		events.clear();
 		machine.evaluateInput(5);
-		assertTrue(outerCompositeEntered);
-		assertTrue(outerCompositeExited);
-		assertTrue(firstInnerCompositeEntered);
-		assertTrue(firstInnerCompositeExited);
-		assertTrue(secondInnerCompositeEntered);
-		assertTrue(secondInnerCompositeExited);
+		assertEquals(Lists.newArrayList(Event.SECOND_INNER_COMPOSITE_EXITED, Event.OUTER_COMPOSITE_EXITED),
+				events);
 	}
 
 	@Test
-	public void testSettingState() {
+	public void testTransition() {
 		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
-		assertFalse(outerCompositeEntered);
-		assertFalse(outerCompositeExited);
-		assertFalse(firstInnerCompositeEntered);
-		assertFalse(firstInnerCompositeExited);
-		assertFalse(secondInnerCompositeEntered);
-		assertFalse(secondInnerCompositeExited);
 
 		machine.transition(stateD);
-		assertTrue(outerCompositeEntered);
-		assertFalse(outerCompositeExited);
-		assertFalse(firstInnerCompositeEntered);
-		assertFalse(firstInnerCompositeExited);
-		assertTrue(secondInnerCompositeEntered);
-		assertFalse(secondInnerCompositeExited);
+		assertEquals(Lists.newArrayList(Event.OUTER_COMPOSITE_ENTERED, Event.SECOND_INNER_COMPOSITE_ENTERED),
+				events);
 
 		reset();
-
 		machine.transition(stateB);
-
-		assertFalse(outerCompositeEntered);
-		assertFalse(outerCompositeExited);
-		assertFalse(firstInnerCompositeEntered);
-		assertFalse(firstInnerCompositeExited);
-		assertFalse(secondInnerCompositeEntered);
-		assertTrue(secondInnerCompositeExited);
+		assertEquals(Lists.newArrayList(Event.SECOND_INNER_COMPOSITE_EXITED),
+				events);
 	}
 
 	@Test
@@ -204,42 +163,6 @@ public class CompositeStateTest {
 
 		machine.evaluateInput(100);
 		assertEquals(stateC, machine.getState());
-	}
-
-	@Test
-	public void test() {
-		StateGraph<Integer> graph = new StateGraph<Integer>();
-
-		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>();
-
-		List<String> collectedTokens = new ArrayList<String>();
-
-		CompositeState upperComposite = new TokenAddingComposite("Upper", collectedTokens);
-		CompositeState lowerComposite = new TokenAddingComposite("Upper", collectedTokens);
-
-//		machine.
-	}
-
-
-	private class TokenAddingComposite extends CompositeState<Integer> {
-		private List<String> tokenList;
-
-
-		public TokenAddingComposite(String description, List<String> tokenList) {
-			super(description);
-
-			this.tokenList = tokenList;
-		}
-
-		@Override
-		public void onEnter() {
-			tokenList.add("Entered " + getDescription());
-		}
-
-		@Override
-		public void onExit() {
-			tokenList.add("Entered " + getDescription());
-		}
 	}
 }
 
