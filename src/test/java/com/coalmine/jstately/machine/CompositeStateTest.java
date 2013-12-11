@@ -1,11 +1,7 @@
 package com.coalmine.jstately.machine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -14,7 +10,9 @@ import com.coalmine.jstately.graph.composite.CompositeState;
 import com.coalmine.jstately.graph.state.DefaultState;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
-import com.google.common.collect.Lists;
+import com.coalmine.jstately.test.Event;
+import com.coalmine.jstately.test.EventType;
+import com.coalmine.jstately.test.TestEventListener;
 
 public class CompositeStateTest {
 	private static StateGraph<Integer> graph;
@@ -26,16 +24,10 @@ public class CompositeStateTest {
 	private static State<Integer> stateE;
 	private static State<Integer> stateF;
 
-	private static List<Event> events = new ArrayList<Event>();
+	private static CompositeState<Integer> outerComposite;
+	private static CompositeState<Integer> firstInnerComposite;
+	private static CompositeState<Integer> secondInnerComposite;
 
-	private enum Event {
-		OUTER_COMPOSITE_ENTERED,
-		OUTER_COMPOSITE_EXITED,
-		FIRST_INNER_COMPOSITE_ENTERED,
-		FIRST_INNER_COMPOSITE_EXITED,
-		SECOND_INNER_COMPOSITE_ENTERED,
-		SECOND_INNER_COMPOSITE_EXITED
-	}
 
 	@BeforeClass
 	public static void setUpBeforeClass() {
@@ -62,81 +54,54 @@ public class CompositeStateTest {
 		graph.addTransition(stateD, new EqualityTransition<Integer>(stateE, 4));
 		graph.addTransition(stateE, new EqualityTransition<Integer>(stateF, 5));
 
-		CompositeState<Integer> outerComposite = new CompositeState<Integer>() {
-			@Override
-			public void onEnter() {
-				events.add(Event.OUTER_COMPOSITE_ENTERED);
-			}
-			@Override
-			public void onExit() {
-				events.add(Event.OUTER_COMPOSITE_EXITED);
-			}
-		};
+		outerComposite = new CompositeState<Integer>("Outer Composite");
 		outerComposite.addState(stateB);
 
-		CompositeState<Integer> firstInnerComposite = new CompositeState<Integer>() {
-			@Override
-			public void onEnter() {
-				events.add(Event.FIRST_INNER_COMPOSITE_ENTERED);
-			}
-			@Override
-			public void onExit() {
-				events.add(Event.FIRST_INNER_COMPOSITE_EXITED);
-			}
-		};
+		firstInnerComposite = new CompositeState<Integer>("First Inner Composite");
 		outerComposite.addComposite(firstInnerComposite);
 		firstInnerComposite.addState(stateC);
 
-		CompositeState<Integer> secondInnerComposite = new CompositeState<Integer>() {
-			@Override
-			public void onEnter() {
-				events.add(Event.SECOND_INNER_COMPOSITE_ENTERED);
-			}
-			@Override
-			public void onExit() {
-				events.add(Event.SECOND_INNER_COMPOSITE_EXITED);
-			}
-		};
+		secondInnerComposite = new CompositeState<Integer>("Second Inner Composite");
 		outerComposite.addComposite(secondInnerComposite);
 		secondInnerComposite.addState(stateD);
 		secondInnerComposite.addState(stateE);
 		secondInnerComposite.addTransition(new EqualityTransition<Integer>(stateC, 100));
 	}
 
-	@Before
-	public void reset() {
-		events.clear();
-	}
-
 	@Test
 	public void testMachine() {
 		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
 
+		TestEventListener<Integer> listener = new TestEventListener<Integer>(EventType.COMPOSITE_STATE_ENTERED, EventType.COMPOSITE_STATE_EXITED);
+		machine.addEventListener(listener);
+
 		machine.start();
-		assertTrue(events.isEmpty());
+		listener.assertEventsOccurred();
 
 		machine.evaluateInput(1);
-		assertEquals(Lists.newArrayList(Event.OUTER_COMPOSITE_ENTERED),
-				events);
+		listener.assertEventsOccurred(
+				Event.forCompositeStateEntry(outerComposite));
 
-		events.clear();
+		listener.clear();
 		machine.evaluateInput(2);
-		assertEquals(Lists.newArrayList(Event.FIRST_INNER_COMPOSITE_ENTERED),
-				events);
+		listener.assertEventsOccurred(
+				Event.forCompositeStateEntry(firstInnerComposite));
 
-		events.clear();
+		listener.clear();
 		machine.evaluateInput(3);
-		assertEquals(Lists.newArrayList(Event.FIRST_INNER_COMPOSITE_EXITED, Event.SECOND_INNER_COMPOSITE_ENTERED),
-				events);
+		listener.assertEventsOccurred(
+				Event.forCompositeStateExit(firstInnerComposite),
+				Event.forCompositeStateEntry(secondInnerComposite));
 
-		events.clear();
+		listener.clear();
 		machine.evaluateInput(4);
-		assertTrue(events.isEmpty());
+		listener.assertEventsOccurred();
 
-		events.clear();
+		listener.clear();
 		machine.evaluateInput(5);
-		assertEquals(Lists.newArrayList(Event.SECOND_INNER_COMPOSITE_EXITED, Event.OUTER_COMPOSITE_EXITED),
-				events);
+		listener.assertEventsOccurred(
+				Event.forCompositeStateExit(secondInnerComposite),
+				Event.forCompositeStateExit(outerComposite));
 	}
 
     @Test
@@ -144,14 +109,18 @@ public class CompositeStateTest {
 	public void testTransition() {
 		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
 
-		machine.transition(stateD);
-		assertEquals(Lists.newArrayList(Event.OUTER_COMPOSITE_ENTERED, Event.SECOND_INNER_COMPOSITE_ENTERED),
-				events);
+		TestEventListener<Integer> listener = new TestEventListener<Integer>(EventType.COMPOSITE_STATE_ENTERED, EventType.COMPOSITE_STATE_EXITED);
+		machine.addEventListener(listener);
 
-		reset();
+		machine.transition(stateD);
+		listener.assertEventsOccurred(
+				Event.forCompositeStateEntry(outerComposite),
+				Event.forCompositeStateEntry(secondInnerComposite));
+
+		listener.clear();
 		machine.transition(stateB);
-		assertEquals(Lists.newArrayList(Event.SECOND_INNER_COMPOSITE_EXITED),
-				events);
+		listener.assertEventsOccurred(
+				Event.forCompositeStateExit(secondInnerComposite));
 	}
 
 	@Test
