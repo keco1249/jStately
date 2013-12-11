@@ -11,6 +11,11 @@ import com.coalmine.jstately.machine.listener.DefaultStateMachineEventListener;
 public class TestEventListener<TransitionInput> extends DefaultStateMachineEventListener<TransitionInput> {
 	private List<Event> events = new ArrayList<TestEventListener.Event>();
 
+
+	public void clear() {
+		events.clear();
+	}
+
 	@Override
 	public void afterStateEntered(State<TransitionInput> state) {
 		events.add(new Event(EventType.STATE_ENTERED, state));
@@ -36,6 +41,10 @@ public class TestEventListener<TransitionInput> extends DefaultStateMachineEvent
 		events.add(new Event(EventType.TRANSITION_FOLLOWED, transition));
 	}
 
+	public List<Event> getEvents() {
+	    return events;
+    }
+
 
 	public static class Event {
 		private EventType type;
@@ -58,12 +67,18 @@ public class TestEventListener<TransitionInput> extends DefaultStateMachineEvent
 		}
 
 		// TODO It shouldn't come into play here but when a class overrides equals(), it should also override hashCode().  Just something to think about...
+
+		@Override
+		public String toString() {
+		    return super.toString()+"[type="+type+",value="+value+"]";
+		}
 	}
 
 
 	public enum EventType {
 		STATE_ENTERED, STATE_EXITED,
 		COMPOSITE_STATE_ENTERED, COMPOSITE_STATE_EXITED,
+		SUBMACHINE_ENTERED, SUBMACHINE_EXITED,
 		TRANSITION_FOLLOWED
 	}
 }
