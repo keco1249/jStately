@@ -12,7 +12,7 @@ import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
 import com.coalmine.jstately.test.Event;
 import com.coalmine.jstately.test.EventType;
-import com.coalmine.jstately.test.TestEventListener;
+import com.coalmine.jstately.test.TestMachineEventListener;
 
 public class CompositeStateTest {
 	private static StateGraph<Integer> graph;
@@ -72,7 +72,7 @@ public class CompositeStateTest {
 	public void testMachine() {
 		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
 
-		TestEventListener<Integer> listener = new TestEventListener<Integer>(EventType.COMPOSITE_STATE_ENTERED, EventType.COMPOSITE_STATE_EXITED);
+		TestMachineEventListener<Integer> listener = new TestMachineEventListener<Integer>(EventType.COMPOSITE_STATE_ENTERED, EventType.COMPOSITE_STATE_EXITED);
 		machine.addEventListener(listener);
 
 		machine.start();
@@ -82,22 +82,22 @@ public class CompositeStateTest {
 		listener.assertEventsOccurred(
 				Event.forCompositeStateEntry(outerComposite));
 
-		listener.clear();
+		listener.clearObservedEvents();
 		machine.evaluateInput(2);
 		listener.assertEventsOccurred(
 				Event.forCompositeStateEntry(firstInnerComposite));
 
-		listener.clear();
+		listener.clearObservedEvents();
 		machine.evaluateInput(3);
 		listener.assertEventsOccurred(
 				Event.forCompositeStateExit(firstInnerComposite),
 				Event.forCompositeStateEntry(secondInnerComposite));
 
-		listener.clear();
+		listener.clearObservedEvents();
 		machine.evaluateInput(4);
 		listener.assertEventsOccurred();
 
-		listener.clear();
+		listener.clearObservedEvents();
 		machine.evaluateInput(5);
 		listener.assertEventsOccurred(
 				Event.forCompositeStateExit(secondInnerComposite),
@@ -109,7 +109,7 @@ public class CompositeStateTest {
 	public void testTransition() {
 		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
 
-		TestEventListener<Integer> listener = new TestEventListener<Integer>(EventType.COMPOSITE_STATE_ENTERED, EventType.COMPOSITE_STATE_EXITED);
+		TestMachineEventListener<Integer> listener = new TestMachineEventListener<Integer>(EventType.COMPOSITE_STATE_ENTERED, EventType.COMPOSITE_STATE_EXITED);
 		machine.addEventListener(listener);
 
 		machine.transition(stateD);
@@ -117,7 +117,7 @@ public class CompositeStateTest {
 				Event.forCompositeStateEntry(outerComposite),
 				Event.forCompositeStateEntry(secondInnerComposite));
 
-		listener.clear();
+		listener.clearObservedEvents();
 		machine.transition(stateB);
 		listener.assertEventsOccurred(
 				Event.forCompositeStateExit(secondInnerComposite));

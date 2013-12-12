@@ -10,35 +10,42 @@ import com.coalmine.jstately.graph.composite.CompositeState;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.Transition;
 import com.coalmine.jstately.machine.listener.DefaultStateMachineEventListener;
+import com.coalmine.jstately.machine.listener.StateMachineEventListener;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 
-public class TestEventListener<TransitionInput> extends DefaultStateMachineEventListener<TransitionInput> {
+/** {@link StateMachineEventListener} implementation for use in test cases.  This listener stores events that occur,
+ * allowing users to assert that a certain sequence of events occurred, using {@link #assertEventsOccurred(Event...)}. */
+public class TestMachineEventListener<TransitionInput> extends DefaultStateMachineEventListener<TransitionInput> {
 	private List<Event> events = new ArrayList<Event>();
-	private Set<EventType> typesToLog;
+	private Set<EventType> loggedEventTypes;
 
 
-	public TestEventListener(EventType... types) {
+	/** Creates a listener that records only the given events, or all events if none are provided. */
+	public TestMachineEventListener(EventType... types) {
 		if(types.length == 0) {
-			typesToLog = null;
+			loggedEventTypes = null;
 		} else {
-			typesToLog = Sets.newHashSet(types);
+			loggedEventTypes = Sets.newHashSet(types);
 		}
     }
 
+	/** Asserts that the given Events (and only the given Events) occurred in the given order.  Keep in
+	 * mind that the observed Events are limited to the EventTypes given when constructing the listener. */
 	public void assertEventsOccurred(Event... expectedEvents) {
 		assertEquals("Expected events not found",
 				Lists.newArrayList(expectedEvents),
 				events);
 	}
 
-	public void clear() {
+	/** Clears the list of Events that have been observed. */
+	public void clearObservedEvents() {
 		events.clear();
 	}
 
 	private void logEvent(EventType type, Object value) {
-	    if(typesToLog==null || typesToLog.contains(type)) {
+	    if(loggedEventTypes==null || loggedEventTypes.contains(type)) {
 	    	events.add(new Event(type, value));
 	    }
     }
