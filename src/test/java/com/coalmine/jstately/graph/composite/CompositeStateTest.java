@@ -8,7 +8,7 @@ import com.coalmine.jstately.graph.composite.CompositeState;
 import com.coalmine.jstately.graph.state.DefaultState;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.Transition;
-import com.coalmine.jstately.test.FixedValidityTransition;
+import com.coalmine.jstately.test.DefaultTransition;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -66,7 +66,7 @@ public class CompositeStateTest {
     @SuppressWarnings("unchecked")
 	public void testAddTransition() {
 		CompositeState<Object> composite = new CompositeState<Object>();
-		Transition<Object> firstTransition = new FixedValidityTransition<Object>();
+		Transition<Object> firstTransition = new DefaultTransition<Object>();
 
 		composite.addTransition(firstTransition);
 
@@ -74,7 +74,7 @@ public class CompositeStateTest {
 				Sets.newHashSet(firstTransition),
 				composite.getTransitions());
 
-		Transition<Object> secondTransition = new FixedValidityTransition<Object>();
+		Transition<Object> secondTransition = new DefaultTransition<Object>();
 		composite.addTransition(secondTransition);
 
 		assertEquals("A composite should maintain a reference to any transition added to it.",
@@ -86,7 +86,7 @@ public class CompositeStateTest {
 	public void testFindFirstValidTransitionWithoutValidTransition() {
 		CompositeState<Object> compositeState = new CompositeState<Object>();
 
-		Transition<Object> invalidTransition = new FixedValidityTransition<Object>(false);
+		Transition<Object> invalidTransition = new DefaultTransition<Object>(false);
 		compositeState.addTransition(invalidTransition);
 
 		assertNull("No valid transitions should have been found",
@@ -97,7 +97,7 @@ public class CompositeStateTest {
 	public void testFindFirstValidTransitionWithValidTransition() {
 		CompositeState<Object> compositeState = new CompositeState<Object>();
 
-		Transition<Object> validTransition = new FixedValidityTransition<Object>(true);
+		Transition<Object> validTransition = new DefaultTransition<Object>(true);
 		compositeState.addTransition(validTransition);
 
 		assertEquals("The valid transition should have been returned",
@@ -110,16 +110,16 @@ public class CompositeStateTest {
 	public void testFindValidTransitions() {
 		CompositeState<Object> compositeState = new CompositeState<Object>();
 
-		Transition<Object> firstValidTransition = new FixedValidityTransition<Object>(true);
+		Transition<Object> firstValidTransition = new DefaultTransition<Object>(true);
 		compositeState.addTransition(firstValidTransition);
 
-		Transition<Object> secondValidTransition = new FixedValidityTransition<Object>(true);
+		Transition<Object> secondValidTransition = new DefaultTransition<Object>(true);
 		compositeState.addTransition(secondValidTransition);
  
-		Transition<Object> firstInvalidTransition = new FixedValidityTransition<Object>(false);
+		Transition<Object> firstInvalidTransition = new DefaultTransition<Object>(false);
 		compositeState.addTransition(firstInvalidTransition);
 
-		Transition<Object> secondInvalidTransition = new FixedValidityTransition<Object>(false);
+		Transition<Object> secondInvalidTransition = new DefaultTransition<Object>(false);
 		compositeState.addTransition(secondInvalidTransition);
 
 		assertEquals("The valid transition should have been returned",

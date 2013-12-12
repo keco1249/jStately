@@ -4,16 +4,17 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import com.coalmine.jstately.graph.OldStateGraphTest;
+import com.coalmine.jstately.graph.StateGraphTest;
+import com.coalmine.jstately.graph.composite.CompositeStateTest;
+import com.coalmine.jstately.graph.transition.DisjunctiveEqualityTransitionTest;
+import com.coalmine.jstately.graph.transition.EqualityTransitionTest;
 import com.coalmine.jstately.graph.transition.MvelTransitionTest;
-import com.coalmine.jstately.machine.CompositeStateTest;
-import com.coalmine.jstately.machine.SubmachineStateTest;
 
 
 @RunWith(Suite.class)
-@SuiteClasses({ MvelTransitionTest.class, OldStateGraphTest.class, SubmachineStateTest.class, CompositeStateTest.class })
-public class AllTests {
-
-}
+@SuiteClasses({ CompositeStateTest.class,
+		DisjunctiveEqualityTransitionTest.class, EqualityTransitionTest.class, MvelTransitionTest.class, 
+		StateGraphTest.class })
+public class AllTests { }
 
 

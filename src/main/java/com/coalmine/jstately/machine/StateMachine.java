@@ -115,12 +115,12 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return inputIgnored;
 	}
 
-	public Set<Transition<TransitionInput>> findAllValidTransitionsFromCurrentState(TransitionInput input) {
-		if(!hasStarted()) {
-			throw new IllegalStateException("Machine has not started.");
-		}
-		return stateGraph.findValidTransitionsFromState(currentState, input);
-	}
+//	public Set<Transition<TransitionInput>> findAllValidTransitionsFromCurrentState(TransitionInput input) {
+//		if(!hasStarted()) {
+//			throw new IllegalStateException("Machine has not started.");
+//		}
+//		return stateGraph.findValidTransitionsFromState(currentState, input);
+//	}
 
 	public Transition<TransitionInput> findFirstValidTransitionFromCurrentState(TransitionInput input) {
 		if(!hasStarted()) {
@@ -129,12 +129,12 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return stateGraph.findFirstValidTransitionFromState(currentState, input);
 	}
 
-	public Set<Transition<TransitionInput>> getTransitionsFromCurrentState() {
-		if(!hasStarted()) {
-			throw new IllegalStateException("Machine has not started.");
-		}
-		return stateGraph.findAllTransitionsFromState(currentState);
-	}
+//	public Set<Transition<TransitionInput>> getTransitionsFromCurrentState() {
+//		if(!hasStarted()) {
+//			throw new IllegalStateException("Machine has not started.");
+//		}
+//		return stateGraph.findAllTransitionsFromState(currentState);
+//	}
 
 	/**
 	 * Follows the given transition without checking its validity.  Calls {@link State#onExit()} on

@@ -15,7 +15,7 @@ public class DisjunctiveEqualityTransitionTest {
 		assertFalse("Transition should not be valid for an input not in its set of valid inputs", transition.isValid(0));
 		assertTrue("Transition should be valid for an input in its set of valid inputs", transition.isValid(1));
 		assertTrue("Transition should be valid for an input in its set of valid inputs", transition.isValid(2));
-		assertTrue("Transition should be valid for an input in its set of valid inputs", transition.isValid(null));
+		assertFalse("Transition should be valid for an input in its set of valid inputs", transition.isValid(null));
 	}
 }
 
