@@ -19,15 +19,15 @@ import com.google.common.collect.Sets;
  * allowing users to assert that a certain sequence of events occurred, using {@link #assertEventsOccurred(Event...)}. */
 public class TestMachineEventListener<TransitionInput> extends DefaultStateMachineEventListener<TransitionInput> {
 	private List<Event> events = new ArrayList<Event>();
-	private Set<EventType> loggedEventTypes;
+	private Set<EventType> allowedEventTypes;
 
 
 	/** Creates a listener that records only the given events, or all events if none are provided. */
-	public TestMachineEventListener(EventType... types) {
-		if(types.length == 0) {
-			loggedEventTypes = null;
+	public TestMachineEventListener(EventType... allowedEventTypes) {
+		if(allowedEventTypes.length == 0) {
+			this.allowedEventTypes = null;
 		} else {
-			loggedEventTypes = Sets.newHashSet(types);
+			this.allowedEventTypes = Sets.newHashSet(allowedEventTypes);
 		}
     }
 
@@ -45,7 +45,7 @@ public class TestMachineEventListener<TransitionInput> extends DefaultStateMachi
 	}
 
 	private void logEvent(EventType type, Object value) {
-	    if(loggedEventTypes==null || loggedEventTypes.contains(type)) {
+	    if(allowedEventTypes==null || allowedEventTypes.contains(type)) {
 	    	events.add(new Event(type, value));
 	    }
     }
