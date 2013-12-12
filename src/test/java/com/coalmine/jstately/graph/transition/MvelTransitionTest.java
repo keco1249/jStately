@@ -1,4 +1,4 @@
-package com.coalmine.jstately.graph;
+package com.coalmine.jstately.graph.transition;
 
 import static org.junit.Assert.*;
 
@@ -14,13 +14,8 @@ public class MvelTransitionTest {
 		MvelTransition<TestInput> transition = new MvelTransition<TestInput>();
 		transition.setValidityTestExpression("stringValue=='Testing' && intValue==15");
 
-		TestInput input = new TestInput();
-		input.setStringValue("Testing");
-		input.setIntValue(15);
-		assertTrue(transition.isValid(input));
-
-		input.setStringValue("Unexpected value");
-		assertFalse(transition.isValid(input));
+		assertTrue(transition.isValid(new TestInput("Testing", 15)));
+		assertFalse(transition.isValid(new TestInput("Unexpected value", 15)));
 	}
 
 
@@ -28,18 +23,17 @@ public class MvelTransitionTest {
 		private String	stringValue;
 		private int		intValue;
 
+		public TestInput(String	stringValue, int intValue) {
+	        this.stringValue = stringValue;
+	        this.intValue = intValue;
+        }
+
 		public String getStringValue() {
 			return stringValue;
-		}
-		public void setStringValue(String stringValue) {
-			this.stringValue = stringValue;
 		}
 
 		public int getIntValue() {
 			return intValue;
-		}
-		public void setIntValue(int intValue) {
-			this.intValue = intValue;
 		}
 	}
 }

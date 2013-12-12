@@ -10,11 +10,10 @@ import com.coalmine.jstately.graph.transition.Transition;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-
 /** Representation of a state graph/diagram. */
 public class StateGraph<TransitionInput> {
-	private State<TransitionInput>											startState;
-	private Multimap<State<TransitionInput>,Transition<TransitionInput>>	transitionsByTail	= HashMultimap.create();
+	private State<TransitionInput> startState;
+	private Multimap<State<TransitionInput>,Transition<TransitionInput>> transitionsByTail = HashMultimap.create();
 
 
 	public State<TransitionInput> getStartState() {

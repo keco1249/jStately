@@ -17,7 +17,7 @@ import com.coalmine.jstately.graph.transition.EqualityTransition;
 import com.coalmine.jstately.graph.transition.Transition;
 
 
-public class StateGraphTest {
+public class OldStateGraphTest {
 	private static StateGraph<Integer> graph;
 	private static State<Integer> stateS,stateA,stateB,stateF;
 	private static Transition<Integer> transitionSA, transitionAB, transitionBB, transitionBA, transitionAF, globalTransitionS;
