@@ -34,7 +34,7 @@ public class TestMachineEventListener<TransitionInput> extends DefaultStateMachi
 	/** Asserts that the given Events (and only the given Events) occurred in the given order.  Keep in
 	 * mind that the observed Events are limited to the EventTypes given when constructing the listener. */
 	public void assertEventsOccurred(Event... expectedEvents) {
-		assertEquals("Expected events not found",
+		assertEquals("The exact sequence of expected events was not observed.",
 				Lists.newArrayList(expectedEvents),
 				events);
 	}
@@ -51,27 +51,27 @@ public class TestMachineEventListener<TransitionInput> extends DefaultStateMachi
     }
 
 	@Override
-	public void afterStateEntered(State<TransitionInput> state) {
+	public void beforeStateEntered(State<TransitionInput> state) {
 		logEvent(EventType.STATE_ENTERED, state);
 	}
 
 	@Override
-	public void afterStateExited(State<TransitionInput> state) {
+	public void beforeStateExited(State<TransitionInput> state) {
 		logEvent(EventType.STATE_EXITED, state);
 	}
 
 	@Override
-	public void afterCompositeStateEntered(CompositeState<TransitionInput> composite) {
+	public void beforeCompositeStateEntered(CompositeState<TransitionInput> composite) {
 		logEvent(EventType.COMPOSITE_STATE_ENTERED, composite);
 	}
 
 	@Override
-	public void afterCompositeStateExited(CompositeState<TransitionInput> composite) {
+	public void beforeCompositeStateExited(CompositeState<TransitionInput> composite) {
 		logEvent(EventType.COMPOSITE_STATE_EXITED, composite);
 	}
 
 	@Override
-	public void afterTransition(Transition<TransitionInput> transition, TransitionInput input) {
+	public void beforeTransition(Transition<TransitionInput> transition, TransitionInput input) {
 		logEvent(EventType.TRANSITION_FOLLOWED, transition);
 	}
 

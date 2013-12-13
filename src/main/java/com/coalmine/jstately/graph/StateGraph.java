@@ -54,50 +54,6 @@ public class StateGraph<TransitionInput> {
 		return new HashSet<Transition<TransitionInput>>(transitionsByTail.get(null));
 	}
 
-//	/** @return All of the Transitions (valid or not) from the given State and enclosing CompositeStates. */
-//	public Set<Transition<TransitionInput>> findAllTransitionsFromState(State<TransitionInput> tailState) {
-//		Set<Transition<TransitionInput>> transitions = new HashSet<Transition<TransitionInput>>(transitionsByTail.get(tailState));
-//
-//		for(CompositeState<TransitionInput> composite : tailState.getComposites()) {
-//			while(composite != null) {
-//				transitions.addAll(composite.getTransitions());
-//				composite = composite.getParent();
-//			}
-//		}
-//
-//		transitions.addAll(transitionsByTail.get(null));
-//
-//		// TODO If this method makes a comeback, should it add the global transition too?
-//
-//		return transitions;
-//	}
-
-//	public Set<Transition<TransitionInput>> findValidTransitionsFromState(State<TransitionInput> tailState, TransitionInput input) {
-//		Set<Transition<TransitionInput>> validTransitions = new HashSet<Transition<TransitionInput>>();
-//
-//		for(Transition<TransitionInput> transition : transitionsByTail.get(tailState)) {
-//			if(transition.isValid(input)) {
-//				validTransitions.add(transition);
-//			}
-//		}
-//
-//		
-//		for(CompositeState<TransitionInput> composite : tailState.getComposites()) {
-//			while(composite != null) {
-//				validTransitions.addAll(composite.findValidTransitions(input));
-//				composite = composite.getParent();
-//			}
-//		}
-//
-//		for(Transition<TransitionInput> transition : transitionsByTail.get(null)) {
-//			if(transition.isValid(input)) {
-//				validTransitions.add(transition);
-//			}
-//		}
-//
-//		return validTransitions;
-//	}
-
 	public Transition<TransitionInput> findFirstValidTransitionFromState(State<TransitionInput> tailState, TransitionInput input) {
 		for(Transition<TransitionInput> transition : transitionsByTail.get(tailState)) {
 			if(transition.isValid(input)) {

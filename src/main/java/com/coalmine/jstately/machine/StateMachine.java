@@ -77,6 +77,9 @@ public class StateMachine<MachineInput,TransitionInput> {
 				listener.beforeEvaluatingInput(transitionInput);
 			}
 
+			// TODO Rethink the logic below.  It delegates input to a submachine but it also prevents a null from being evaluated.
+			// I've never had a case for that but there's no reason it shouldn't be supported.
+
 			TransitionInput inputToEvaluate = null;
 			if(currentState instanceof SubmachineState) {
 				// Delegate the evaluation of the input
@@ -84,7 +87,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 				// If the submachine reaches a final state, extract its output to evaluate on this machine
 				if(submachine.getState() instanceof FinalState) {
-					inputToEvaluate = ((FinalState<TransitionInput>)submachine.getState()).getResult();
+					FinalState<TransitionInput> finalState = (FinalState<TransitionInput>)submachine.getState();
+					inputToEvaluate = finalState.getResult();
 				}
 			} else {
 				inputToEvaluate = transitionInput;
@@ -115,14 +119,13 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return stateGraph.findFirstValidTransitionFromState(currentState, input);
 	}
 
-	/**
-	 * Follows the given transition without checking its validity.  Calls {@link State#onExit()} on
-	 * the current state, followed by {@link Transition#onTransition()} on the given transition,
-	 * followed by {@link State#onEnter()} on the machine's updated current state.
+	/** Follows the given transition without checking its validity.  In the process, it calls {@link State#onExit()}
+	 * on the current state, followed by {@link Transition#onTransition()} on the given transition, followed by
+	 * {@link State#onEnter()} on the machine's updated current state.
+	 * 
 	 * @param transition State transition to follow.
-	 * @throws IllegalArgumentException thrown if the StateMachine has not started or the given Transition does not
-	 * originate at the machine's current state.
-	 */
+	 * @param input The input that caused the transition to occur
+	 * @throws IllegalArgumentException thrown if the StateMachine has not started */
 	@SuppressWarnings("unchecked")
     protected void transition(Transition<TransitionInput> transition, TransitionInput input) {
 		if(!hasStarted()) {
@@ -154,8 +157,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 		enterState(newState, submachineStates);
 	}
 
-	/** Enters the given state, using currentState to determine what CompositeStates (if any) are being enterred. */
-	private void enterState(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
+	/** Enters the given state, using currentState to determine what CompositeStates (if any) are being entered. */
+	protected void enterState(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 			listener.beforeStateEntered(newState);
 		}
@@ -183,8 +186,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 		submachine.eventListeners = eventListeners;
 
 		if(submachineStates.length > 0) {
-			submachine.enterState(submachineStates[0], Arrays.copyOfRange(submachineStates, 1, submachineStates.length-1));
-		} else { // No states to initialize nested state machines to
+			submachine.enterState(submachineStates[0], Arrays.copyOfRange(submachineStates, 1, submachineStates.length));
+		} else { // No states to initialize nested state machine(s) to
 			submachine.start();
 		}
 	}
@@ -253,8 +256,9 @@ public class StateMachine<MachineInput,TransitionInput> {
 		}
 	}
 
-	/** Transitions from currentState, using newState to determine which CompositeState's (if any) are being left. */
-	private void exitState(State<TransitionInput> newState) {
+	/** Transitions from currentState, using newState to determine which CompositeState's (if any) are being left.
+	 * If the current state is a SubmachineState, its states */
+	protected void exitState(State<TransitionInput> newState) {
 		if(currentState == null) {
 			return;
 		}
@@ -263,10 +267,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 			listener.beforeStateExited(currentState);
 		}
 
-		if(currentState instanceof SubmachineState) {
-			SubmachineState<TransitionInput> submachineState = (SubmachineState<TransitionInput>)currentState;
-			// TODO Exit submachine's state
-			submachine = null;
+		if(submachine != null) { // Implies that this machine is in a submachine state
+			// TODO Need to consider exiting the submachine's state.
 		}
 
 		currentState.onExit();
