@@ -9,12 +9,14 @@ import com.coalmine.jstately.graph.composite.CompositeStateTest;
 import com.coalmine.jstately.graph.transition.DisjunctiveEqualityTransitionTest;
 import com.coalmine.jstately.graph.transition.EqualityTransitionTest;
 import com.coalmine.jstately.graph.transition.MvelTransitionTest;
+import com.coalmine.jstately.machine.StateMachineTest;
 
 
 @RunWith(Suite.class)
 @SuiteClasses({ CompositeStateTest.class,
 		DisjunctiveEqualityTransitionTest.class, EqualityTransitionTest.class, MvelTransitionTest.class, 
-		StateGraphTest.class })
+		StateGraphTest.class,
+		StateMachineTest.class })
 public class AllTests { }
 
 

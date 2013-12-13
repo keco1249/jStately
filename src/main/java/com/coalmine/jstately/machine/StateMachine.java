@@ -3,7 +3,6 @@ package com.coalmine.jstately.machine;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import com.coalmine.jstately.graph.StateGraph;
 import com.coalmine.jstately.graph.composite.CompositeState;
@@ -19,22 +18,21 @@ import com.google.common.collect.Lists;
 public class StateMachine<MachineInput,TransitionInput> {
 	protected StateGraph<TransitionInput>						stateGraph;
 	protected State<TransitionInput>							currentState;
-	protected InputAdapter<MachineInput,TransitionInput>		inputProvider;
+	protected InputAdapter<MachineInput,TransitionInput>		inputAdapter;
 	protected List<StateMachineEventListener<TransitionInput>>	eventListeners = new ArrayList<StateMachineEventListener<TransitionInput>>();
 
 	private StateMachine<TransitionInput,TransitionInput>		submachine;
 
 	public StateMachine() { }
 
-	public StateMachine(StateGraph<TransitionInput> stateGraph, InputAdapter<MachineInput,TransitionInput> inputProvider) {
+	public StateMachine(StateGraph<TransitionInput> stateGraph, InputAdapter<MachineInput,TransitionInput> inputAdapter) {
 		this.stateGraph		= stateGraph;
-		this.inputProvider	= inputProvider;
+		this.inputAdapter	= inputAdapter;
 	}
 
-	/**
-	 * Initialize the machine to its start state, calling its {@link NonFinalState#onEnter()} method.
-	 * @throws IllegalStateException thrown if no start state was specified or if the machine has already been started.
-	 */
+	/** Initialize the machine to its start state, calling its {@link NonFinalState#onEnter()} method.
+	 * 
+	 * @throws IllegalStateException thrown if no start state was specified or if the machine has already been started. */
 	@SuppressWarnings("unchecked")
     public void start() {
 		if(hasStarted()) {
@@ -57,28 +55,23 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return currentState != null;
 	}
 
-	/** Resets the machine's state to null without calling {@link State#onExit()} on the current state (if there is one.) */
-	public void reset() {
-		currentState = null;
-	}
-
-	/**
-	 * Providing the machine's input to its InputAdapter, the resulting transition input(s) are
-	 * iterated over.  For each input, the machine follows the first transition that is valid
-	 * according to its {@link Transition#isValid(Object)} method.
-	 * @param input Machine input from which Transition inputs are generated to evaluate and transition on.
-	 * @return Whether any of input's subsequent Transition inputs were ignored (no valid transition was found) while evaluating.
-	 * @throws IllegalStateException thrown if no {@link InputAdapter} has been set.
-	 */
+	/** Provides the input parameter to the machine's InputAdapter and evaluating the resulting
+	 * transition input(s).  For each transition input, the machine follows the first transition
+	 * that is valid according to its {@link Transition#isValid(Object)} method.
+	 * 
+	 * @param input Machine input from which Transition inputs are generated to evaluate.
+	 * @return Whether any of the machine input's subsequent transition inputs were ignored (i.e.,
+	 * no valid transition was found) while evaluating.
+	 * @throws IllegalStateException thrown if no {@link InputAdapter} has been set. */
 	public boolean evaluateInput(MachineInput input) {
-		if(inputProvider==null) {
+		if(inputAdapter==null) {
 			throw new IllegalStateException("No InputAdapter specified prior to calling evaluateInput().");
 		}
 
 		boolean inputIgnored = false;
-		inputProvider.queueInput(input);
-		while(inputProvider.hasNext()) {
-			TransitionInput transitionInput = inputProvider.next();
+		inputAdapter.queueInput(input);
+		while(inputAdapter.hasNext()) {
+			TransitionInput transitionInput = inputAdapter.next();
 
 			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 				listener.beforeEvaluatingInput(transitionInput);
@@ -115,26 +108,12 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return inputIgnored;
 	}
 
-//	public Set<Transition<TransitionInput>> findAllValidTransitionsFromCurrentState(TransitionInput input) {
-//		if(!hasStarted()) {
-//			throw new IllegalStateException("Machine has not started.");
-//		}
-//		return stateGraph.findValidTransitionsFromState(currentState, input);
-//	}
-
 	public Transition<TransitionInput> findFirstValidTransitionFromCurrentState(TransitionInput input) {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
 		return stateGraph.findFirstValidTransitionFromState(currentState, input);
 	}
-
-//	public Set<Transition<TransitionInput>> getTransitionsFromCurrentState() {
-//		if(!hasStarted()) {
-//			throw new IllegalStateException("Machine has not started.");
-//		}
-//		return stateGraph.findAllTransitionsFromState(currentState);
-//	}
 
 	/**
 	 * Follows the given transition without checking its validity.  Calls {@link State#onExit()} on
@@ -202,7 +181,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 	private void initializeSubmachine(SubmachineState<TransitionInput> submachineState, State<TransitionInput>[] submachineStates) {
 		submachine = new StateMachine<TransitionInput,TransitionInput>(submachineState.getStateGraph(), new DefaultInputAdapter<TransitionInput>());
-		submachine.setEventListeners(eventListeners);
+		submachine.eventListeners = eventListeners;
 
 		if(submachineStates.length > 0) {
 			submachine.enterState(submachineStates[0], Arrays.copyOfRange(submachineStates, 1, submachineStates.length-1));
@@ -310,11 +289,11 @@ public class StateMachine<MachineInput,TransitionInput> {
 		this.stateGraph = stateGraph;
 	}
 
-	public void setInputProvider(InputAdapter<MachineInput,TransitionInput> inputProvider) {
-		this.inputProvider = inputProvider;
+	public InputAdapter<MachineInput,TransitionInput> getInputAdapter() {
+		return inputAdapter;
 	}
-	public InputAdapter<MachineInput,TransitionInput> getInputProvider() {
-		return inputProvider;
+	public void setInputAdapter(InputAdapter<MachineInput,TransitionInput> inputAdapter) {
+		this.inputAdapter = inputAdapter;
 	}
 
 	/** Returns the state of the machine, including the state of any submachines that may be running.  The first State
@@ -341,19 +320,14 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return currentState;
 	}
 
-	/**
-	 * Simply sets the machine's state, without calling event methods like {@link State#onEnter()} or
+	/** Simply sets the machine's state, without calling event methods like {@link State#onEnter()} or
 	 * {@link State#onExit()}. This was added for testing and should generally be avoided by API users.
 	 * 
 	 * @see #transition(State, State...)
 	 */
 	protected void overrideState(State<TransitionInput> newState) {
-		this.currentState = newState;
+		currentState = newState;
 	}
-
-	private void setEventListeners(List<StateMachineEventListener<TransitionInput>> eventListeners) {
-	    this.eventListeners = eventListeners;
-    }
 
 	public void addEventListener(StateMachineEventListener<TransitionInput> eventListener) {
 		eventListeners.add(eventListener);
