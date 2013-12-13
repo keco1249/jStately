@@ -144,8 +144,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 	/** Exits the current state and enters the given state.  Explicitly setting the machine's state should generally be
 	 * avoided.  However, this would be useful if, for example, your state machine corresponds to some external system
-	 * that has changed and your application needs to get back in sync with the external system, without arriving in
-	 * the given state more naturally, by transitioning. */
+	 * that has changed and your application needs to get back in sync with it, without evaluating inputs to do so. */
 	public void transition(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
 		if(newState == null) {
 			throw new IllegalArgumentException("New state cannot be null.");
@@ -320,11 +319,10 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return currentState;
 	}
 
-	/** Simply sets the machine's state, without calling event methods like {@link State#onEnter()} or
-	 * {@link State#onExit()}. This was added for testing and should generally be avoided by API users.
-	 * 
-	 * @see #transition(State, State...)
-	 */
+	/** Simply sets the machine's state, without calling event methods like {@link State#onEnter()}
+	 * or {@link State#onExit()}.  It also does not setup the state machine for SubmachineStates. 
+	 * This method was added for testing and should be avoided by API users, who will likely find
+	 * {@link #transition(State, State...)} more useful anyway. */
 	protected void overrideState(State<TransitionInput> newState) {
 		currentState = newState;
 	}
