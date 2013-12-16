@@ -1,6 +1,7 @@
 package com.coalmine.jstately.test;
 
 public enum EventType {
+	INPUT_EVALUATED,
 	STATE_ENTERED,
 	STATE_EXITED,
 	COMPOSITE_STATE_ENTERED,

@@ -9,6 +9,7 @@ import com.coalmine.jstately.graph.composite.CompositeStateTest;
 import com.coalmine.jstately.graph.transition.DisjunctiveEqualityTransitionTest;
 import com.coalmine.jstately.graph.transition.EqualityTransitionTest;
 import com.coalmine.jstately.graph.transition.MvelTransitionTest;
+import com.coalmine.jstately.integration.IntegrationTest;
 import com.coalmine.jstately.machine.StateMachineTest;
 
 
@@ -16,7 +17,8 @@ import com.coalmine.jstately.machine.StateMachineTest;
 @SuiteClasses({ CompositeStateTest.class,
 		DisjunctiveEqualityTransitionTest.class, EqualityTransitionTest.class, MvelTransitionTest.class, 
 		StateGraphTest.class,
-		StateMachineTest.class })
+		StateMachineTest.class,
+		IntegrationTest.class})
 public class AllTests { }
 
 

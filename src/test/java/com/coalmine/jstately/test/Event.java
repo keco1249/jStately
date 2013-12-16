@@ -13,6 +13,10 @@ public class Event {
 		this.value = value;
 	}
 
+	public static Event forInputEvaluated(Object input) {
+		return new Event(EventType.INPUT_EVALUATED, input);
+	}
+
 	public static Event forStateEntry(State<?> state) {
 		return new Event(EventType.STATE_ENTERED, state);
 	}

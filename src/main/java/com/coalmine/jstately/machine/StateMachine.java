@@ -65,7 +65,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 	 * @throws IllegalStateException thrown if no {@link InputAdapter} has been set. */
 	public boolean evaluateInput(MachineInput input) {
 		if(inputAdapter==null) {
-			throw new IllegalStateException("No InputAdapter specified prior to calling evaluateInput().");
+			throw new IllegalStateException("No InputAdapter specified prior to calling evaluateInput()");
 		}
 
 		boolean inputIgnored = false;
@@ -163,23 +163,22 @@ public class StateMachine<MachineInput,TransitionInput> {
 			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 				listener.beforeStateEntered(newState);
 			}
-	
+
 			for(CompositeState<TransitionInput> composite : determinateCompositesBeingEntered(currentState,newState)) {
 				enterCompositeState(composite);
 			}
-	
+
 			newState.onEnter();
-	
-			if(newState instanceof SubmachineState) {
-				SubmachineState<TransitionInput> submachineState = (SubmachineState<TransitionInput>)newState;
-				initializeSubmachine(submachineState, submachineStates);
-			}
-	
 			currentState = newState;
-	
+
 			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 				listener.afterStateEntered(newState);
 			}
+		}
+
+		if(newState instanceof SubmachineState) {
+			SubmachineState<TransitionInput> submachineState = (SubmachineState<TransitionInput>)newState;
+			initializeSubmachine(submachineState, submachineStates);
 		}
 	}
 

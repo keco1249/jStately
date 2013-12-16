@@ -91,7 +91,7 @@ public class StateMachineTest {
 	}
 
 	@Test
-	public void testTransitionTransitionOfTransitionInputTransitionInput() {
+	public void testTransitionUsingTransition() {
 		fail("Not yet implemented");
 	}
 
