@@ -85,7 +85,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 				// Delegate the evaluation of the input
 				submachine.evaluateInput(transitionInput);
 
-				// If the submachine reaches a final state, extract its output to evaluate on this machine
+				// If the submachine reaches a final state, extract its result to evaluate on this machine
 				if(submachine.getState() instanceof FinalState) {
 					FinalState<TransitionInput> finalState = (FinalState<TransitionInput>)submachine.getState();
 					inputToEvaluate = finalState.getResult();
@@ -132,7 +132,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 			throw new IllegalStateException("Machine has not started.");
 		}
 
-		exitState(transition.getHead());
+		exitCurrentState(transition.getHead());
 
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 			listener.beforeTransition(transition, input);
@@ -153,31 +153,33 @@ public class StateMachine<MachineInput,TransitionInput> {
 			throw new IllegalArgumentException("New state cannot be null.");
 		}
 
-		exitState(newState);
+		exitCurrentState(newState, submachineStates);
 		enterState(newState, submachineStates);
 	}
 
 	/** Enters the given state, using currentState to determine what CompositeStates (if any) are being entered. */
 	protected void enterState(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
-		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-			listener.beforeStateEntered(newState);
-		}
-
-		for(CompositeState<TransitionInput> composite : determinateCompositesBeingEntered(currentState,newState)) {
-			enterCompositeState(composite);
-		}
-
-		newState.onEnter();
-
-		if(newState instanceof SubmachineState) {
-			SubmachineState<TransitionInput> submachineState = (SubmachineState<TransitionInput>)newState;
-			initializeSubmachine(submachineState, submachineStates);
-		}
-
-		currentState = newState;
-
-		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-			listener.afterStateEntered(newState);
+		if(currentState==null || !currentState.equals(newState)) {
+			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+				listener.beforeStateEntered(newState);
+			}
+	
+			for(CompositeState<TransitionInput> composite : determinateCompositesBeingEntered(currentState,newState)) {
+				enterCompositeState(composite);
+			}
+	
+			newState.onEnter();
+	
+			if(newState instanceof SubmachineState) {
+				SubmachineState<TransitionInput> submachineState = (SubmachineState<TransitionInput>)newState;
+				initializeSubmachine(submachineState, submachineStates);
+			}
+	
+			currentState = newState;
+	
+			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+				listener.afterStateEntered(newState);
+			}
 		}
 	}
 
@@ -186,7 +188,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		submachine.eventListeners = eventListeners;
 
 		if(submachineStates.length > 0) {
-			submachine.enterState(submachineStates[0], Arrays.copyOfRange(submachineStates, 1, submachineStates.length));
+			submachine.enterState(getFirstState(submachineStates), getRemainingStates(submachineStates));
 		} else { // No states to initialize nested state machine(s) to
 			submachine.start();
 		}
@@ -258,30 +260,46 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 	/** Transitions from currentState, using newState to determine which CompositeState's (if any) are being left.
 	 * If the current state is a SubmachineState, its states */
-	protected void exitState(State<TransitionInput> newState) {
-		if(currentState == null) {
+	protected void exitCurrentState(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
+		if(currentState == null) { // TODO Reconsider this.  Would this happen?
 			return;
 		}
 
-		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-			listener.beforeStateExited(currentState);
+		if(submachine != null) {
+			submachine.exitCurrentState(getFirstState(submachineStates), getRemainingStates(submachineStates));
+			submachine = null;
 		}
 
-		if(submachine != null) { // Implies that this machine is in a submachine state
-			// TODO Need to consider exiting the submachine's state.
-		}
+		if(!currentState.equals(newState) || submachineStates.length == 0) {
+			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+				listener.beforeStateExited(currentState);
+			}
+	
+			currentState.onExit();
+	
+			for(CompositeState<TransitionInput> composite : determinateCompositeStatesBeingExited(currentState,newState)) {
+				exitCompositeState(composite);
+			}
+	
+			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+				listener.afterStateExited(currentState);
+			}
 
-		currentState.onExit();
-
-		for(CompositeState<TransitionInput> composite : determinateCompositeStatesBeingExited(currentState,newState)) {
-			exitCompositeState(composite);
-		}
-
-		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-			listener.afterStateExited(currentState);
+			currentState = null;
 		}
 	}
 
+	private State<TransitionInput> getFirstState(State<TransitionInput>[] states) {
+		return states.length==0?
+				null :
+				states[0];
+	}
+
+	private State<TransitionInput>[] getRemainingStates(State<TransitionInput>[] states) {
+		return states.length==0?
+				states :
+				Arrays.copyOfRange(states, 1, states.length);
+	}
 
 	public StateGraph<TransitionInput> getStateGraph() {
 		return stateGraph;

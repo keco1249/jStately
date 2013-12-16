@@ -13,7 +13,6 @@ import com.coalmine.jstately.graph.state.DefaultSubmachineState;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
 import com.coalmine.jstately.test.Event;
-import com.coalmine.jstately.test.EventType;
 import com.coalmine.jstately.test.TestMachineEventListener;
 import com.coalmine.jstately.test.TwoStateStateGraph;
 import com.coalmine.jstately.test.TwoStateStateGraphWithSubmachineState;
@@ -97,7 +96,7 @@ public class StateMachineTest {
 	}
 
 	@Test
-	public void testTransitionStateOfTransitionInputStateOfTransitionInputArray() {
+	public void testTransitionToState() {
 		fail("Not yet implemented");
 	}
 
@@ -172,7 +171,7 @@ public class StateMachineTest {
 
     @Test
     @SuppressWarnings("unchecked")
-	public void testExitState() {
+	public void testExitCurrentState() {
 		StateGraph<Object> innerGraph = createGraphWithSingleNonSubmachineState();
 		StateGraph<Object> intermediateGraph = createStateGraphWithSubmachineState(innerGraph);
 		StateGraph<Object> outerGraph = createStateGraphWithSubmachineState(intermediateGraph);
@@ -187,11 +186,11 @@ public class StateMachineTest {
 		TestMachineEventListener<Object> listener = new TestMachineEventListener<Object>();
 		machine.addEventListener(listener);
 
-		machine.exitState(null);
+		machine.exitCurrentState(null);
 
 		listener.assertEventsOccurred(
-//				Event.forStateExit(innerGraph.getStartState()),
-//				Event.forStateExit(intermediateGraph.getStartState()),
+				Event.forStateExit(innerGraph.getStartState()),
+				Event.forStateExit(intermediateGraph.getStartState()),
 				Event.forStateExit(outerGraph.getStartState()));
 	}
 }
