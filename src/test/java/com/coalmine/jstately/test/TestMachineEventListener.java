@@ -112,6 +112,11 @@ public class TestMachineEventListener<TransitionInput> extends DefaultStateMachi
 	public void noValidTransition(TransitionInput input, StateMachine<?,TransitionInput> machine) {
 		logEvent(EventType.NO_VALID_TRANSITION_FOUND, input, machine);
 	}
+
+	@Override
+	public void beforeEvaluatingInput(TransitionInput input, StateMachine<?, TransitionInput> machine) {
+	    logEvent(EventType.INPUT_EVALUATED, input, machine);
+	}
 }
 
 

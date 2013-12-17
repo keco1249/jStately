@@ -13,6 +13,7 @@ import com.coalmine.jstately.graph.state.DefaultSubmachineState;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
 import com.coalmine.jstately.test.Event;
+import com.coalmine.jstately.test.EventType;
 import com.coalmine.jstately.test.TestMachineEventListener;
 import com.coalmine.jstately.test.TwoStateStateGraph;
 import com.coalmine.jstately.test.TwoStateStateGraphWithSubmachineState;
@@ -80,7 +81,38 @@ public class StateMachineTest {
 		// Test scenario where the machine is in a submachine state when evaluateInput()
 		// is called, in which case it should delegate the input to the submachine.
 
-		fail("Not yet implemented");
+		State<Object> innerState = new DefaultState<Object>();
+		StateGraph<Object> innerGraph = new StateGraph<Object>();
+		innerGraph.setStartState(innerState);
+
+		State<Object> intermediateState = new DefaultSubmachineState<Object>(null, innerGraph);
+		StateGraph<Object> intermediateGraph = new StateGraph<Object>();
+		intermediateGraph.setStartState(intermediateState);
+
+		State<Object> outerState = new DefaultSubmachineState<Object>(null, intermediateGraph);
+		StateGraph<Object> outerGraph = new StateGraph<Object>();
+		outerGraph.setStartState(outerState);
+
+		StateMachine<Object,Object> machine = new StateMachine<Object, Object>(outerGraph, new DefaultInputAdapter<Object>());
+		machine.start();
+
+		assertEquals("Machine could't be initialized as expected.",
+				Lists.newArrayList(outerState, intermediateState, innerState),
+				machine.getStates());
+
+		TestMachineEventListener<Object> listener = new TestMachineEventListener<Object>(EventType.INPUT_EVALUATED);
+		machine.addEventListener(listener);
+
+		Object input = "";
+
+		machine.evaluateInput(input);
+
+		// TODO This assertion verifies that the input was evaluated three times - once per (sub)machine - but doesn't verify that they happened on different machines or the ordering.  Improve it.
+
+		listener.assertEventsOccurred(
+				Event.forInputEvaluated(input),
+				Event.forInputEvaluated(input),
+				Event.forInputEvaluated(input));
 	}
 
 	@Test(expected=IllegalStateException.class)
@@ -88,16 +120,6 @@ public class StateMachineTest {
 		StateMachine<Object,Object> machine = new StateMachine<Object,Object>();
 
 		machine.findFirstValidTransitionFromCurrentState(null);
-	}
-
-	@Test
-	public void testTransitionUsingTransition() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testTransitionToState() {
-		fail("Not yet implemented");
 	}
 
 	@Test
