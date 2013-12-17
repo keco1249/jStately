@@ -82,7 +82,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 				// Delegate the evaluation of the input
 				submachine.evaluateInput(transitionInput);
 
-				// If the submachine reaches a final state, extract its result to evaluate on this machine
+				// If the submachine transitioned to (or was left in) a final state, extract its result value to evaluate on this machine
 				if(submachine.getState() instanceof FinalState) {
 					FinalState<TransitionInput> finalState = (FinalState<TransitionInput>)submachine.getState();
 					transitionInput = finalState.getResult();
