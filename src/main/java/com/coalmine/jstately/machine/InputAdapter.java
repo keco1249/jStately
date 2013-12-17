@@ -1,13 +1,14 @@
 package com.coalmine.jstately.machine;
 
-/**
- * Used to allow a machine to accept an input of a type other than its graph's transition type.  For instance, perhaps
- * the most common academic example of a state machine is one that takes a string of characters as its input but
- * iterates over the those characters, transitioning on individual characters.
+
+/** <p>Allows a machine's input type to differ from its graph's transitions' input type. Perhaps
+ * the most common academic example of a state machine is one that takes a string as its input and
+ * iterates over the string's characters.  In that example, an API client would use an InputAdapter
+ * with String as the machine input type and Character as the transition input type.</p>
  * 
- * @param <MachineInput>
- * @param <TransitionInput>
- */
+ * <p>Users who would like to use the same input type for both the machine and its graph's
+ * transitions will likely want to use {@link DefaultInputAdapter} rather than implementing their
+ * own InputAdapater.</p> */
 public interface InputAdapter<MachineInput,TransitionInput> {
 	void queueInput(MachineInput machineInput);
 

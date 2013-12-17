@@ -1,9 +1,6 @@
 package com.coalmine.jstately.machine;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import org.junit.Test;
 
@@ -214,6 +211,36 @@ public class StateMachineTest {
 				Event.forStateExit(innerGraph.getStartState()),
 				Event.forStateExit(intermediateGraph.getStartState()),
 				Event.forStateExit(outerGraph.getStartState()));
+	}
+
+	@Test
+	public void testEvaluateInputWithNullInput() {
+		StateGraph<Integer> graph = new StateGraph<Integer>();
+
+		State<Integer> stateS = new DefaultState<Integer>("S");
+		graph.setStartState(stateS);
+
+		State<Integer> stateA = new DefaultState<Integer>("A");
+		graph.addTransition(stateS, new EqualityTransition<Integer>(stateA, null));
+
+		StateMachine<Integer, Integer> machine = new StateMachine<Integer, Integer>(graph, new DefaultInputAdapter<Integer>());
+
+		machine.start();
+		assertEquals("Machine expected to start in its graph's start state",
+		        graph.getStartState(),
+		        machine.getState());
+
+		// Test input that should not cause a transition
+		machine.evaluateInput(1);
+		assertEquals("Machine expected to stay in ",
+				graph.getStartState(),
+				machine.getState());
+
+		// Ensure that null input gets evaluated
+		machine.evaluateInput(null);
+		assertEquals("Machine expected to have transitioned",
+				stateA,
+				machine.getState());
 	}
 }
 

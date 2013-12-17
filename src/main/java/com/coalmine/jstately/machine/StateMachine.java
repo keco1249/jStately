@@ -55,21 +55,21 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return currentState != null;
 	}
 
-	/** Provides the input parameter to the machine's InputAdapter and evaluating the resulting
-	 * transition input(s).  For each transition input, the machine follows the first transition
-	 * that is valid according to its {@link Transition#isValid(Object)} method.
+	/** Provides the input parameter to the machine's {@link InputAdapter} and evaluating the
+	 * resulting transition input(s).  For each transition input, the machine follows the first
+	 * transition that is valid according to its {@link Transition#isValid(Object)} implementation.
 	 * 
-	 * @param input Machine input from which Transition inputs are generated to evaluate.
+	 * @param machineInput Machine input from which Transition inputs are generated to evaluate.
 	 * @return Whether any of the machine input's subsequent transition inputs were ignored (i.e.,
 	 * no valid transition was found) while evaluating.
-	 * @throws IllegalStateException thrown if no {@link InputAdapter} has been set. */
-	public boolean evaluateInput(MachineInput input) {
+	 * @throws IllegalStateException Thrown if no {@link InputAdapter} has been set. */
+	public boolean evaluateInput(MachineInput machineInput) {
 		if(inputAdapter==null) {
 			throw new IllegalStateException("No InputAdapter specified prior to calling evaluateInput()");
 		}
 
 		boolean inputIgnored = false;
-		inputAdapter.queueInput(input);
+		inputAdapter.queueInput(machineInput);
 		while(inputAdapter.hasNext()) {
 			TransitionInput transitionInput = inputAdapter.next();
 
@@ -77,9 +77,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 				listener.beforeEvaluatingInput(transitionInput, this);
 			}
 
-			// TODO Rethink the logic below.  It delegates input to a submachine but it also prevents a null from being evaluated as an input.
-
-			TransitionInput inputToEvaluate = null;
+			boolean evaluateInput = true;
 			if(currentState instanceof SubmachineState) {
 				// Delegate the evaluation of the input
 				submachine.evaluateInput(transitionInput);
@@ -87,14 +85,14 @@ public class StateMachine<MachineInput,TransitionInput> {
 				// If the submachine reaches a final state, extract its result to evaluate on this machine
 				if(submachine.getState() instanceof FinalState) {
 					FinalState<TransitionInput> finalState = (FinalState<TransitionInput>)submachine.getState();
-					inputToEvaluate = finalState.getResult();
+					transitionInput = finalState.getResult();
+				} else {
+					evaluateInput = false;
 				}
-			} else {
-				inputToEvaluate = transitionInput;
 			}
 
-			if(inputToEvaluate != null) {
-				Transition<TransitionInput> validTransition = findFirstValidTransitionFromCurrentState(inputToEvaluate);
+			if(evaluateInput) {
+				Transition<TransitionInput> validTransition = findFirstValidTransitionFromCurrentState(transitionInput);
 				if(validTransition == null) {
 					inputIgnored = true;
 				} else {
@@ -143,9 +141,10 @@ public class StateMachine<MachineInput,TransitionInput> {
 		enterState(transition.getHead());
 	}
 
-	/** Exits the current state and enters the given state.  Explicitly setting the machine's state should generally be
-	 * avoided.  However, this would be useful if, for example, your state machine corresponds to some external system
-	 * that has changed and your application needs to get back in sync with it, without evaluating inputs to do so. */
+	/** Exits the current state and enters the given state.  Explicitly setting the machine's state
+	 * should generally be avoided in favor of evaluating inputs.  However, this would be useful
+	 * if, for example, your state machine corresponds to some external system that has changed and
+	 * your application needs to get back in sync with it. */
 	public void transition(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
 		if(newState == null) {
 			throw new IllegalArgumentException("New state cannot be null.");
@@ -258,7 +257,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 	/** Transitions from currentState, using newState to determine which CompositeState's (if any) are being left.
 	 * If the current state is a SubmachineState, its states */
 	protected void exitCurrentState(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
-		if(currentState == null) { // TODO Reconsider this.  Would this happen?
+		if(currentState == null) {
 			return;
 		}
 
@@ -337,9 +336,9 @@ public class StateMachine<MachineInput,TransitionInput> {
 	}
 
 	/** Simply sets the machine's state, without calling event methods like {@link State#onEnter()}
-	 * or {@link State#onExit()}.  It also does not setup the state machine for SubmachineStates. 
-	 * This method was added for testing and should be avoided by API users, who will likely find
-	 * {@link #transition(State, State...)} more useful anyway. */
+	 * or {@link State#onExit()}.  It also does not setup the nested state machine if newState is a
+	 * SubmachineState. This method was added for testing and should be avoided by API users, who
+	 * will likely find {@link #transition(State, State...)} much more useful. */
 	protected void overrideState(State<TransitionInput> newState) {
 		currentState = newState;
 	}
