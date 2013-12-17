@@ -3,28 +3,42 @@ package com.coalmine.jstately.machine.listener;
 import com.coalmine.jstately.graph.composite.CompositeState;
 import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.Transition;
+import com.coalmine.jstately.machine.StateMachine;
 
 /** Convenience implementation of the {@link StateMachineEventListener} interface with no-op methods that can be overridden as needed. */
 public class DefaultStateMachineEventListener<TransitionInput> implements StateMachineEventListener<TransitionInput> {
-	public void beforeEvaluatingInput(TransitionInput input) { }
-	public void afterEvaluatingInput(TransitionInput input) { }
+	@Override
+	public void beforeEvaluatingInput(TransitionInput input, StateMachine<?,TransitionInput> machine) { }
+	@Override
+	public void afterEvaluatingInput(TransitionInput input, StateMachine<?,TransitionInput> machine) { }
 
-	public void beforeStateEntered(State<TransitionInput> state) { }
-	public void afterStateEntered(State<TransitionInput> state) { }
+	@Override
+	public void beforeStateEntered(State<TransitionInput> state, StateMachine<?,TransitionInput> machine) { }
+	@Override
+	public void afterStateEntered(State<TransitionInput> state, StateMachine<?,TransitionInput> machine) { }
 
-	public void beforeStateExited(State<TransitionInput> state) { }
-	public void afterStateExited(State<TransitionInput> state) { }
+	@Override
+	public void beforeStateExited(State<TransitionInput> state, StateMachine<?,TransitionInput> machine) { }
+	@Override
+	public void afterStateExited(State<TransitionInput> state, StateMachine<?,TransitionInput> machine) { }
 
-	public void beforeTransition(Transition<TransitionInput> transition, TransitionInput input) { }
-	public void afterTransition(Transition<TransitionInput> transition, TransitionInput input) { }
+	@Override
+	public void beforeTransition(Transition<TransitionInput> transition, TransitionInput input, StateMachine<?,TransitionInput> machine) { }
+	@Override
+	public void afterTransition(Transition<TransitionInput> transition, TransitionInput input, StateMachine<?,TransitionInput> machine) { }
 
-	public void noValidTransition(TransitionInput input) { }
+	@Override
+	public void noValidTransition(TransitionInput input, StateMachine<?,TransitionInput> machine) { }
 
-	public void beforeCompositeStateEntered(CompositeState<TransitionInput> composite) { }
-	public void afterCompositeStateEntered(CompositeState<TransitionInput> composite) { }
+	@Override
+	public void beforeCompositeStateEntered(CompositeState<TransitionInput> composite, StateMachine<?,TransitionInput> machine) { }
+	@Override
+	public void afterCompositeStateEntered(CompositeState<TransitionInput> composite, StateMachine<?,TransitionInput> machine) { }
 
-	public void beforeCompositeStateExited(CompositeState<TransitionInput> composite) { }
-	public void afterCompositeStateExited(CompositeState<TransitionInput> composite) { }
+	@Override
+	public void beforeCompositeStateExited(CompositeState<TransitionInput> composite, StateMachine<?,TransitionInput> machine) { }
+	@Override
+	public void afterCompositeStateExited(CompositeState<TransitionInput> composite, StateMachine<?,TransitionInput> machine) { }
 }
 
 

@@ -78,7 +78,7 @@ public class StateMachineTest {
 	@Test
 	public void testEvaluateInputWhileInSubmachineState() {
 		// Test scenario where the machine is in a submachine state when evaluateInput()
-		// is called, in which case it will delegate the input to the submachine.
+		// is called, in which case it should delegate the input to the submachine.
 
 		fail("Not yet implemented");
 	}

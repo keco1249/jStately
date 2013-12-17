@@ -41,7 +41,7 @@ public class DefaultState<TransitionInput> implements State<TransitionInput> {
 	}
 
 	public String toString() {
-		return getClass().getName()+"[description="+getDescription()+"]";
+		return super.toString()+"[description="+getDescription()+"]";
 	}
 }
 

@@ -74,11 +74,10 @@ public class StateMachine<MachineInput,TransitionInput> {
 			TransitionInput transitionInput = inputAdapter.next();
 
 			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-				listener.beforeEvaluatingInput(transitionInput);
+				listener.beforeEvaluatingInput(transitionInput, this);
 			}
 
-			// TODO Rethink the logic below.  It delegates input to a submachine but it also prevents a null from being evaluated.
-			// I've never had a case for that but there's no reason it shouldn't be supported.
+			// TODO Rethink the logic below.  It delegates input to a submachine but it also prevents a null from being evaluated as an input.
 
 			TransitionInput inputToEvaluate = null;
 			if(currentState instanceof SubmachineState) {
@@ -103,9 +102,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 				}
 			}
 
-
 			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-				listener.afterEvaluatingInput(transitionInput);
+				listener.afterEvaluatingInput(transitionInput, this);
 			}
 		}
 
@@ -135,11 +133,11 @@ public class StateMachine<MachineInput,TransitionInput> {
 		exitCurrentState(transition.getHead());
 
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-			listener.beforeTransition(transition, input);
+			listener.beforeTransition(transition, input, this);
 		}
 		transition.onTransition(input);
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-			listener.afterTransition(transition, input);
+			listener.afterTransition(transition, input, this);
 		}
 
 		enterState(transition.getHead());
@@ -161,7 +159,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 	protected void enterState(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
 		if(currentState==null || !currentState.equals(newState)) {
 			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-				listener.beforeStateEntered(newState);
+				listener.beforeStateEntered(newState, this);
 			}
 
 			for(CompositeState<TransitionInput> composite : determinateCompositesBeingEntered(currentState,newState)) {
@@ -172,7 +170,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 			currentState = newState;
 
 			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-				listener.afterStateEntered(newState);
+				listener.afterStateEntered(newState, this);
 			}
 		}
 
@@ -235,25 +233,25 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 	private void enterCompositeState(CompositeState<TransitionInput> composite) {
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.beforeCompositeStateEntered(composite);
+			eventListener.beforeCompositeStateEntered(composite, this);
 		}
 
 		composite.onEnter();
 
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.afterCompositeStateEntered(composite);
+			eventListener.afterCompositeStateEntered(composite, this);
 		}
 	}
 
 	private void exitCompositeState(CompositeState<TransitionInput> composite) {
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.beforeCompositeStateExited(composite);
+			eventListener.beforeCompositeStateExited(composite, this);
 		}
 
 		composite.onExit();
 
 		for(StateMachineEventListener<TransitionInput> eventListener : eventListeners) {
-			eventListener.afterCompositeStateExited(composite);
+			eventListener.afterCompositeStateExited(composite, this);
 		}
 	}
 
@@ -271,7 +269,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 		if(!currentState.equals(newState) || submachineStates.length == 0) {
 			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-				listener.beforeStateExited(currentState);
+				listener.beforeStateExited(currentState, this);
 			}
 	
 			currentState.onExit();
@@ -281,7 +279,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 			}
 	
 			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-				listener.afterStateExited(currentState);
+				listener.afterStateExited(currentState, this);
 			}
 
 			currentState = null;

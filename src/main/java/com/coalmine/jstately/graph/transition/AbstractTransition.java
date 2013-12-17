@@ -26,7 +26,7 @@ public abstract class AbstractTransition<TransitionInput> implements Transition<
 
 
 	public String toString() {
-		return getClass().getName()+"[head="+head.toString()+"]";
+		return super.toString()+"[head="+head.toString()+"]";
 	}
 }
 
