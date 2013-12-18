@@ -31,7 +31,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		this.inputAdapter	= inputAdapter;
 	}
 
-	/** Initialize the machine to its start state, calling its {@link NonFinalState#onEnter()} method.
+	/** Initialize the machine to its start state, calling its {@link State#onEnter()} method.
 	 * 
 	 * @throws IllegalStateException thrown if no start state was specified or if the machine has already been started. */
 	@SuppressWarnings("unchecked")
@@ -48,7 +48,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 		stateGraph.onStart();
 
-		enterState(stateGraph.getStartState());
+		enterState(null, stateGraph.getStartState());
 	}
 
 	/** @return Whether the machine has a current state. */
@@ -133,7 +133,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 			throw new IllegalStateException("Machine has not started.");
 		}
 
-		exitCurrentState(transition.getHead());
+		State<TransitionInput> previousState = exitCurrentState(transition.getHead());
 
 		for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 			listener.beforeTransition(transition, input, this);
@@ -143,7 +143,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 			listener.afterTransition(transition, input, this);
 		}
 
-		enterState(transition.getHead());
+		enterState(previousState, transition.getHead());
 	}
 
 	/** Exits the current state and enters the given state.  Explicitly setting the machine's state
@@ -155,14 +155,20 @@ public class StateMachine<MachineInput,TransitionInput> {
 			throw new IllegalArgumentException("New state cannot be null.");
 		}
 
-		exitCurrentState(newState, submachineStates);
-		enterState(newState, submachineStates);
+		State<TransitionInput> previousState = exitCurrentState(newState, submachineStates);
+		enterState(previousState, newState, submachineStates);
 	}
 
-	/** Enters the given state, using currentState to determine what CompositeStates (if any) are being entered. */
-	protected void enterState(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
+	/** Enters the given state, using previousState to determine what CompositeStates, if any, are being entered. */
+	protected void enterState(State<TransitionInput> previousState, State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
+		// To accommodate submachines and avoid unnecessary callbacks when transitioning states within a submachine,
+		// exitCurrentState() only exits currentState on this machine if the destination state/path does not include
+		// this state, or it's this specific state but without specifying a nested state.  Similarly, this method only
+		// (re-)enters the given state if currentState was nulled out by exitCurrentState().  When it does, it uses
+		// previousState to determine which composites are being entered.
+
 		if(currentState==null || !currentState.equals(newState)) {
-			for(CompositeState<TransitionInput> composite : determineCompositesBeingEntered(currentState,newState)) {
+			for(CompositeState<TransitionInput> composite : determineCompositesBeingEntered(previousState, newState)) {
 				enterCompositeState(composite);
 			}
 
@@ -189,7 +195,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		submachine.eventListeners = eventListeners;
 
 		if(submachineStates.length > 0) {
-			submachine.enterState(getFirstState(submachineStates), getRemainingStates(submachineStates));
+			submachine.enterState(null, getFirstState(submachineStates), getRemainingStates(submachineStates));
 		} else { // No states to initialize nested state machine(s) to
 			submachine.start();
 		}
@@ -265,10 +271,11 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 	/** Transitions from currentState, using newState to determine which CompositeState's (if any) are being left.
 	 * If the current state is a SubmachineState, its states */
-	protected void exitCurrentState(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
+	protected State<TransitionInput> exitCurrentState(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
 		if(currentState == null) {
-			return;
+			return null;
 		}
+		State<TransitionInput> previousState = currentState;
 
 		if(submachine != null) {
 			submachine.exitCurrentState(getFirstState(submachineStates), getRemainingStates(submachineStates));
@@ -292,6 +299,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 			currentState = null;
 		}
+
+		return previousState;
 	}
 
 	private State<TransitionInput> getFirstState(State<TransitionInput>[] states) {

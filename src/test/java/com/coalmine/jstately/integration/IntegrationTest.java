@@ -84,7 +84,6 @@ public class IntegrationTest {
 
 		TestStateMachineEventListener<Integer> listener = new TestStateMachineEventListener<Integer>(EventType.ALL_TYPES_EXCEPT_INPUT_VALIDATION);
 		machine.addEventListener(listener);
-//machine.addEventListener(new ConsoleStateMachineEventListener<Integer>());
 
 		machine.start();
 		listener.assertEventsOccurred(
@@ -102,15 +101,6 @@ public class IntegrationTest {
 				Event.forCompositeStateEntry(compositeX1),
 				Event.forCompositeStateEntry(compositeY),
 				Event.forStateEntry(stateB));
-
-//		machine.evaluateInput(100);
-//		listener.assertEventsOccurred(
-//				Event.forStateExit(stateB),
-//				Event.forCompositeStateExit(compositeY),
-//				Event.forCompositeStateExit(compositeX1),
-//				Event.forCompositeStateExit(compositeX),
-//				Event.forTransitionFollowed(transitionX1A),
-//				Event.forStateEntry(stateA));
 
 		machine.evaluateInput(2); // Back to B
 		listener.assertEventsOccurred(

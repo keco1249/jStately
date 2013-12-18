@@ -52,7 +52,7 @@ public class SubmachineTransitionTest {
 				Event.forStateExit(context.firstInnerStateGraphStartState),
 				Event.forStateExit(context.outerStateGraphStartState),
 				Event.forStateEntry(context.outerStateGraphStartState),
-				Event.forStateEntry(context.firstInnerStateGraphStartState)); // Called implicitly when the outer machines submachine is start()'d.
+				Event.forStateEntry(context.firstInnerStateGraphStartState)); // Called implicitly when the outer machines submachine is started
 	}
 
 	@Test

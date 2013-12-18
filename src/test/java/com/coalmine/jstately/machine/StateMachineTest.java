@@ -134,7 +134,7 @@ public class StateMachineTest {
 		TestStateMachineEventListener<Object> listener = new TestStateMachineEventListener<Object>();
 		machine.addEventListener(listener);
 
-		machine.enterState(outerGraph.getStartState());
+		machine.enterState(null, outerGraph.getStartState());
 
 		assertEquals("Expected to see each graph's start state, ordered from outer to inner",
 				Lists.newArrayList(outerGraph.getStartState(), intermediateGraph.getStartState(), innerGraph.getStartState()),
@@ -177,7 +177,7 @@ public class StateMachineTest {
 		TestStateMachineEventListener<Object> listener = new TestStateMachineEventListener<Object>();
 		machine.addEventListener(listener);
 
-		machine.enterState(outerGraph.getSecondState(), intermediateGraph.getSecondState(), innerGraph.getSecondState());
+		machine.enterState(null, outerGraph.getSecondState(), intermediateGraph.getSecondState(), innerGraph.getSecondState());
 
 		assertEquals("Expected the machine's states to match the states provided to enterState().",
 				Lists.newArrayList(outerGraph.getSecondState(), intermediateGraph.getSecondState(), innerGraph.getSecondState()),
