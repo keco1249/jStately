@@ -11,7 +11,7 @@ import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.EqualityTransition;
 import com.coalmine.jstately.test.Event;
 import com.coalmine.jstately.test.EventType;
-import com.coalmine.jstately.test.TestMachineEventListener;
+import com.coalmine.jstately.test.TestStateMachineEventListener;
 import com.coalmine.jstately.test.TwoStateStateGraph;
 import com.coalmine.jstately.test.TwoStateStateGraphWithSubmachineState;
 import com.google.common.collect.Lists;
@@ -73,7 +73,8 @@ public class StateMachineTest {
 				machine.evaluateInput(0));
 	}
 
-	@Test
+    @Test
+    @SuppressWarnings("unchecked")
 	public void testEvaluateInputWhileInSubmachineState() {
 		// Test scenario where the machine is in a submachine state when evaluateInput()
 		// is called, in which case it should delegate the input to the submachine.
@@ -97,7 +98,7 @@ public class StateMachineTest {
 				Lists.newArrayList(outerState, intermediateState, innerState),
 				machine.getStates());
 
-		TestMachineEventListener<Object> listener = new TestMachineEventListener<Object>(EventType.INPUT_EVALUATED);
+		TestStateMachineEventListener<Object> listener = new TestStateMachineEventListener<Object>(EventType.INPUT_EVALUATED);
 		machine.addEventListener(listener);
 
 		Object input = "";
@@ -130,7 +131,7 @@ public class StateMachineTest {
 		StateGraph<Object> outerGraph = createStateGraphWithSubmachineState(intermediateGraph);
 
 		StateMachine<Object,Object> machine = new StateMachine<Object,Object>(outerGraph, new DefaultInputAdapter<Object>());
-		TestMachineEventListener<Object> listener = new TestMachineEventListener<Object>();
+		TestStateMachineEventListener<Object> listener = new TestStateMachineEventListener<Object>();
 		machine.addEventListener(listener);
 
 		machine.enterState(outerGraph.getStartState());
@@ -173,7 +174,7 @@ public class StateMachineTest {
 		TwoStateStateGraphWithSubmachineState outerGraph = new TwoStateStateGraphWithSubmachineState(intermediateGraph, "outer");
 
 		StateMachine<Object,Object> machine = new StateMachine<Object,Object>(outerGraph, new DefaultInputAdapter<Object>());
-		TestMachineEventListener<Object> listener = new TestMachineEventListener<Object>();
+		TestStateMachineEventListener<Object> listener = new TestStateMachineEventListener<Object>();
 		machine.addEventListener(listener);
 
 		machine.enterState(outerGraph.getSecondState(), intermediateGraph.getSecondState(), innerGraph.getSecondState());
@@ -202,7 +203,7 @@ public class StateMachineTest {
 				Lists.newArrayList(outerGraph.getStartState(), intermediateGraph.getStartState(), innerGraph.getStartState()),
 				machine.getStates());
 
-		TestMachineEventListener<Object> listener = new TestMachineEventListener<Object>();
+		TestStateMachineEventListener<Object> listener = new TestStateMachineEventListener<Object>();
 		machine.addEventListener(listener);
 
 		machine.exitCurrentState(null);

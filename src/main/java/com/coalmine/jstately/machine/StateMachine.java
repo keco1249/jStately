@@ -95,6 +95,10 @@ public class StateMachine<MachineInput,TransitionInput> {
 				Transition<TransitionInput> validTransition = findFirstValidTransitionFromCurrentState(transitionInput);
 				if(validTransition == null) {
 					inputIgnored = true;
+
+					for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+						listener.noValidTransition(transitionInput, this);
+					}
 				} else {
 					transition(validTransition,transitionInput);
 				}

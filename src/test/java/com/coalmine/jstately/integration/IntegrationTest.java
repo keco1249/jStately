@@ -2,126 +2,102 @@ package com.coalmine.jstately.integration;
 
 import static org.junit.Assert.*;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.coalmine.jstately.graph.StateGraph;
+import com.coalmine.jstately.graph.composite.CompositeState;
 import com.coalmine.jstately.graph.state.DefaultState;
-import com.coalmine.jstately.graph.state.DefaultSubmachineState;
 import com.coalmine.jstately.graph.state.State;
+import com.coalmine.jstately.graph.transition.EqualityTransition;
+import com.coalmine.jstately.graph.transition.Transition;
 import com.coalmine.jstately.machine.DefaultInputAdapter;
 import com.coalmine.jstately.machine.StateMachine;
-import com.coalmine.jstately.test.DefaultTransition;
+import com.coalmine.jstately.machine.listener.ConsoleStateMachineEventListener;
 import com.coalmine.jstately.test.Event;
 import com.coalmine.jstately.test.EventType;
-import com.coalmine.jstately.test.TestMachineEventListener;
-import com.google.common.collect.Lists;
+import com.coalmine.jstately.test.TestStateMachineEventListener;
 
 public class IntegrationTest {
-	@Test
-	public void testTransitionToSameSubmachineState() {
-		TestContext context = new TestContext();
+	private static State<Integer> stateA;
+	private static State<Integer> stateB;
+	private static State<Integer> stateC;
+	private static State<Integer> stateD;
 
-		context.machine.transition(context.outerStateGraphStartState, context.firstInnerStateGraphStartState);
+	private static Transition<Integer> transitionAB;
+	private static Transition<Integer> transitionBC;
+	private static Transition<Integer> transitionCD;
 
-		context.listener.assertEventsOccurred(
-				Event.forStateExit(context.firstInnerStateGraphStartState),
-				Event.forStateEntry(context.firstInnerStateGraphStartState));
+	private static CompositeState<Integer> compositeX;
+	private static CompositeState<Integer> compositeX1;
+	private static CompositeState<Integer> compositeX2;
+
+	private static CompositeState<Integer> compositeY;
+
+	private static StateGraph<Integer> graph;
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		graph = new StateGraph<Integer>();
+
+		stateA = new DefaultState<Integer>("Start A");
+		graph.setStartState(stateA);
+
+		stateB = new DefaultState<Integer>("Start B");
+		transitionAB = new EqualityTransition<Integer>(stateB, 1);
+		graph.addTransition(stateA, transitionAB);
+
+		stateC = new DefaultState<Integer>("Start C");
+		transitionBC = new EqualityTransition<Integer>(stateC, 2);
+		graph.addTransition(stateB, transitionBC);
+
+		stateD = new DefaultState<Integer>("Start D");
+		transitionCD = new EqualityTransition<Integer>(stateD, 3);
+		graph.addTransition(stateC, transitionCD);
+
+		// Fist set of (nested) composites
+		compositeX1 = new CompositeState<Integer>("First inner composite");
+		compositeX1.addState(stateB);
+		compositeX1.addTransition(new EqualityTransition<Integer>(stateA, 100));
+
+		compositeX2 = new CompositeState<Integer>("Second inner composite");
+		compositeX1.addState(stateC);
+
+		compositeX = new CompositeState<Integer>("Outer composite");
+		compositeX.addComposite(compositeX1);
+		compositeX.addComposite(compositeX2);
+		compositeX.addTransition(new EqualityTransition<Integer>(stateA, 200));
+
+		// Second composite
+		compositeY = new CompositeState<Integer>("Overlapping outer composite");
+		compositeY.addState(stateB);
+		compositeY.addTransition(new EqualityTransition<Integer>(stateD, 300));
 	}
 
 	@Test
-	public void testTransitionToDifferentSubmachineState() {
-		TestContext context = new TestContext();
+	public void testStateMachine() {
+		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
 
-		context.machine.transition(context.outerStateGraphStartState, context.firstInnerStateGraphSecondState);
+		TestStateMachineEventListener<Integer> listener = new TestStateMachineEventListener<Integer>(EventType.ALL_TYPES_EXCEPT_INPUT_VALIDATION);
+		machine.addEventListener(listener);
+machine.addEventListener(new ConsoleStateMachineEventListener<Integer>());
 
-		context.listener.assertEventsOccurred(
-				Event.forStateExit(context.firstInnerStateGraphStartState),
-				Event.forStateEntry(context.firstInnerStateGraphSecondState));
-	}
+		machine.start();
+		listener.assertEventsOccurred(
+				Event.forStateEntry(stateA));
 
-	@Test
-	public void testTransitionToSameOuterMachineState() {
-		TestContext context = new TestContext();
+		machine.evaluateInput(0);
+		listener.assertEventsOccurred(
+				Event.forNoTransitionFound(0));
 
-		context.machine.transition(context.outerStateGraphStartState);
-
-		context.listener.assertEventsOccurred(
-				Event.forStateExit(context.firstInnerStateGraphStartState),
-				Event.forStateExit(context.outerStateGraphStartState),
-				Event.forStateEntry(context.outerStateGraphStartState),
-				Event.forStateEntry(context.firstInnerStateGraphStartState)); // Called implicitly when the outer machines submachine is start()'d.
-	}
-
-	@Test
-	public void testTransitionToDifferentOuterMachineState() {
-		TestContext context = new TestContext();
-
-		context.machine.transition(context.outerStateGraphSecondState);
-
-		context.listener.assertEventsOccurred(
-				Event.forStateExit(context.firstInnerStateGraphStartState),
-				Event.forStateExit(context.outerStateGraphStartState),
-				Event.forStateEntry(context.outerStateGraphSecondState),
-				Event.forStateEntry(context.secondInnerStateGraphStartState));
-	}
-
-	@Test
-	public void testTransitionToDifferentOuterMachineStateWithInnerMachineState() {
-		TestContext context = new TestContext();
-
-		context.machine.transition(context.outerStateGraphSecondState, context.secondInnerStateGraphStartState);
-
-		context.listener.assertEventsOccurred(
-				Event.forStateExit(context.firstInnerStateGraphStartState),
-				Event.forStateExit(context.outerStateGraphStartState),
-				Event.forStateEntry(context.outerStateGraphSecondState),
-				Event.forStateEntry(context.secondInnerStateGraphStartState));
-	}
-
-
-	private static class TestContext {
-		public StateGraph<Object> firstInnerStateGraph;
-		public State<Object> firstInnerStateGraphStartState;
-		public State<Object> firstInnerStateGraphSecondState;
-		public StateGraph<Object> secondInnerStateGraph;
-		public State<Object> secondInnerStateGraphStartState;
-		public State<Object> secondInnerStateGraphSecondState;
-		public StateGraph<Object> outerStateGraph;
-		public State<Object> outerStateGraphStartState;
-		public State<Object> outerStateGraphSecondState;
-		public StateMachine<Object,Object> machine;
-		public TestMachineEventListener<Object> listener;
-
-		@SuppressWarnings("unchecked")
-        public TestContext() {
-			firstInnerStateGraph = new StateGraph<Object>();
-			firstInnerStateGraphStartState = new DefaultState<Object>("First inner start");
-			firstInnerStateGraph.setStartState(firstInnerStateGraphStartState);
-			firstInnerStateGraphSecondState = new DefaultState<Object>("First inner second");
-			firstInnerStateGraph.addTransition(firstInnerStateGraphStartState, new DefaultTransition<Object>(firstInnerStateGraphSecondState));
-
-			secondInnerStateGraph = new StateGraph<Object>();
-			secondInnerStateGraphStartState = new DefaultState<Object>("Second inner start");
-			secondInnerStateGraph.setStartState(secondInnerStateGraphStartState);
-			secondInnerStateGraphSecondState = new DefaultState<Object>("Second inner second");
-			secondInnerStateGraph.addTransition(secondInnerStateGraphStartState, new DefaultTransition<Object>(secondInnerStateGraphSecondState));
-
-			outerStateGraph = new StateGraph<Object>();
-			outerStateGraphStartState = new DefaultSubmachineState<Object>("Outer start", firstInnerStateGraph);
-			outerStateGraph.setStartState(outerStateGraphStartState);
-			outerStateGraphSecondState = new DefaultSubmachineState<Object>("Outer second", secondInnerStateGraph);
-			outerStateGraph.addTransition(outerStateGraphStartState, new DefaultTransition<Object>(outerStateGraphSecondState));
-
-			machine = new StateMachine<Object,Object>(outerStateGraph, new DefaultInputAdapter<Object>());
-
-			machine.start();
-			assertEquals("Couldn't initialize test.  Please check for failures elsewhere.",
-					Lists.newArrayList(outerStateGraphStartState, firstInnerStateGraphStartState),
-					machine.getStates());
-
-			listener = new TestMachineEventListener<Object>(EventType.STATE_ENTERED, EventType.STATE_EXITED);
-			machine.addEventListener(listener);
-		}
+		machine.evaluateInput(1);
+		listener.assertEventsOccurred(
+				Event.forStateExit(stateA),
+				Event.forTransitionFollowed(transitionAB),
+				Event.forCompositeStateEntry(compositeX),
+				Event.forCompositeStateEntry(compositeX1),
+				Event.forCompositeStateEntry(compositeY),
+				Event.forStateEntry(stateB));
 	}
 }
 

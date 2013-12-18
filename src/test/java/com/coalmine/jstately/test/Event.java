@@ -78,12 +78,12 @@ public class Event {
 		return forTransitionFollowed(transition, null);
 	}
 
-	public static Event forNoTransitionFound(StateMachine<?,Object> machine) {
-		return new Event(EventType.NO_VALID_TRANSITION_FOUND, null, machine);
+	public static Event forNoTransitionFound(StateMachine<?,Object> machine, Object expectedInput) {
+		return new Event(EventType.NO_VALID_TRANSITION_FOUND, expectedInput, machine);
 	}
 
-	public static Event forNoTransitionFound() {
-		return forNoTransitionFound(null);
+	public static Event forNoTransitionFound(Object expectedInput) {
+		return forNoTransitionFound(null, expectedInput);
 	}
 
 	@Override
