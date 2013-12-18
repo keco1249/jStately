@@ -1,6 +1,6 @@
 package com.coalmine.jstately.test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +49,28 @@ public class TestStateMachineEventListener<TransitionInput> extends DefaultState
 		clearObservedEvents();
 	}
 
+	/** Asserts that the given Event happened */
+	public void assertEventOccurred(boolean ignoreMachine, Event expectedEvent) {
+		for(Event observedEvent : observedEvents) {
+			if(eventAreEqual(ignoreMachine, expectedEvent, observedEvent)) {
+				return;
+			}
+		}
+
+		fail("The expected event was not observed");
+	}
+
+	/** Asserts that the given Event happened, ignoring the machine on which the event occurred */
+	public void assertEventOccurred(Event expectedEvent) {
+		for(Event observedEvent : observedEvents) {
+			if(eventAreEqual(true, expectedEvent, observedEvent)) {
+				return;
+			}
+		}
+
+		fail("The expected event was not observed");
+	}
+
 	public void clearObservedEvents() {
 		observedEvents.clear();
 	}
@@ -59,24 +81,25 @@ public class TestStateMachineEventListener<TransitionInput> extends DefaultState
 		}
 
 		for(int i=0; i<firstEvents.size(); i++) {
-			Event firstEvent = firstEvents.get(i);
-			Event secondEvent = secondEvents.get(i);
-
-			boolean typesEqual = firstEvent.getType().equals(secondEvent.getType());
-
-			boolean valuesEqual = firstEvent.getValue()==null?
-					secondEvent.getValue()==null :
-					firstEvent.getValue().equals(secondEvent.getValue());
-
-			boolean machinesEqual = ignoreMachine ||
-					firstEvent.getMachine().equals(secondEvent.getMachine());
-
-			if(!typesEqual || !valuesEqual || !machinesEqual) {
+			if(!eventAreEqual(ignoreMachine, firstEvents.get(i), secondEvents.get(i))) {
 				return false;
 			}
 		}
 
 		return true;
+	}
+
+	private boolean eventAreEqual(boolean ignoreMachine, Event firstEvent, Event secondEvent) {
+		boolean typesEqual = firstEvent.getType().equals(secondEvent.getType());
+
+		boolean valuesEqual = firstEvent.getValue()==null?
+				secondEvent.getValue()==null :
+				firstEvent.getValue().equals(secondEvent.getValue());
+
+		boolean machinesEqual = ignoreMachine ||
+				firstEvent.getMachine().equals(secondEvent.getMachine());
+
+		return typesEqual && valuesEqual && machinesEqual;
 	}
 
 	@SuppressWarnings("unchecked")

@@ -1,7 +1,5 @@
 package com.coalmine.jstately.integration;
 
-import static org.junit.Assert.*;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -79,7 +77,7 @@ public class IntegrationTest {
 	}
 
 	@Test
-	public void testStateMachine() {
+	public void testStateMachineStateTransitioning() {
 		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
 
 		TestStateMachineEventListener<Integer> listener = new TestStateMachineEventListener<Integer>(EventType.ALL_TYPES_EXCEPT_INPUT_VALIDATION);
@@ -102,7 +100,7 @@ public class IntegrationTest {
 				Event.forCompositeStateEntry(compositeY),
 				Event.forStateEntry(stateB));
 
-		machine.evaluateInput(2); // Back to B
+		machine.evaluateInput(2);
 		listener.assertEventsOccurred(
 				Event.forStateExit(stateB),
 				Event.forCompositeStateExit(compositeY),
@@ -110,6 +108,31 @@ public class IntegrationTest {
 				Event.forTransitionFollowed(transitionBC),
 				Event.forCompositeStateEntry(compositeX2),
 				Event.forStateEntry(stateC));
+
+		machine.evaluateInput(3);
+		listener.assertEventsOccurred(
+				Event.forStateExit(stateC),
+				Event.forCompositeStateExit(compositeX2),
+				Event.forCompositeStateExit(compositeX),
+				Event.forTransitionFollowed(transitionCD),
+				Event.forStateEntry(stateD));
+	}
+
+	@Test
+	public void testStateMachineStateTransitionPrecedence() {
+		StateMachine<Integer,Integer> machine = new StateMachine<Integer,Integer>(graph, new DefaultInputAdapter<Integer>());
+		machine.transition(stateB);
+
+		TestStateMachineEventListener<Integer> listener = new TestStateMachineEventListener<Integer>(EventType.ALL_TYPES_EXCEPT_INPUT_VALIDATION);
+		machine.addEventListener(listener);
+
+		machine.evaluateInput(100);
+		listener.assertEventOccurred(Event.forTransitionFollowed(transitionX1A));
+
+		machine.transition(stateC);
+		listener.clearObservedEvents();
+		machine.evaluateInput(100);
+		listener.assertEventOccurred(Event.forTransitionFollowed(transitionXA));
 	}
 }
 
