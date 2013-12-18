@@ -13,7 +13,6 @@ import com.coalmine.jstately.graph.transition.EqualityTransition;
 import com.coalmine.jstately.graph.transition.Transition;
 import com.coalmine.jstately.machine.DefaultInputAdapter;
 import com.coalmine.jstately.machine.StateMachine;
-import com.coalmine.jstately.machine.listener.ConsoleStateMachineEventListener;
 import com.coalmine.jstately.test.Event;
 import com.coalmine.jstately.test.EventType;
 import com.coalmine.jstately.test.TestStateMachineEventListener;
@@ -32,6 +31,9 @@ public class IntegrationTest {
 	private static CompositeState<Integer> compositeX1;
 	private static CompositeState<Integer> compositeX2;
 
+	private static Transition<Integer> transitionX1A;
+	private static Transition<Integer> transitionXA;
+
 	private static CompositeState<Integer> compositeY;
 
 	private static StateGraph<Integer> graph;
@@ -40,38 +42,40 @@ public class IntegrationTest {
 	public static void setUpBeforeClass() throws Exception {
 		graph = new StateGraph<Integer>();
 
-		stateA = new DefaultState<Integer>("Start A");
+		stateA = new DefaultState<Integer>("State A");
 		graph.setStartState(stateA);
 
-		stateB = new DefaultState<Integer>("Start B");
+		stateB = new DefaultState<Integer>("State B");
 		transitionAB = new EqualityTransition<Integer>(stateB, 1);
 		graph.addTransition(stateA, transitionAB);
 
-		stateC = new DefaultState<Integer>("Start C");
+		stateC = new DefaultState<Integer>("State C");
 		transitionBC = new EqualityTransition<Integer>(stateC, 2);
 		graph.addTransition(stateB, transitionBC);
 
-		stateD = new DefaultState<Integer>("Start D");
+		stateD = new DefaultState<Integer>("State D");
 		transitionCD = new EqualityTransition<Integer>(stateD, 3);
 		graph.addTransition(stateC, transitionCD);
 
 		// Fist set of (nested) composites
 		compositeX1 = new CompositeState<Integer>("First inner composite");
 		compositeX1.addState(stateB);
-		compositeX1.addTransition(new EqualityTransition<Integer>(stateA, 100));
+		transitionX1A = new EqualityTransition<Integer>(stateA, 100);
+		compositeX1.addTransition(transitionX1A);
 
 		compositeX2 = new CompositeState<Integer>("Second inner composite");
-		compositeX1.addState(stateC);
+		compositeX2.addState(stateC);
 
 		compositeX = new CompositeState<Integer>("Outer composite");
 		compositeX.addComposite(compositeX1);
 		compositeX.addComposite(compositeX2);
-		compositeX.addTransition(new EqualityTransition<Integer>(stateA, 200));
+		transitionXA = new EqualityTransition<Integer>(stateA, 100); // The same expected input as transitionX1A, to ensure that transitionX1A takes priority
+		compositeX.addTransition(transitionXA);
 
 		// Second composite
 		compositeY = new CompositeState<Integer>("Overlapping outer composite");
 		compositeY.addState(stateB);
-		compositeY.addTransition(new EqualityTransition<Integer>(stateD, 300));
+		compositeY.addTransition(new EqualityTransition<Integer>(stateD, 200));
 	}
 
 	@Test
@@ -80,7 +84,7 @@ public class IntegrationTest {
 
 		TestStateMachineEventListener<Integer> listener = new TestStateMachineEventListener<Integer>(EventType.ALL_TYPES_EXCEPT_INPUT_VALIDATION);
 		machine.addEventListener(listener);
-machine.addEventListener(new ConsoleStateMachineEventListener<Integer>());
+//machine.addEventListener(new ConsoleStateMachineEventListener<Integer>());
 
 		machine.start();
 		listener.assertEventsOccurred(
@@ -98,6 +102,24 @@ machine.addEventListener(new ConsoleStateMachineEventListener<Integer>());
 				Event.forCompositeStateEntry(compositeX1),
 				Event.forCompositeStateEntry(compositeY),
 				Event.forStateEntry(stateB));
+
+//		machine.evaluateInput(100);
+//		listener.assertEventsOccurred(
+//				Event.forStateExit(stateB),
+//				Event.forCompositeStateExit(compositeY),
+//				Event.forCompositeStateExit(compositeX1),
+//				Event.forCompositeStateExit(compositeX),
+//				Event.forTransitionFollowed(transitionX1A),
+//				Event.forStateEntry(stateA));
+
+		machine.evaluateInput(2); // Back to B
+		listener.assertEventsOccurred(
+				Event.forStateExit(stateB),
+				Event.forCompositeStateExit(compositeY),
+				Event.forCompositeStateExit(compositeX1),
+				Event.forTransitionFollowed(transitionBC),
+				Event.forCompositeStateEntry(compositeX2),
+				Event.forStateEntry(stateC));
 	}
 }
 

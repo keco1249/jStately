@@ -11,7 +11,7 @@ public class Event {
 	private StateMachine<?,Object> machine;
 
 
-	Event(EventType type, Object value, StateMachine<?,Object> machine) { // Purposely package-protected
+	protected Event(EventType type, Object value, StateMachine<?,Object> machine) {
 		this.type = type;
 		this.value = value;
 		this.machine = machine;

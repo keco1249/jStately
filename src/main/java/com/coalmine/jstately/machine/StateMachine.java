@@ -21,7 +21,8 @@ public class StateMachine<MachineInput,TransitionInput> {
 	protected InputAdapter<MachineInput,TransitionInput>		inputAdapter;
 	protected List<StateMachineEventListener<TransitionInput>>	eventListeners = new ArrayList<StateMachineEventListener<TransitionInput>>();
 
-	private StateMachine<TransitionInput,TransitionInput>		submachine;
+	protected StateMachine<TransitionInput,TransitionInput>		submachine;
+
 
 	public StateMachine() { }
 
@@ -161,12 +162,12 @@ public class StateMachine<MachineInput,TransitionInput> {
 	/** Enters the given state, using currentState to determine what CompositeStates (if any) are being entered. */
 	protected void enterState(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
 		if(currentState==null || !currentState.equals(newState)) {
-			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
-				listener.beforeStateEntered(newState, this);
+			for(CompositeState<TransitionInput> composite : determineCompositesBeingEntered(currentState,newState)) {
+				enterCompositeState(composite);
 			}
 
-			for(CompositeState<TransitionInput> composite : determinateCompositesBeingEntered(currentState,newState)) {
-				enterCompositeState(composite);
+			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
+				listener.beforeStateEntered(newState, this);
 			}
 
 			newState.onEnter();
@@ -196,37 +197,41 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 	/** Determines which composite states are being entered when entering a state.
 	 * @return A list of CompositeStates being entered in order they are being entered (from the root CompositeState to nested ones.) */
-	private List<CompositeState<TransitionInput>> determinateCompositesBeingEntered(State<TransitionInput> oldState, State<TransitionInput> newState) {
+	private List<CompositeState<TransitionInput>> determineCompositesBeingEntered(State<TransitionInput> oldState, State<TransitionInput> newState) {
 		List<CompositeState<TransitionInput>> newStateComposites = collectCompositeStates(newState);
 		if(oldState==null) {
-			return Lists.reverse(newStateComposites);
+			return newStateComposites;
 		}
 
 		List<CompositeState<TransitionInput>> oldStateComposites = collectCompositeStates(oldState);
 		newStateComposites.removeAll(oldStateComposites);
-		return Lists.reverse(newStateComposites);
+		return newStateComposites;
 	}
 
 	/** Determines which composite states are being exited when exiting a state.
 	 * @return A list of CompositeStates being exited in order they are being exist (from the State's immediate CompositeState to its root CompositeState.) */
-	private List<CompositeState<TransitionInput>> determinateCompositeStatesBeingExited(State<TransitionInput> oldState, State<TransitionInput> newState) {
+	private List<CompositeState<TransitionInput>> determineCompositeStatesBeingExited(State<TransitionInput> oldState, State<TransitionInput> newState) {
 		List<CompositeState<TransitionInput>> oldStateComposites = collectCompositeStates(oldState);
 		if(newState==null) {
-			return oldStateComposites;
+			return Lists.reverse(oldStateComposites);
 		}
 
 		List<CompositeState<TransitionInput>> newStateComposites = collectCompositeStates(newState);
 		oldStateComposites.removeAll(newStateComposites);
-		return oldStateComposites;
+		return Lists.reverse(oldStateComposites);
 	}
 
-	/** @return All of a State's CompositeStates, with nested composites ordered from the State's immediate parent composite to the root */
+	/** @return All of the CompositeStates that enclose the given State.  The values are ordered
+	 * the same as the list returned by {@link State#getComposites()}, with nested composites
+	 * ordered from the State's outer-most composite to its immediate parent composite. */
 	private List<CompositeState<TransitionInput>> collectCompositeStates(State<TransitionInput> state) {
 		List<CompositeState<TransitionInput>> composites = new ArrayList<CompositeState<TransitionInput>>();
 
+		int insertionPosition;
 		for(CompositeState<TransitionInput> composite : state.getComposites()) {
+			insertionPosition = composites.size();
 			while(composite != null) {
-				composites.add(composite);
+				composites.add(insertionPosition,composite);
 				composite = composite.getParent();
 			}
 		}
@@ -276,13 +281,13 @@ public class StateMachine<MachineInput,TransitionInput> {
 			}
 	
 			currentState.onExit();
-	
-			for(CompositeState<TransitionInput> composite : determinateCompositeStatesBeingExited(currentState,newState)) {
-				exitCompositeState(composite);
-			}
-	
+
 			for(StateMachineEventListener<TransitionInput> listener : eventListeners) {
 				listener.afterStateExited(currentState, this);
+			}
+	
+			for(CompositeState<TransitionInput> composite : determineCompositeStatesBeingExited(currentState,newState)) {
+				exitCompositeState(composite);
 			}
 
 			currentState = null;

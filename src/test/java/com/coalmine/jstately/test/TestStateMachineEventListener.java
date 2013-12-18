@@ -19,7 +19,7 @@ import com.google.common.collect.Sets;
 /** {@link StateMachineEventListener} implementation for use in test cases.  This listener stores events that occur,
  * allowing users to assert that a certain sequence of events occurred, using {@link #assertEventsOccurred(Event...)}. */
 public class TestStateMachineEventListener<TransitionInput> extends DefaultStateMachineEventListener<TransitionInput> {
-	private List<Event> events = new ArrayList<Event>();
+	private List<Event> observedEvents = new ArrayList<Event>();
 	private Set<EventType> allowedEventTypes;
 
 
@@ -43,10 +43,14 @@ public class TestStateMachineEventListener<TransitionInput> extends DefaultState
 	 * listener.  This method also clears the list of observed events after making the assertion. */
 	public void assertEventsOccurred(boolean ignoreMachine, Event... expectedEvents) {
 		List<Event> expectedEventList = Lists.newArrayList(expectedEvents);
-		assertTrue("The exact sequence of expected events was not observed.  Expected: "+expectedEventList+" but was: "+events,
-				testEventListEquality(ignoreMachine, expectedEventList, events));
+		assertTrue("The exact sequence of expected events was not observed.  Expected: "+expectedEventList+" but was: "+observedEvents,
+				testEventListEquality(ignoreMachine, expectedEventList, observedEvents));
 
-		events.clear();
+		clearObservedEvents();
+	}
+
+	public void clearObservedEvents() {
+		observedEvents.clear();
 	}
 
 	private boolean testEventListEquality(boolean ignoreMachine, List<Event> firstEvents, List<Event> secondEvents) {
@@ -78,7 +82,7 @@ public class TestStateMachineEventListener<TransitionInput> extends DefaultState
 	@SuppressWarnings("unchecked")
 	private void logEvent(EventType type, Object value, StateMachine<?, TransitionInput> machine) {
 		if (allowedEventTypes == null || allowedEventTypes.contains(type)) {
-			events.add(new Event(type, value, (StateMachine<?,Object>)machine));
+			observedEvents.add(new Event(type, value, (StateMachine<?,Object>)machine));
 		}
 	}
 
