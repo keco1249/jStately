@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 
-/** A basic InputAdapter implementation for machines that take the same input type as their transitions. */
+/** A simple InputAdapter implementation for machines that take the same input type as their transitions. */
 public class DefaultInputAdapter<InputType> implements InputAdapter<InputType,InputType> {
 	private Queue<InputType> queue = new LinkedList<InputType>();
 

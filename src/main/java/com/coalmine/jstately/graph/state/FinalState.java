@@ -1,10 +1,8 @@
 package com.coalmine.jstately.graph.state;
 
-/** A final state that provides an output value that can indicate the result of running a state
- * machine (including machines embedded in submachine states, the output of which is used as an
- * input for the parent machine.)
- * 
- * @see NonFinalState */
+/** A state that provides a "result" value that can indicate the result of running a state machine.
+ * This is used primarily for graphs used in submachine states, where the result of running the
+ * "inner" state machine gets used as an input for the "outer" state machine. */
 public interface FinalState<Result> extends State<Result> {
 	Result getResult();
 }

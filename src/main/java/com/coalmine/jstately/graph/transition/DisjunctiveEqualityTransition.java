@@ -5,31 +5,31 @@ import java.util.Set;
 import com.coalmine.jstately.graph.state.State;
 import com.google.common.collect.Sets;
 
-/** Transition implementation that is valid if any one of its <code>testValue</code>s is equal to the transition input. */
+/** Transition implementation that is valid if any one of its <code>validInputs</code> values is equal to the transition input. */
 public class DisjunctiveEqualityTransition<TransitionInput> extends AbstractTransition<TransitionInput> implements Transition<TransitionInput> {
-	private Set<TransitionInput> validityTestObjects;
+	private Set<TransitionInput> validInputs;
 
 
 	public DisjunctiveEqualityTransition() { }
 
-	public DisjunctiveEqualityTransition(State<TransitionInput> head, Set<TransitionInput> validityTestObjects) {
-		this.head					= head;
-		this.validityTestObjects	= validityTestObjects;
+	public DisjunctiveEqualityTransition(State<TransitionInput> head, Set<TransitionInput> validInputs) {
+		this.head			= head;
+		this.validInputs	= validInputs;
 	}
 
-	public DisjunctiveEqualityTransition(State<TransitionInput> head, TransitionInput... validityTestObjects) {
-		this(head, Sets.newHashSet(validityTestObjects));
+	public DisjunctiveEqualityTransition(State<TransitionInput> head, TransitionInput... validInputs) {
+		this(head, Sets.newHashSet(validInputs));
 	}
 
-	public Set<TransitionInput> getValidityTestObjects() {
-		return validityTestObjects;
+	public Set<TransitionInput> getValidInputs() {
+		return validInputs;
 	}
-	public void setValidityTestObjects(Set<TransitionInput> validityTestObjects) {
-		this.validityTestObjects = validityTestObjects;
+	public void setValidInputs(Set<TransitionInput> validInputs) {
+		this.validInputs = validInputs;
 	}
 
 	public boolean isValid(TransitionInput input) {
-		return validityTestObjects.contains(input);
+		return validInputs.contains(input);
 	}
 }
 

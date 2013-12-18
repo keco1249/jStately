@@ -8,43 +8,43 @@ import com.coalmine.jstately.machine.StateMachine;
 /** Listener than can be registered with a {@link StateMachine} to be notified of events that happen. */
 public interface StateMachineEventListener<TransitionInput> {
 	/** Called before a state machine begins evaluating an input */
-	void beforeEvaluatingInput(TransitionInput input);
+	void beforeEvaluatingInput(TransitionInput input, StateMachine<?,TransitionInput> machine);
 
 	/** Called after a state machine finishes evaluating an input */
-	void afterEvaluatingInput(TransitionInput input);
+	void afterEvaluatingInput(TransitionInput input, StateMachine<?,TransitionInput> machine);
 
 	/** Called before a state machine enters a State. */
-	void beforeStateEntered(State<TransitionInput> state);
+	void beforeStateEntered(State<TransitionInput> state, StateMachine<?,TransitionInput> machine);
 
 	/** Called after a state machine enters a State. */
-	void afterStateEntered(State<TransitionInput> state);
+	void afterStateEntered(State<TransitionInput> state, StateMachine<?,TransitionInput> machine);
 
 	/** Called before a state machine exits a State. */
-	void beforeStateExited(State<TransitionInput> state);
+	void beforeStateExited(State<TransitionInput> state, StateMachine<?,TransitionInput> machine);
 
 	/** Called after a state machine exits a State. */
-	void afterStateExited(State<TransitionInput> state);
+	void afterStateExited(State<TransitionInput> state, StateMachine<?,TransitionInput> machine);
 
 	/** Called before a state machine transitions from one state to another. */
-	void beforeTransition(Transition<TransitionInput> transition, TransitionInput input);
+	void beforeTransition(Transition<TransitionInput> transition, TransitionInput input, StateMachine<?,TransitionInput> machine);
 
 	/** Called after a state machine transitions from one state to another. */
-	void afterTransition(Transition<TransitionInput> transition, TransitionInput input);
+	void afterTransition(Transition<TransitionInput> transition, TransitionInput input, StateMachine<?,TransitionInput> machine);
 
 	/** Called when no valid transition is found for a given input. */
-	void noValidTransition(TransitionInput input);
+	void noValidTransition(TransitionInput input, StateMachine<?,TransitionInput> machine);
 
 	/** Called before entering a CompositeState of a state graph. */
-	void beforeCompositeStateEntered(CompositeState<TransitionInput> composite);
+	void beforeCompositeStateEntered(CompositeState<TransitionInput> composite, StateMachine<?,TransitionInput> machine);
 
 	/** Called after entering a CompositeState of a state graph. */
-	void afterCompositeStateEntered(CompositeState<TransitionInput> composite);
+	void afterCompositeStateEntered(CompositeState<TransitionInput> composite, StateMachine<?,TransitionInput> machine);
 
 	/** Called before exiting a CompositeState of a state graph. */
-	void beforeCompositeStateExited(CompositeState<TransitionInput> composite);
+	void beforeCompositeStateExited(CompositeState<TransitionInput> composite, StateMachine<?,TransitionInput> machine);
 
 	/** Called after exiting a CompositeState of a state graph. */
-	void afterCompositeStateExited(CompositeState<TransitionInput> composite);
+	void afterCompositeStateExited(CompositeState<TransitionInput> composite, StateMachine<?,TransitionInput> machine);
 }
 
 

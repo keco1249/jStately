@@ -1,151 +1,113 @@
 package com.coalmine.jstately.graph;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-import java.util.Set;
-
-import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.coalmine.jstately.graph.composite.CompositeState;
+import com.coalmine.jstately.graph.state.DefaultFinalState;
 import com.coalmine.jstately.graph.state.DefaultState;
 import com.coalmine.jstately.graph.state.State;
-import com.coalmine.jstately.graph.transition.DisjunctiveEqualityTransition;
-import com.coalmine.jstately.graph.transition.EqualityTransition;
 import com.coalmine.jstately.graph.transition.Transition;
-
+import com.coalmine.jstately.test.DefaultTransition;
 
 public class StateGraphTest {
-	private static StateGraph<Integer> graph;
-	private static State<Integer> stateS,stateA,stateB,stateF;
-	private static Transition<Integer> transitionSA, transitionAB, transitionBB, transitionBA, transitionAF, globalTransitionS;
+	@Test(expected=IllegalArgumentException.class)
+	public void testSetStartStateToFinalState() {
+		State<Object> startState = new DefaultFinalState<Object>();
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		// Setup test graph with a global transition to F for an input of 100
-		//
-		// S → A ↔ B* (loop to self)
-		//     ↓
-		//     F
+		StateGraph<Object> graph = new StateGraph<Object>();
+		graph.setStartState(startState);
+	}
 
-		stateS = new DefaultState<Integer>("S");
-		stateA = new DefaultState<Integer>("A");
-		stateB = new DefaultState<Integer>("B");
-		stateF = new DefaultState<Integer>("F");
+	@Test(expected=IllegalArgumentException.class)
+	public void testAddTransitionWithNullTail() {
+		StateGraph<Object> graph = new StateGraph<Object>();
+		graph.addTransition(null, new DefaultTransition<Object>());
+	}
 
-		transitionSA = new DisjunctiveEqualityTransition<Integer>(stateA,1,500);
-		transitionAB = new EqualityTransition<Integer>(stateB,2);
-		transitionBB = new EqualityTransition<Integer>(stateB,3);
-		transitionBA = new EqualityTransition<Integer>(stateA,4);
-		transitionAF = new EqualityTransition<Integer>(stateF,5);
-		globalTransitionS = new EqualityTransition<Integer>(stateS, 100);
+	@Test(expected=IllegalArgumentException.class)
+	public void testAddSelfTransitionWithNullHead() {
+		StateGraph<Object> graph = new StateGraph<Object>();
 
-		graph = new StateGraph<Integer>();
-		graph.setStartState(stateS);
-
-		graph.addTransition(stateS, transitionSA);
-		graph.addTransition(stateA, transitionAB);
-		graph.addSelfTransition(transitionBB);
-		graph.addTransition(stateB, transitionBA);
-		graph.addTransition(stateA, transitionAF);
-
-		graph.addGlobalTransition(globalTransitionS);
+		graph.addSelfTransition(new DefaultTransition<Object>(null));
 	}
 
 	@Test
-	public void testGetTransitionsFromState() {
-		Set<Transition<Integer>> transitions = graph.findAllTransitionsFromState(stateS);
-		assertNotNull(transitions);
-		assertEquals(2, transitions.size());
-		assertTrue(transitions.contains(transitionSA));
+	public void testFindFirstValidTransitionFromState_onlyGlobalValidTransition() {
+		StateGraph<Object> graph = new StateGraph<Object>();
+		State<Object> state = new DefaultState<Object>();
 
-		transitions = graph.findAllTransitionsFromState(stateA);
-		assertNotNull(transitions);
-		assertEquals(3, transitions.size());
-		assertTrue(transitions.contains(transitionAB));
-		assertTrue(transitions.contains(transitionAF));
+		// Wrap the state in nested composites
+		CompositeState<Object> firstComposite = new CompositeState<Object>();
+		firstComposite.addState(state);
 
-		transitions = graph.findAllTransitionsFromState(stateB);
-		assertNotNull(transitions);
-		assertEquals(3, transitions.size());
-		assertTrue(transitions.contains(transitionBB));
-		assertTrue(transitions.contains(transitionBA));
+		// Two more nested composites that overlap with the first two (share the state) but aren't nested
+		CompositeState<Object> secondInnerComposite = new CompositeState<Object>();
+		secondInnerComposite.addState(state);
+		CompositeState<Object> secondOuterComposite = new CompositeState<Object>();
+		secondOuterComposite.addComposite(secondInnerComposite);
 
-		transitions = graph.findAllTransitionsFromState(stateF);
-		assertNotNull(transitions);
-		assertEquals(1, transitions.size());
-	}
+		// Only an invalid global transition
+		graph.addGlobalTransition(new DefaultTransition<Object>(false));
+		assertNull("No valid transition should exist.",
+				graph.findFirstValidTransitionFromState(state, null));
 
+		// With a valid global transition
+		Transition<Object> validGlobalTransition = new DefaultTransition<Object>(true);
+		graph.addGlobalTransition(validGlobalTransition);
+		assertEquals("The valid global transition should be returned.",
+				validGlobalTransition,
+				graph.findFirstValidTransitionFromState(state, null));
 
-	@Test
-	public void testGetValidTransitionsFromState() {
-		Set<Transition<Integer>> transitions = graph.findValidTransitionsFromState(stateS,1);
-		assertNotNull(transitions);
-		assertEquals(1, transitions.size());
-		assertTrue(transitions.contains(transitionSA));
+		// Matches in a state's composite ancestors should take precedence over global transitions... but still need to be valid.
+		secondOuterComposite.addTransition(new DefaultTransition<Object>(false));
+		assertEquals("The valid global transition should be returned.",
+				validGlobalTransition,
+				graph.findFirstValidTransitionFromState(state, null));
 
-		// Transition S→A is disjunctive.  Make sure both valid inputs are considered valid.
-		transitions = graph.findValidTransitionsFromState(stateS,500);
-		assertNotNull(transitions);
-		assertEquals(1, transitions.size());
-		assertTrue(transitions.contains(transitionSA));
+		Transition<Object> validSecondOuterCompositeTransition = new DefaultTransition<Object>(true);
+		secondOuterComposite.addTransition(validSecondOuterCompositeTransition);
+		assertEquals("Composite transitions should take precedence over global transitions.",
+				validSecondOuterCompositeTransition,
+				graph.findFirstValidTransitionFromState(state, null));
 
-		transitions = graph.findValidTransitionsFromState(stateA,2);
-		assertNotNull(transitions);
-		assertEquals(1, transitions.size());
-		assertTrue(transitions.contains(transitionAB));
+		// More immediate CompositeState ancestors should take precedence over more distant CompositeState ancestors
+		secondInnerComposite.addTransition(new DefaultTransition<Object>(false));
+		assertEquals("", // ...stil
+				validSecondOuterCompositeTransition,
+				graph.findFirstValidTransitionFromState(state, null));
 
-		transitions = graph.findValidTransitionsFromState(stateA,5);
-		assertNotNull(transitions);
-		assertEquals(1, transitions.size());
-		assertTrue(transitions.contains(transitionAF));
+		Transition<Object> validSecondInnerCompositeTransition = new DefaultTransition<Object>(true);
+		secondInnerComposite.addTransition(validSecondInnerCompositeTransition);
+		assertEquals("More immediate CompositeState ancestors should take precedence over more distant CompositeState ancestors",
+				validSecondInnerCompositeTransition,
+				graph.findFirstValidTransitionFromState(state, null));
 
-		transitions = graph.findValidTransitionsFromState(stateB,3);
-		assertNotNull(transitions);
-		assertEquals(1, transitions.size());
-		assertTrue(transitions.contains(transitionBB));
+		// When a state has multiple immediate CompositeStates, precedence should be given to Transitions from the CompositeState that the state was added to earliest. 
+		firstComposite.addTransition(new DefaultTransition<Object>(false));
+		assertEquals("", // ...stil
+				validSecondInnerCompositeTransition,
+				graph.findFirstValidTransitionFromState(state, null));
 
-		transitions = graph.findValidTransitionsFromState(stateB,4);
-		assertNotNull(transitions);
-		assertEquals(1, transitions.size());
-		assertTrue(transitions.contains(transitionBA));
+		Transition<Object> validFirstCompositeTransition = new DefaultTransition<Object>(true);
+		firstComposite.addTransition(validFirstCompositeTransition);
+		assertEquals("When a state has multiple immediate CompositeStates, precedence should be given to Transitions from the CompositeState that the state was added to earliest",
+				validFirstCompositeTransition,
+				graph.findFirstValidTransitionFromState(state, null));
 
-		transitions = graph.findValidTransitionsFromState(stateF,5);
-		assertNotNull(transitions);
-		assertEquals(0, transitions.size());
+		// Now check the transitions on the state itself
+		graph.addTransition(state, new DefaultTransition<Object>(false));
+		assertEquals("", // ...still
+				validFirstCompositeTransition,
+				graph.findFirstValidTransitionFromState(state, null));
 
-		// Make sure global transition is valid from all states (with the right input of course.)
-		assertTrue(graph.findValidTransitionsFromState(stateS,100).contains(globalTransitionS));
-		assertTrue(graph.findValidTransitionsFromState(stateA,100).contains(globalTransitionS));
-		assertTrue(graph.findValidTransitionsFromState(stateB,100).contains(globalTransitionS));
-		assertTrue(graph.findValidTransitionsFromState(stateF,100).contains(globalTransitionS));
-	}
-
-	@Test
-	public void testGetFirstValidTransitionFromState() {
-		assertEquals(transitionSA,
-				graph.findFirstValidTransitionFromState(stateS,1));
-		assertEquals(transitionSA,
-				graph.findFirstValidTransitionFromState(stateS,500));
-
-		assertEquals(transitionAB,
-				graph.findFirstValidTransitionFromState(stateA,2));
-
-		assertEquals(transitionAF,
-				graph.findFirstValidTransitionFromState(stateA,5));
-
-		assertEquals(transitionBB,
-				graph.findFirstValidTransitionFromState(stateB,3));
-
-		assertEquals(transitionBA,
-				graph.findFirstValidTransitionFromState(stateB,4));
-
-		assertNull(graph.findFirstValidTransitionFromState(stateF,5));
+		Transition<Object> validStateTransition = new DefaultTransition<Object>(true);
+		graph.addTransition(state, validStateTransition);
+		assertEquals("Valid transitions on the state itself should take precedence over global transitions and transitions on ancestor CompositeStates.",
+				validStateTransition,
+				graph.findFirstValidTransitionFromState(state, null));
 	}
 }
-
-
 
 
