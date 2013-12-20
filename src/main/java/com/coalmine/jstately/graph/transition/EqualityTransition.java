@@ -2,8 +2,7 @@ package com.coalmine.jstately.graph.transition;
 
 import com.coalmine.jstately.graph.state.State;
 
-/** Basic implementation of Transition where the validity of the transition is
- * determined by the equality of <code>isValid()</code>'s input and the given object. */
+/** Basic implementation of Transition, the validity of which is determined by the equality of an input and a particular object. */
 public class EqualityTransition<TransitionInput> extends AbstractTransition<TransitionInput> implements Transition<TransitionInput> {
 	private TransitionInput validInput;
 

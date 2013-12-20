@@ -3,6 +3,7 @@ package com.coalmine.jstately.graph.state;
 import com.coalmine.jstately.graph.StateGraph;
 
 
+/** Basic {@link SubmachineState} implementation that provides the specified StateGraph when the state machine enters the state and sets up the submachine. */
 public class DefaultSubmachineState<TransitionInput> extends DefaultState<TransitionInput> implements SubmachineState<TransitionInput> {
 	private StateGraph<TransitionInput> stateGraph;
 

@@ -5,9 +5,11 @@ import java.io.Serializable;
 import org.mvel.MVEL;
 
 
+/** A {@link Transition} implementation whose {@link #isValid(Object)} and {@link #onTransition(Object)} behavior is determined by evaluating
+ * <a href="http://mvel.codehaus.org/">MVEL</a> expressions, allowing its behavior to be specified in configuration, rather than code. */
 public class MvelTransition<TransitionInput> extends AbstractTransition<TransitionInput> implements Transition<TransitionInput> {
-	private Serializable compiledValidityExpression		= null;
-	private Serializable compiledTransitionExpression	= null;
+	private Serializable compiledValidityExpression = null;
+	private Serializable compiledTransitionExpression = null;
 
 	/**
 	 * @param mvelExpression A string of <a href="http://mvel.codehaus.org/">MVEL</a> code used
