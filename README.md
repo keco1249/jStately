@@ -23,8 +23,8 @@ implementation, MvelTransition, that determines its validity for a given input
 by evaluating an [MVEL](http://mvel.codehaus.org/) expression.  MvelTransition
 was developed while experimenting with the idea of parsing human-readable text
 (e.g., XML) to build state graphs that have transitions with arbitrary validity
-tests.  I ultimately found XML configuration to be too verbose for my tastes but
-a domain-specific language (DSL) for defining state charts may still be worth
-looking into.
+tests.  I ultimately found wrapping MVEL in XML to be too cumbersome for my
+tastes but a domain-specific language (DSL) for defining state graphs may still
+be worth looking into.
 
 
