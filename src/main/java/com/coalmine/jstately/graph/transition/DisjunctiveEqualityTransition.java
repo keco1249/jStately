@@ -13,8 +13,8 @@ public class DisjunctiveEqualityTransition<TransitionInput> extends AbstractTran
 	public DisjunctiveEqualityTransition() { }
 
 	public DisjunctiveEqualityTransition(State<TransitionInput> head, Set<TransitionInput> validInputs) {
-		this.head			= head;
-		this.validInputs	= validInputs;
+		this.head = head;
+		this.validInputs = validInputs;
 	}
 
 	public DisjunctiveEqualityTransition(State<TransitionInput> head, TransitionInput... validInputs) {

@@ -5,24 +5,21 @@ import java.io.Serializable;
 import org.mvel.MVEL;
 
 
-/** A {@link Transition} implementation whose {@link #isValid(Object)} and {@link #onTransition(Object)} behavior is determined by evaluating
- * <a href="http://mvel.codehaus.org/">MVEL</a> expressions, allowing its behavior to be specified in configuration, rather than code. */
-public class MvelTransition<TransitionInput> extends AbstractTransition<TransitionInput> implements Transition<TransitionInput> {
-	private Serializable compiledValidityExpression = null;
-	private Serializable compiledTransitionExpression = null;
+/** A {@link Transition} implementation whose {@link #isValid(Object)} and {@link #onTransition(Object)} behavior is
+ * determined by evaluating <a href="http://mvel.codehaus.org/">MVEL</a> expressions, allowing its behavior to be
+ * specified in configuration, rather than code. */
+public class MvelTransition<TransitionInput> extends AbstractTransition<TransitionInput> {
+	private Serializable compiledValidityExpression;
+	private Serializable compiledTransitionExpression;
 
-	/**
-	 * @param mvelExpression A string of <a href="http://mvel.codehaus.org/">MVEL</a> code used
-	 * to determine if the Transition is valid.  The expression must ALWAYS return a Boolean.
-	 */
+	/** @param mvelExpression An MVEL expression string used to determine 
+	 * if the transition is valid.  The expression must return a boolean. */
 	public void setValidityTestExpression(String mvelExpression) {
 		compiledValidityExpression = MVEL.compileExpression(mvelExpression);
 	}
 
-	/**
-	 * @param mvelExpression A string of <a href="http://mvel.codehaus.org/">MVEL</a> code used
-	 * to determine if the Transition is valid.  The expression must always return a Boolean.
-	 */
+	/** @param mvelExpression An MVEL expression string used to determine 
+	 * if the transition is valid.  The expression must return a boolean. */
 	public void setTransitionExpression(String mvelExpression) {
 		compiledTransitionExpression = MVEL.compileExpression(mvelExpression);
 	}
@@ -33,12 +30,10 @@ public class MvelTransition<TransitionInput> extends AbstractTransition<Transiti
 
 	@Override
 	public void onTransition(TransitionInput input) {
-		if(compiledTransitionExpression!=null) {
+		if(compiledTransitionExpression != null) {
 			MVEL.executeExpression(compiledValidityExpression);
 		}
 	}
 }
-
-
 
 

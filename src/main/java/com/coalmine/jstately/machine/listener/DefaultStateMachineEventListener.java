@@ -5,7 +5,7 @@ import com.coalmine.jstately.graph.state.State;
 import com.coalmine.jstately.graph.transition.Transition;
 import com.coalmine.jstately.machine.StateMachine;
 
-/** Convenience implementation of the {@link StateMachineEventListener} interface with no-op methods that can be overridden as needed. */
+/** Convenience implementation of {@link StateMachineEventListener} with no-op methods that can be overridden as needed. */
 public class DefaultStateMachineEventListener<TransitionInput> implements StateMachineEventListener<TransitionInput> {
 	@Override
 	public void beforeEvaluatingInput(TransitionInput input, StateMachine<?,TransitionInput> machine) { }

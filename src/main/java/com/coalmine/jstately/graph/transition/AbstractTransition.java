@@ -3,7 +3,7 @@ package com.coalmine.jstately.graph.transition;
 import com.coalmine.jstately.graph.state.State;
 
 
-/** Provides a basic Transition implementation with a head and description but no {@link #isValid(Object)} method. */
+/** Provides a basic Transition implementation with a head but no {@link #isValid(Object)} method. */
 public abstract class AbstractTransition<TransitionInput> implements Transition<TransitionInput> {
 	protected State<TransitionInput> head;
 

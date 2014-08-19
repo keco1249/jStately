@@ -7,7 +7,6 @@ import org.junit.Test;
 import com.coalmine.jstately.graph.transition.MvelTransition;
 
 
-
 public class MvelTransitionTest {
 	@Test
 	public void testIsValid() {
@@ -16,17 +15,18 @@ public class MvelTransitionTest {
 
 		assertTrue(transition.isValid(new TestInput("Testing", 15)));
 		assertFalse(transition.isValid(new TestInput("Unexpected value", 15)));
+		assertFalse(transition.isValid(new TestInput("Testing", 20)));
 	}
 
 
 	public static class TestInput {
-		private String	stringValue;
-		private int		intValue;
+		private String stringValue;
+		private int intValue;
 
 		public TestInput(String	stringValue, int intValue) {
-		this.stringValue = stringValue;
-		this.intValue = intValue;
-	}
+			this.stringValue = stringValue;
+			this.intValue = intValue;
+		}
 
 		public String getStringValue() {
 			return stringValue;

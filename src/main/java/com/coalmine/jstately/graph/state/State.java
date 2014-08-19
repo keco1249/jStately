@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.coalmine.jstately.graph.composite.CompositeState;
 
-/** Base representation of a state, with callbacks for when the state is entered and exited by a machine. */
+/** Representation of a state, with callbacks for when the state is entered and exited by a machine. */
 public interface State<TransitionInput> {
 	/** Implementors must always return a list. */
 	List<CompositeState<TransitionInput>> getComposites();

@@ -12,6 +12,9 @@ import com.google.common.collect.Multimap;
 
 /** Representation of a state graph/diagram. */
 public class StateGraph<TransitionInput> {
+	/** Key under which global transitions are stored in {@link #transitionsByTail}. */
+	private final State<TransitionInput> GLOBAL_TRANSITION_KEY = null;
+
 	private State<TransitionInput> startState;
 	private Multimap<State<TransitionInput>,Transition<TransitionInput>> transitionsByTail = HashMultimap.create();
 
@@ -44,14 +47,15 @@ public class StateGraph<TransitionInput> {
 		transitionsByTail.put(transition.getHead(),transition);
 	}
 
-	/** Adds a Transitions that maybe be evaluated (and traversed if valid) as a last resort, if no valid Transition is found for the given input from the current State or an ancestor CompositeState. */
+	/** Adds a Transitions that may be evaluated (and traversed if valid) as a last resort, if no valid
+	 * {@link Transition} is found for the given input from the current State or an ancestor CompositeState. */
 	public void addGlobalTransition(Transition<TransitionInput> transition) {
-		transitionsByTail.put(null, transition); // Store "global" transitions under null
+		transitionsByTail.put(GLOBAL_TRANSITION_KEY, transition);
 	}
 
 	/** Gets all of the graph's global Transitions as a Set. */
 	public Set<Transition<TransitionInput>> getGlobalTransitions() {
-		return new HashSet<Transition<TransitionInput>>(transitionsByTail.get(null));
+		return new HashSet<Transition<TransitionInput>>(transitionsByTail.get(GLOBAL_TRANSITION_KEY));
 	}
 
 	public Transition<TransitionInput> findFirstValidTransitionFromState(State<TransitionInput> tailState, TransitionInput input) {
