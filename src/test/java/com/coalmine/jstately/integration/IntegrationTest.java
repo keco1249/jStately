@@ -55,7 +55,7 @@ public class IntegrationTest {
 		transitionCD = new EqualityTransition<Integer>(stateD, 3);
 		graph.addTransition(stateC, transitionCD);
 
-		// Fist set of (nested) composites
+		// First set of (nested) composites
 		compositeX1 = new CompositeState<Integer>("First inner composite");
 		compositeX1.addState(stateB);
 		transitionX1A = new EqualityTransition<Integer>(stateA, 100);
