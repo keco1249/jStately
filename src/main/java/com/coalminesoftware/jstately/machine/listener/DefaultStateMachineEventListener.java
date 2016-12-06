@@ -40,5 +40,3 @@ public class DefaultStateMachineEventListener<TransitionInput> implements StateM
 	@Override
 	public void afterCompositeStateExited(CompositeState<TransitionInput> composite, StateMachine<?,TransitionInput> machine) { }
 }
-
-

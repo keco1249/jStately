@@ -26,5 +26,3 @@ public class EqualityTransitionTest {
 		assertFalse("Transition should not be valid", transition.isValid(1));
 	}
 }
-
-

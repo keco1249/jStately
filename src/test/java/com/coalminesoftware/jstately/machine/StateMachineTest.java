@@ -19,7 +19,6 @@ import com.coalminesoftware.jstately.test.TestStateMachineEventListener;
 import com.coalminesoftware.jstately.test.TwoStateStateGraph;
 import com.coalminesoftware.jstately.test.TwoStateStateGraphWithSubmachineState;
 
-
 public class StateMachineTest {
 	@Test(expected=IllegalStateException.class)
 	public void testStartWhenRunning() {
@@ -246,5 +245,3 @@ public class StateMachineTest {
 				machine.getState());
 	}
 }
-
-

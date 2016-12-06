@@ -16,13 +16,11 @@ import com.coalminesoftware.jstately.machine.StateMachine;
 import com.coalminesoftware.jstately.machine.listener.DefaultStateMachineEventListener;
 import com.coalminesoftware.jstately.machine.listener.StateMachineEventListener;
 
-
 /** {@link StateMachineEventListener} implementation for use in test cases.  This listener stores events that occur,
  * allowing users to assert that a certain sequence of events occurred, using {@link #assertEventsOccurred(Event...)}. */
 public class TestStateMachineEventListener<TransitionInput> extends DefaultStateMachineEventListener<TransitionInput> {
 	private List<Event> observedEvents = new ArrayList<>();
 	private Set<EventType> allowedEventTypes;
-
 
 	/** Creates a listener that records only the given events, or all events if none are provided. */
 	public TestStateMachineEventListener(EventType... allowedEventTypes) {
@@ -145,5 +143,3 @@ public class TestStateMachineEventListener<TransitionInput> extends DefaultState
 		logEvent(EventType.INPUT_EVALUATED, input, machine);
 	}
 }
-
-

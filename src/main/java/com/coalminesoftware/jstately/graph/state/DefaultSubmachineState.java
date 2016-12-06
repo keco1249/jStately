@@ -23,5 +23,3 @@ public class DefaultSubmachineState<TransitionInput> extends DefaultState<Transi
 		this.stateGraph = stateGraph;
 	}
 }
-
-

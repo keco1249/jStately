@@ -110,5 +110,3 @@ public class StateGraphTest {
 				graph.findFirstValidTransitionFromState(state, null));
 	}
 }
-
-

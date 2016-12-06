@@ -22,12 +22,11 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 	protected StateMachine<TransitionInput,TransitionInput> submachine;
 
-
 	public StateMachine() { }
 
 	public StateMachine(StateGraph<TransitionInput> stateGraph, InputAdapter<MachineInput,TransitionInput> inputAdapter) {
-		this.stateGraph		= stateGraph;
-		this.inputAdapter	= inputAdapter;
+		this.stateGraph = stateGraph;
+		this.inputAdapter = inputAdapter;
 	}
 
 	/** Initialize the machine to its start state, calling its {@link State#onEnter()} method.
@@ -55,14 +54,16 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return currentState != null;
 	}
 
-	/** Provides the input to the machine's {@link InputAdapter} and evaluates the resulting transition input(s).
+	/**
+	 * Provides the input to the machine's {@link InputAdapter} and evaluates the resulting transition input(s).
 	 * For each transition input, the machine follows the first transition that is valid according to its
 	 * {@link Transition#isValid(Object)} implementation.
 	 * 
 	 * @param machineInput Machine input from which Transition inputs are generated to evaluate.
 	 * @return Whether any of the machine input's subsequent transition inputs were ignored (i.e.,
 	 * no valid transition was found) while evaluating.
-	 * @throws IllegalStateException Thrown if no {@link InputAdapter} has been set. */
+	 * @throws IllegalStateException Thrown if no {@link InputAdapter} has been set.
+	 */
 	public boolean evaluateInput(MachineInput machineInput) {
 		if(inputAdapter==null) {
 			throw new IllegalStateException("No InputAdapter specified prior to calling evaluateInput()");
@@ -366,5 +367,3 @@ public class StateMachine<MachineInput,TransitionInput> {
 		eventListeners.remove(eventListener);
 	}
 }
-
-

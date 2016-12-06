@@ -11,13 +11,11 @@ public class DefaultState<TransitionInput> implements State<TransitionInput> {
 	private String description;
 	private List<CompositeState<TransitionInput>> composites = new ArrayList<>();
 
-
 	public DefaultState() { }
 
 	public DefaultState(String description) {
 		this.description = description;
 	}
-
 
 	public void onEnter() { }
 
@@ -44,7 +42,3 @@ public class DefaultState<TransitionInput> implements State<TransitionInput> {
 		return super.toString()+"[description="+getDescription()+"]";
 	}
 }
-
-
-
-

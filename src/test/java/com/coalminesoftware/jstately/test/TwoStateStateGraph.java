@@ -25,5 +25,3 @@ public class TwoStateStateGraph extends StateGraph<Object> {
 		return secondState;
 	}
 }
-
-

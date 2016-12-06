@@ -7,13 +7,11 @@ import com.coalminesoftware.jstately.graph.state.State;
 public abstract class AbstractTransition<TransitionInput> implements Transition<TransitionInput> {
 	protected State<TransitionInput> head;
 
-
 	public AbstractTransition() { }
 
 	public AbstractTransition(State<TransitionInput> head) {
 		this.head = head;
 	}
-
 
 	public State<TransitionInput> getHead() {
 		return head;
@@ -29,5 +27,3 @@ public abstract class AbstractTransition<TransitionInput> implements Transition<
 		return super.toString()+"[head="+head.toString()+"]";
 	}
 }
-
-

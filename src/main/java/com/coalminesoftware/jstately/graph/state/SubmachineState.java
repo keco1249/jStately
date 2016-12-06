@@ -10,5 +10,3 @@ import com.coalminesoftware.jstately.graph.StateGraph;
 public interface SubmachineState <InputType> extends State<InputType> {
 	StateGraph<InputType> getStateGraph();
 }
-
-

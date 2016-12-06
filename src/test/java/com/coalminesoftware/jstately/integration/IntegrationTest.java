@@ -135,5 +135,3 @@ public class IntegrationTest {
 		listener.assertEventOccurred(Event.forTransitionFollowed(transitionXA));
 	}
 }
-
-

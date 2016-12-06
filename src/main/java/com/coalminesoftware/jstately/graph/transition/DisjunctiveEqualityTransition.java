@@ -9,7 +9,6 @@ import com.coalminesoftware.jstately.graph.state.State;
 public class DisjunctiveEqualityTransition<TransitionInput> extends AbstractTransition<TransitionInput> implements Transition<TransitionInput> {
 	private Set<TransitionInput> validInputs;
 
-
 	public DisjunctiveEqualityTransition() { }
 
 	public DisjunctiveEqualityTransition(State<TransitionInput> head, Set<TransitionInput> validInputs) {
@@ -32,5 +31,3 @@ public class DisjunctiveEqualityTransition<TransitionInput> extends AbstractTran
 		return validInputs.contains(input);
 	}
 }
-
-

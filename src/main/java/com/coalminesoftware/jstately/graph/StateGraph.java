@@ -17,10 +17,10 @@ public class StateGraph<TransitionInput> {
 	private State<TransitionInput> startState;
 	private Multimap<State<TransitionInput>,Transition<TransitionInput>> transitionsByTail = new Multimap<>();
 
-
 	public State<TransitionInput> getStartState() {
 		return startState;
 	}
+
 	public void setStartState(State<TransitionInput> startState) {
 		if(startState instanceof FinalState) {
 			throw new IllegalArgumentException("A graph's start state cannot be a final state.");
@@ -46,8 +46,8 @@ public class StateGraph<TransitionInput> {
 		transitionsByTail.put(transition.getHead(),transition);
 	}
 
-	/** Adds a Transitions that may be evaluated (and traversed if valid) as a last resort, if no valid
-	 * {@link Transition} is found for the given input from the current State or an ancestor CompositeState. */
+	/** Adds a transitions that will be evaluated if no valid transition is found for the given
+	 * input from the current state or enclosing CompositeState. */
 	public void addGlobalTransition(Transition<TransitionInput> transition) {
 		transitionsByTail.put(GLOBAL_TRANSITION_KEY, transition);
 	}
@@ -87,7 +87,3 @@ public class StateGraph<TransitionInput> {
 	/** Called when the machine operating on the graph starts. */
 	public void onStart() {}
 }
-
-
-
-

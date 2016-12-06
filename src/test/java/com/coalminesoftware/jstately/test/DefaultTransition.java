@@ -3,7 +3,6 @@ package com.coalminesoftware.jstately.test;
 import com.coalminesoftware.jstately.graph.state.State;
 import com.coalminesoftware.jstately.graph.transition.Transition;
 
-
 /** Default no-op Transition implementation for testing purposes only, when you need a Transition
  * but the implementation isn't important. The transition's validity is set to a fixed value. */
 public class DefaultTransition<TransitionInput> implements Transition<TransitionInput> {
@@ -38,5 +37,3 @@ public class DefaultTransition<TransitionInput> implements Transition<Transition
 	@Override
 	public void onTransition(TransitionInput input) { }
 }
-
-

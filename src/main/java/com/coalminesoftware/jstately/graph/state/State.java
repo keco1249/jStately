@@ -16,5 +16,3 @@ public interface State<TransitionInput> {
 	/** Called by a state machine when the machine exits the state. */
 	void onExit();
 }
-
-

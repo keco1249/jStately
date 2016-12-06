@@ -46,5 +46,3 @@ public interface StateMachineEventListener<TransitionInput> {
 	/** Called after exiting a CompositeState of a state graph. */
 	void afterCompositeStateExited(CompositeState<TransitionInput> composite, StateMachine<?,TransitionInput> machine);
 }
-
-

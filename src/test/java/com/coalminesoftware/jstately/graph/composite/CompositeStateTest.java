@@ -128,5 +128,3 @@ public class CompositeStateTest {
 				compositeState.findValidTransitions(null));
 	}
 }
-
-

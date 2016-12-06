@@ -73,5 +73,3 @@ public class ConsoleStateMachineEventListener<TransitionInput> implements StateM
 		System.out.println("After exiting composite state ("+composite+") on machine ("+machine+")");
 	}
 }
-
-

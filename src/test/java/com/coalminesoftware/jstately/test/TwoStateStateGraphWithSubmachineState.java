@@ -27,5 +27,3 @@ public class TwoStateStateGraphWithSubmachineState extends StateGraph<Object> {
 		return secondState;
 	}
 }
-
-

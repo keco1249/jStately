@@ -21,6 +21,12 @@ public class CompositeState<TransitionInput> {
 		this.description = description;
 	}
 
+	public CompositeState(String description, State<TransitionInput>... states) {
+		this(description);
+
+		addStates(states);
+	}
+
 	public void addComposite(CompositeState<TransitionInput> composite) {
 		composite.setParent(this);
 	}
@@ -88,5 +94,3 @@ public class CompositeState<TransitionInput> {
 		return super.toString()+"[description="+description+"]";
 	}
 }
-
-

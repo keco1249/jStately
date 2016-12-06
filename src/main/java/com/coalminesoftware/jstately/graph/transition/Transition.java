@@ -23,5 +23,3 @@ public interface Transition<TransitionInput> {
 	 * @param input Input that caused the transition. */
 	void onTransition(TransitionInput input);
 }
-
-

@@ -15,5 +15,3 @@ public interface InputAdapter<MachineInput,TransitionInput> {
 	boolean hasNext();
 	TransitionInput next();
 }
-
-

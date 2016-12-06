@@ -22,5 +22,3 @@ public class DefaultFinalState<Result> extends DefaultState<Result> implements F
 		this.result = result;
 	}
 }
-
-

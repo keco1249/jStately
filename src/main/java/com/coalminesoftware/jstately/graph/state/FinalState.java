@@ -6,5 +6,3 @@ package com.coalminesoftware.jstately.graph.state;
 public interface FinalState<Result> extends State<Result> {
 	Result getResult();
 }
-
-

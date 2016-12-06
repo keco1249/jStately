@@ -18,5 +18,3 @@ public enum EventType {
 		ALL_TYPES_EXCEPT_INPUT_VALIDATION = allTypesExceptInputValidation.toArray(new EventType[allTypesExceptInputValidation.size()]);
 	}
 }
-
-

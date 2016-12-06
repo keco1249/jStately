@@ -20,5 +20,3 @@ public class DefaultInputAdapter<InputType> implements InputAdapter<InputType,In
 		return queue.poll();
 	}
 }
-
-

@@ -10,7 +10,6 @@ public class Event {
 	private Object value;
 	private StateMachine<?,Object> machine;
 
-
 	protected Event(EventType type, Object value, StateMachine<?,Object> machine) {
 		this.type = type;
 		this.value = value;
@@ -28,7 +27,6 @@ public class Event {
 	public StateMachine<?, Object> getMachine() {
 		return machine;
 	}
-
 
 	public static Event forInputEvaluated(Object input, StateMachine<?,Object> machine) {
 		return new Event(EventType.INPUT_EVALUATED, input, machine);
@@ -91,5 +89,3 @@ public class Event {
 		return super.toString()+"[type="+type.name()+",value="+value+",machine="+machine+"]";
 	}
 }
-
-

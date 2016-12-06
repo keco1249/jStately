@@ -19,5 +19,3 @@ public class DisjunctiveEqualityTransitionTest {
 		assertFalse("Transition should be valid for an input in its set of valid inputs", transition.isValid(null));
 	}
 }
-
-
