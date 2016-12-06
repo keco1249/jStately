@@ -29,9 +29,11 @@ public class StateMachine<MachineInput,TransitionInput> {
 		this.inputAdapter = inputAdapter;
 	}
 
-	/** Initialize the machine to its start state, calling its {@link State#onEnter()} method.
+	/**
+	 * Initialize the machine to its start state, calling its {@link State#onEnter()} method.
 	 * 
-	 * @throws IllegalStateException thrown if no start state was specified or if the machine has already been started. */
+	 * @throws IllegalStateException thrown if no start state was specified or if the machine has already been started.
+	 */
 	@SuppressWarnings("unchecked")
 	public void start() {
 		if(hasStarted()) {
@@ -58,6 +60,9 @@ public class StateMachine<MachineInput,TransitionInput> {
 	 * Provides the input to the machine's {@link InputAdapter} and evaluates the resulting transition input(s).
 	 * For each transition input, the machine follows the first transition that is valid according to its
 	 * {@link Transition#isValid(Object)} implementation.
+	 * <p>
+	 * Note that recursive evaluation is not supported. If, while evaluating an input, transitioning causes another
+	 * input to be evaluated immediately, the behavior is undefined.
 	 * 
 	 * @param machineInput Machine input from which Transition inputs are generated to evaluate.
 	 * @return Whether any of the machine input's subsequent transition inputs were ignored (i.e.,
