@@ -4,11 +4,11 @@
 
 	<groupId>com.coalminesoftware</groupId>
 	<artifactId>jstately</artifactId>
-	<version>1.1.1</version>
+	<version>1.2.0</version>
 	<packaging>jar</packaging>
 
 	<name>jStately</name>
-	<url>http://www.coalminesoftware.com/</url>
+	<url>https://github.com/CoalMineSoftware/jStately</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,7 +25,14 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>[4,)</version>
+			<version>[4.12,)</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>[2.6,)</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

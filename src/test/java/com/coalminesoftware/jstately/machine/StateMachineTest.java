@@ -3,6 +3,7 @@ package com.coalminesoftware.jstately.machine;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.util.Arrays;
 
@@ -22,40 +23,26 @@ import com.coalminesoftware.jstately.test.TwoStateStateGraphWithSubmachineState;
 public class StateMachineTest {
 	@Test(expected=IllegalStateException.class)
 	public void testStartWhenRunning() {
-		StateMachine<Object,Object> machine = new StateMachine<>();
+		StateMachine<Object,Object> machine = newStateMachineWithMocks();
 		machine.overrideState(new DefaultState<>());
-
-		machine.start();
-	}
-
-	@Test(expected=IllegalStateException.class)
-	public void testStartWithoutGraph() {
-		StateMachine<Object,Object> machine = new StateMachine<>();
 
 		machine.start();
 	}
 
 	@Test(expected=IllegalStateException.class)
 	public void testStartWithoutGraphStartState() {
-		StateMachine<Object,Object> machine = new StateMachine<>();
-		machine.setStateGraph(new StateGraph<>());
+		StateMachine<Object,Object> machine = new StateMachine<>(new StateGraph<>(), mockAdapter());
 
 		machine.start();
 	}
 
 	@Test
 	public void testHasStarted() {
-		StateMachine<Object,Object> machine = new StateMachine<>();
+		StateMachine<Object,Object> machine = newStateMachineWithMocks();
 		assertFalse(machine.hasStarted());
 
 		machine.overrideState(new DefaultState<>());
 		assertTrue(machine.hasStarted());
-	}
-
-	@Test(expected=IllegalStateException.class)
-	public void testEvaluateInputWithoutInputAdapter() {
-		StateMachine<Object,Object> machine = new StateMachine<>();
-		machine.evaluateInput(null);
 	}
 
 	@Test
@@ -116,7 +103,7 @@ public class StateMachineTest {
 
 	@Test(expected=IllegalStateException.class)
 	public void testFindFirstValidTransitionFromCurrentStatePriorToStarting() {
-		StateMachine<Object,Object> machine = new StateMachine<>();
+		StateMachine<Object,Object> machine = newStateMachineWithMocks();
 
 		machine.findFirstValidTransitionFromCurrentState(null);
 	}
@@ -243,5 +230,17 @@ public class StateMachineTest {
 		assertEquals("Machine expected to have transitioned",
 				stateA,
 				machine.getState());
+	}
+
+	private static StateMachine<Object, Object> newStateMachineWithMocks() {
+		return new StateMachine<>(mockGraph(), mockAdapter());
+	}
+
+	private static StateGraph<Object> mockGraph() {
+		return mock(StateGraph.class);
+	}
+
+	private static InputAdapter<Object, Object> mockAdapter() {
+		return mock(InputAdapter.class);
 	}
 }

@@ -91,8 +91,8 @@ public class TestStateMachineEventListener<TransitionInput> extends DefaultState
 	private boolean eventAreEqual(boolean ignoreMachine, Event firstEvent, Event secondEvent) {
 		boolean typesEqual = firstEvent.getType().equals(secondEvent.getType());
 
-		boolean valuesEqual = firstEvent.getValue()==null?
-				secondEvent.getValue()==null :
+		boolean valuesEqual = firstEvent.getValue() == null?
+				secondEvent.getValue() == null :
 				firstEvent.getValue().equals(secondEvent.getValue());
 
 		boolean machinesEqual = ignoreMachine ||

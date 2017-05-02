@@ -9,7 +9,7 @@ import java.util.Set;
 public final class CollectionUtil {
 	private CollectionUtil() { }
 
-	/** @return A mutable Set with the given values. */
+	/** @return A mutable Set populated with the given values. */
 	public static <T> Set<T> asMutableSet(T... values) {
 		Set<T> valueSet = new HashSet<>();
 		for(T value : values) {

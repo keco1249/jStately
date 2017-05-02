@@ -14,8 +14,8 @@ public class EqualityTransition<TransitionInput> extends AbstractTransition<Tran
 	}
 
 	public boolean isValid(TransitionInput input) {
-		return validInput==null?
-				input==null :
+		return validInput == null?
+				input == null :
 				validInput.equals(input);
 	}
 

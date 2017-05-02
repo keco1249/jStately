@@ -13,6 +13,9 @@ import com.coalminesoftware.jstately.graph.state.SubmachineState;
 import com.coalminesoftware.jstately.graph.transition.Transition;
 import com.coalminesoftware.jstately.machine.listener.StateMachineEventListener;
 
+import static com.coalminesoftware.jstately.validation.Validation.assertFieldNotNull;
+import static com.coalminesoftware.jstately.validation.Validation.assertParameterNotNull;
+
 /** Representation of a basic state machine. */
 public class StateMachine<MachineInput,TransitionInput> {
 	protected StateGraph<TransitionInput> stateGraph;
@@ -22,9 +25,10 @@ public class StateMachine<MachineInput,TransitionInput> {
 
 	protected StateMachine<TransitionInput,TransitionInput> submachine;
 
-	public StateMachine() { }
-
 	public StateMachine(StateGraph<TransitionInput> stateGraph, InputAdapter<MachineInput,TransitionInput> inputAdapter) {
+		assertParameterNotNull("A state graph is required", stateGraph);
+		assertParameterNotNull("An input adapter is required", inputAdapter);
+
 		this.stateGraph = stateGraph;
 		this.inputAdapter = inputAdapter;
 	}
@@ -35,16 +39,12 @@ public class StateMachine<MachineInput,TransitionInput> {
 	 * @throws IllegalStateException thrown if no start state was specified or if the machine has already been started.
 	 */
 	@SuppressWarnings("unchecked")
-	public void start() {
+	public synchronized void start() {
 		if(hasStarted()) {
 			throw new IllegalStateException("Machine has already started.");
 		}
-		if(stateGraph == null) {
-			throw new IllegalStateException("No state graph specified.");
-		}
-		if(stateGraph.getStartState()==null) {
-			throw new IllegalStateException("No start state specified.");
-		}
+
+		assertFieldNotNull("No start state set prior to starting.", stateGraph.getStartState());
 
 		stateGraph.onStart();
 
@@ -52,7 +52,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 	}
 
 	/** @return Whether the machine has a current state. */
-	public boolean hasStarted() {
+	public synchronized boolean hasStarted() {
 		return currentState != null;
 	}
 
@@ -69,11 +69,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 	 * no valid transition was found) while evaluating.
 	 * @throws IllegalStateException Thrown if no {@link InputAdapter} has been set.
 	 */
-	public boolean evaluateInput(MachineInput machineInput) {
-		if(inputAdapter==null) {
-			throw new IllegalStateException("No InputAdapter specified prior to calling evaluateInput()");
-		}
-
+	public synchronized boolean evaluateInput(MachineInput machineInput) {
 		boolean inputIgnored = false;
 		inputAdapter.queueInput(machineInput);
 		while(inputAdapter.hasNext()) {
@@ -118,20 +114,22 @@ public class StateMachine<MachineInput,TransitionInput> {
 		return inputIgnored;
 	}
 
-	public Transition<TransitionInput> findFirstValidTransitionFromCurrentState(TransitionInput input) {
+	public synchronized Transition<TransitionInput> findFirstValidTransitionFromCurrentState(TransitionInput input) {
 		if(!hasStarted()) {
 			throw new IllegalStateException("Machine has not started.");
 		}
 		return stateGraph.findFirstValidTransitionFromState(currentState, input);
 	}
 
-	/** Follows the given transition without checking its validity.  In the process, it calls {@link State#onExit()}
-	 * on the current state, followed by {@link Transition#onTransition()} on the given transition, followed by
+	/**
+	 * Follows the given transition without checking its validity.  In the process, it calls {@link State#onExit()} on
+	 * the current state, followed by {@link Transition#onTransition(Object)} on the given transition, followed by
 	 * {@link State#onEnter()} on the machine's updated current state.
 	 * 
 	 * @param transition Transition to follow.
 	 * @param input The input that caused the transition to occur
-	 * @throws IllegalArgumentException thrown if the StateMachine has not started */
+	 * @throws IllegalArgumentException thrown if the StateMachine has not started
+	 */
 	@SuppressWarnings("unchecked")
 	protected void transition(Transition<TransitionInput> transition, TransitionInput input) {
 		if(!hasStarted()) {
@@ -151,14 +149,14 @@ public class StateMachine<MachineInput,TransitionInput> {
 		enterState(previousState, transition.getHead());
 	}
 
-	/** Exits the machine's current state and enters the given state.  Explicitly setting the machine's state should
+	/**
+	 * Exits the machine's current state and enters the given state.  Explicitly setting the machine's state should
 	 * generally be avoided in favor of evaluating inputs.  However, this method is useful if, for example, your state
 	 * machine corresponds to some external system/process that has changed and your application needs to get back in
-	 * sync with it. */
-	public void transition(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
-		if(newState == null) {
-			throw new IllegalArgumentException("New state cannot be null.");
-		}
+	 * sync with it.
+	 */
+	public synchronized void transition(State<TransitionInput> newState, State<TransitionInput>... submachineStates) {
+		assertParameterNotNull("New state cannot be null.", newState);
 
 		State<TransitionInput> previousState = exitCurrentState(newState, submachineStates);
 		enterState(previousState, newState, submachineStates);
@@ -171,7 +169,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 		// path does not include this state, or the destination is this specific state without a nested state.
 		// Similarly, this method only (re-)enters the given state if currentState was set to null by exitCurrentState().
 
-		if(currentState==null || !currentState.equals(newState)) {
+		if(currentState == null || !currentState.equals(newState)) {
 			for(CompositeState<TransitionInput> composite : determineCompositesBeingEntered(previousState, newState)) {
 				enterCompositeState(composite);
 			}
@@ -209,7 +207,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 	 * @return A list of CompositeStates being entered in order they are being entered (from the root CompositeState to nested ones.) */
 	private List<CompositeState<TransitionInput>> determineCompositesBeingEntered(State<TransitionInput> oldState, State<TransitionInput> newState) {
 		List<CompositeState<TransitionInput>> newStateComposites = collectCompositeStates(newState);
-		if(oldState==null) {
+		if(oldState == null) {
 			return newStateComposites;
 		}
 
@@ -222,7 +220,7 @@ public class StateMachine<MachineInput,TransitionInput> {
 	 * @return A list of CompositeStates being exited in order they are being exist (from the State's immediate CompositeState to its root CompositeState.) */
 	private List<CompositeState<TransitionInput>> determineCompositeStatesBeingExited(State<TransitionInput> oldState, State<TransitionInput> newState) {
 		List<CompositeState<TransitionInput>> oldStateComposites = collectCompositeStates(oldState);
-		if(newState==null) {
+		if(newState == null) {
 			return CollectionUtil.reverse(oldStateComposites);
 		}
 
@@ -307,13 +305,13 @@ public class StateMachine<MachineInput,TransitionInput> {
 	}
 
 	private State<TransitionInput> getFirstState(State<TransitionInput>[] states) {
-		return states.length==0?
+		return states.length == 0?
 				null :
 				states[0];
 	}
 
 	private State<TransitionInput>[] getRemainingStates(State<TransitionInput>[] states) {
-		return states.length==0?
+		return states.length == 0?
 				states :
 				Arrays.copyOfRange(states, 1, states.length);
 	}
@@ -321,22 +319,19 @@ public class StateMachine<MachineInput,TransitionInput> {
 	public StateGraph<TransitionInput> getStateGraph() {
 		return stateGraph;
 	}
-	public void setStateGraph(StateGraph<TransitionInput> stateGraph) {
-		this.stateGraph = stateGraph;
-	}
 
 	public InputAdapter<MachineInput,TransitionInput> getInputAdapter() {
 		return inputAdapter;
 	}
-	public void setInputAdapter(InputAdapter<MachineInput,TransitionInput> inputAdapter) {
-		this.inputAdapter = inputAdapter;
-	}
 
-	/** Returns the state of the machine, including the state of any submachines that may be running.  The first State
-	 * returned is that of machine on which getState() is being called, followed by the state of nested machines.
-	 * 
-	 * @see #getState() */
-	public List<State<TransitionInput>> getStates() {
+	/**
+	 * Returns the state of the machine, including the state of any submachines that may be running.  The first
+	 * {@link State} in the list is that of the machine on which getStates() is being called, followed by the state of
+	 * nested machines.
+	 * <p>
+	 * For graphs not using {@link SubmachineState}s, it may be more convenient to use {@link #getState()}.
+	 */
+	public synchronized List<State<TransitionInput>> getStates() {
 		List<State<TransitionInput>> states = new ArrayList<>();
 		return appendCurrentState(states);
 	}
@@ -345,14 +340,14 @@ public class StateMachine<MachineInput,TransitionInput> {
 	private List<State<TransitionInput>> appendCurrentState(List<State<TransitionInput>> states) {
 		states.add(currentState);
 
-		return submachine==null?
+		return submachine == null?
 				states :
 				submachine.appendCurrentState(states);
 	}
 
 	/** Gets only the State of the machine, without the state of any SubmachineStates that may be running.
 	 * @see #getStates() */
-	public State<TransitionInput> getState() {
+	public synchronized State<TransitionInput> getState() {
 		return currentState;
 	}
 

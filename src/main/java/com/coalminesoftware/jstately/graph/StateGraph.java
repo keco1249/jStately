@@ -33,14 +33,14 @@ public class StateGraph<TransitionInput> {
 	}
 
 	public void addTransition(State<TransitionInput> transitionTail, Transition<TransitionInput> transition) {
-		if(transitionTail==null) {
+		if(transitionTail == null) {
 			throw new IllegalArgumentException("Tail cannot be be null.");
 		}
 		transitionsByTail.put(transitionTail,transition);
 	}
 
 	public void addSelfTransition(Transition<TransitionInput> transition) {
-		if(transition.getHead()==null) {
+		if(transition.getHead() == null) {
 			throw new IllegalArgumentException("A Transition's head/tail cannot be be null.");
 		}
 		transitionsByTail.put(transition.getHead(),transition);
